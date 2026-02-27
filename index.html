@@ -357,13 +357,6 @@
     select option { background: var(--slate-800); color: var(--slate-200); }
     .filter-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
     
-    .history-table { width: 100%; border-collapse: collapse; }
-    .history-table th, .history-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--white-10); }
-    .history-table th { background: linear-gradient(135deg, var(--cyan-500), var(--teal-500)); color: white; font-weight: 700; }
-    .history-table th:first-child { border-radius: 10px 0 0 0; }
-    .history-table th:last-child { border-radius: 0 10px 0 0; }
-    .history-table tr:hover td { background: var(--white-05); }
-    
     .no-data { text-align: center; padding: 4rem 2rem; color: var(--slate-400); }
     .no-data-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
     .chart-wrapper { position: relative; height: 300px; }
@@ -389,11 +382,9 @@
         <div class="logo-icon">
           <div class="logo-box">
             <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Spyglass -->
               <ellipse cx="30" cy="28" rx="14" ry="14" stroke="white" stroke-width="4" fill="none"/>
               <line x1="40" y1="38" x2="58" y2="56" stroke="white" stroke-width="5" stroke-linecap="round"/>
               <rect x="54" y="52" width="8" height="16" rx="2" fill="white" transform="rotate(45 58 60)"/>
-              <!-- Sailboat -->
               <path d="M50 50 L50 80 L75 80 L50 50Z" fill="white" opacity="0.9"/>
               <path d="M50 50 L50 80 L30 80 L50 50Z" fill="white" opacity="0.7"/>
               <path d="M20 82 Q50 76 80 82 L85 88 Q50 84 15 88 Z" fill="white"/>
@@ -431,14 +422,6 @@
     <div id="podium" class="tab-content active">
       <div class="card"><div class="card-title">🏆 Top Performers</div><div id="podiumContent"></div></div>
       <div class="card"><div class="card-title">Complete Rankings</div><div id="quickRankings"></div></div>
-    </div>
-    
-    <div id="radar" class="tab-content">
-      <div class="card">
-        <div class="card-title">🔥 Performance Heat Map</div>
-        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Scores by category (green = strong, red = needs improvement)</p>
-        <div class="heatmap-container"><table class="heatmap" id="heatmapTable"></table></div>
-      </div>
     </div>
     
     <div id="radar" class="tab-content">
@@ -551,13 +534,13 @@
     };
 
     const METRIC_ROW_MAP = {
-      healthInspections: 4, qmRating: 5, rehospitalization: 6, dischargeFunctional: 7,
-      occupancy: 10, medicareCensus: 11, skilledMix: 12,
-      badDebt: 15, dso: 16,
-      noi: 19, labor: 20, otdt: 21, budgetVariance: 22, rehabProductivity: 23,
-      turnover: 26, workerSafety: 27,
-      admissionPacket: 30, arbitration: 31, substandardQoc: 32,
-      googleRating: 35, yelpRating: 36, legalClaims: 37
+      healthInspections: 2, qmRating: 3, rehospitalization: 4, dischargeFunctional: 5,
+      occupancy: 8, medicareCensus: 9, skilledMix: 10,
+      badDebt: 13, dso: 14,
+      noi: 17, labor: 18, otdt: 19, budgetVariance: 20, rehabProductivity: 21,
+      turnover: 24, workerSafety: 25,
+      admissionPacket: 28, arbitration: 29, substandardQoc: 30,
+      googleRating: 33, yelpRating: 34, legalClaims: 35
     };
 
     const COLORS = {
@@ -615,28 +598,47 @@
     function processFile(file) {
       const reader = new FileReader();
       reader.onload = e => {
-        const wb = XLSX.read(e.target.result, { type: 'array' });
-        const sheet = wb.Sheets['Monthly Data'] || wb.Sheets['September'] || wb.Sheets[wb.SheetNames[0]];
-        if (!sheet) { alert('Invalid file format'); return; }
-        const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        const month = data[1] ? (data[1][2] || new Date().toLocaleDateString('en-US', {month:'long', year:'numeric'})) : 'Unknown';
-        const buildingData = {};
-        BUILDINGS.forEach((b, i) => {
-          const col = i + 2;
-          const metrics = {};
-          Object.entries(METRIC_ROW_MAP).forEach(([key, row]) => {
-            const val = data[row - 1] ? data[row - 1][col] : null;
-            metrics[key] = val !== undefined && val !== '' ? parseFloat(val) : null;
+        try {
+          const wb = XLSX.read(e.target.result, { type: 'array' });
+          const sheetName = wb.SheetNames.find(n => n === 'September' || n === 'October' || n === 'November' || n === 'Monthly Data') || wb.SheetNames[0];
+          const sheet = wb.Sheets[sheetName];
+          if (!sheet) { alert('Cannot read sheet'); return; }
+          
+          const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          console.log('Sheet data:', data);
+          
+          const month = sheetName || new Date().toLocaleDateString('en-US', {month:'long', year:'numeric'});
+          
+          const buildingData = {};
+          BUILDINGS.forEach((b, i) => {
+            const col = i + 3;
+            const metrics = {};
+            Object.entries(METRIC_ROW_MAP).forEach(([key, row]) => {
+              const rowData = data[row];
+              const val = rowData ? rowData[col] : null;
+              metrics[key] = (val !== undefined && val !== '' && val !== null) ? parseFloat(val) : null;
+            });
+            buildingData[b.name] = metrics;
           });
-          buildingData[b.name] = metrics;
-        });
-        const scores = calculateScores(buildingData);
-        const entry = { month, date: new Date().toISOString(), buildingData, scores };
-        const idx = allData.findIndex(d => d.month === month);
-        if (idx >= 0) allData[idx] = entry; else allData.push(entry);
-        localStorage.setItem('spyglassData', JSON.stringify(allData));
-        currentData = entry;
-        updateAllDisplays();
+          
+          console.log('Building data:', buildingData);
+          
+          const scores = calculateScores(buildingData);
+          console.log('Scores:', scores);
+          
+          const entry = { month, date: new Date().toISOString(), buildingData, scores };
+          
+          const idx = allData.findIndex(d => d.month === month);
+          if (idx >= 0) allData[idx] = entry; else allData.push(entry);
+          
+          localStorage.setItem('spyglassData', JSON.stringify(allData));
+          currentData = entry;
+          updateAllDisplays();
+          alert('Data loaded successfully for ' + month + '!');
+        } catch (err) {
+          console.error('Error processing file:', err);
+          alert('Error processing file: ' + err.message);
+        }
       };
       reader.readAsArrayBuffer(file);
     }
@@ -709,31 +711,6 @@
       `).join('')}</div>`;
     }
 
-    function renderRegionalRankings() {
-      if (!currentData) return;
-      const ranked = getRanked();
-      const gc = ranked.filter(r => r.region === 'Golden Coast');
-      const ol = ranked.filter(r => r.region === 'Overland');
-      const renderList = (list) => `<div class="rankings-list">${list.map((r, i) => `
-        <div class="rank-item"><span class="rank-num">${i + 1}</span><div><span class="rank-name">${r.name}</span></div>
-        <div class="rank-bar"><div class="rank-bar-fill" style="width:${(r.score/list[0].score)*100}%"></div></div><span class="rank-score">${r.score.toFixed(1)}</span></div>
-      `).join('')}</div>`;
-      document.getElementById('gcRankings').innerHTML = renderList(gc);
-      document.getElementById('olRankings').innerHTML = renderList(ol);
-    }
-
-    function renderDistributionChart() {
-      if (!currentData) return;
-      const ctx = document.getElementById('distributionChart').getContext('2d');
-      if (charts.distribution) charts.distribution.destroy();
-      const ranked = getRanked();
-      charts.distribution = new Chart(ctx, {
-        type: 'bar',
-        data: { labels: ranked.map(r => r.name), datasets: [{ label: 'Total Score', data: ranked.map(r => r.score), backgroundColor: ranked.map((r, i) => COLORS.buildings[i % 17]), borderRadius: 6 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 }}}, y: { beginAtZero: true, title: { display: true, text: 'Score' }}}}
-      });
-    }
-
     function renderHeatMap() {
       if (!currentData) return;
       const ranked = getRanked();
@@ -789,16 +766,6 @@
       charts.regional = new Chart(ctx, { type: 'bar', data: { labels: catKeys.map(k => CATEGORIES[k].name), datasets: [{ label: 'Golden Coast', data: gcAvg, backgroundColor: COLORS.gc, borderRadius: 6 }, { label: 'Overland', data: olAvg, backgroundColor: COLORS.ol, borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { y: { beginAtZero: true, max: 100 }}}});
     }
 
-    function renderCategoryCards() {
-      if (!currentData) return;
-      const ranked = getRanked();
-      document.getElementById('categoryCards').innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => {
-        const catRanked = [...ranked].sort((a, b) => b.categories[key] - a.categories[key]);
-        return `<div class="card"><div class="card-title" style="justify-content:space-between"><span>${cat.name}</span><span style="background:linear-gradient(135deg,#22d3ee,#14b8a6);color:white;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem">${(cat.weight*100).toFixed(0)}%</span></div>
-        <div class="rankings-list">${catRanked.slice(0,5).map((r, i) => `<div class="rank-item" style="grid-template-columns:30px 1fr 50px"><span class="rank-num" style="font-size:0.9rem">${i+1}</span><span style="font-size:0.9rem;color:var(--slate-200)">${r.name}</span><span class="rank-score" style="font-size:0.9rem">${r.categories[key].toFixed(0)}</span></div>`).join('')}</div></div>`;
-      }).join('');
-    }
-
     function renderBuildingDetail(name) {
       if (!name || !currentData) { document.getElementById('buildingContent').innerHTML = '<div class="no-data"><div class="no-data-icon">🏢</div><p>Select a building</p></div>'; return; }
       const building = BUILDINGS.find(b => b.name === name);
@@ -824,13 +791,6 @@
       if (allData.length < 2) { charts.catTrends = new Chart(ctx, { type: 'line', data: { labels: ['Need more data'], datasets: [] }}); return; }
       const catKeys = Object.keys(CATEGORIES);
       charts.catTrends = new Chart(ctx, { type: 'line', data: { labels: allData.map(d => d.month), datasets: catKeys.map((k, i) => ({ label: CATEGORIES[k].name, data: allData.map(d => { const avg = BUILDINGS.reduce((s, b) => s + d.scores[b.name].categories[k], 0) / BUILDINGS.length; return avg; }), borderColor: COLORS.buildings[i], backgroundColor: 'transparent', tension: 0.3 })) }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }}, scales: { y: { beginAtZero: true, max: 100 }}}});
-    }
-
-    function renderHistory() {
-      if (allData.length === 0) { document.getElementById('historyContent').innerHTML = '<div class="no-data"><div class="no-data-icon">📅</div><p>No history yet</p></div>'; return; }
-      document.getElementById('historyContent').innerHTML = `<table class="history-table"><thead><tr><th>Month</th><th>🥇 1st</th><th>🥈 2nd</th><th>🥉 3rd</th><th>Top Score</th><th>Avg Score</th></tr></thead><tbody>
-        ${allData.slice().reverse().map(d => { const ranked = BUILDINGS.map(b => ({ name: b.name, score: d.scores[b.name].total })).sort((a, b) => b.score - a.score); const avg = ranked.reduce((s, r) => s + r.score, 0) / ranked.length;
-          return `<tr><td><strong>${d.month}</strong></td><td>${ranked[0].name}</td><td>${ranked[1].name}</td><td>${ranked[2].name}</td><td style="color:#22d3ee;font-weight:700">${ranked[0].score.toFixed(1)}</td><td>${avg.toFixed(1)}</td></tr>`; }).join('')}</tbody></table>`;
     }
   </script>
 </body>
