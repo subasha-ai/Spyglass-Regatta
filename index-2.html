@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Spyglass Regatta</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-400: #94a3b8;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --cyan-400: #22d3ee;
+      --cyan-500: #06b6d4;
+      --teal-400: #2dd4bf;
+      --teal-500: #14b8a6;
+      --emerald-400: #34d399;
+      --emerald-500: #10b981;
+      --white-10: rgba(255,255,255,0.1);
+      --white-20: rgba(255,255,255,0.2);
+      --white-05: rgba(255,255,255,0.05);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 50%, var(--slate-900) 100%);
+      min-height: 100vh;
+      color: var(--slate-200);
+    }
+    
+    .bg-pattern {
+      position: fixed;
+      inset: 0;
+      opacity: 0.2;
+      background-image: radial-gradient(circle at 2px 2px, rgba(100, 200, 255, 0.3) 1px, transparent 0);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--white-10);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--white-20);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+    
+    .header-content {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .logo-icon {
+      position: relative;
+    }
+    
+    .logo-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--cyan-400), var(--teal-500));
+      border-radius: 16px;
+      filter: blur(12px);
+      opacity: 0.75;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.75; }
+      50% { opacity: 0.5; }
+    }
+    
+    .logo-box {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--cyan-400), var(--teal-500), var(--emerald-500));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      transform: rotate(6deg);
+      transition: transform 0.5s;
+    }
+    
+    .logo-box:hover { transform: rotate(0deg); }
+    
+    .logo-box svg {
+      width: 36px;
+      height: 36px;
+    }
+    
+    .logo-text h1 {
+      font-size: 1.875rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, var(--cyan-400), var(--teal-400), var(--emerald-400));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.025em;
+    }
+    
+    .logo-text p {
+      font-size: 0.875rem;
+      color: var(--slate-400);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+    
+    .month-badge {
+      background: var(--white-10);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--white-20);
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      color: var(--slate-200);
+    }
+    
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .upload-section {
+      background: var(--white-10);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--white-20);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .upload-btn {
+      background: linear-gradient(135deg, var(--cyan-500), var(--teal-500));
+      color: white;
+      border: none;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      box-shadow: 0 10px 40px -10px rgba(6, 182, 212, 0.5);
+    }
+    
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px -10px rgba(6, 182, 212, 0.6);
+    }
+    
+    .upload-info { color: var(--slate-400); font-size: 0.9rem; }
+    
+    #fileInput { display: none; }
+    
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      background: var(--white-10);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--white-20);
+      padding: 0.5rem;
+      border-radius: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .tab {
+      padding: 0.75rem 1.25rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      color: var(--slate-400);
+      transition: all 0.2s;
+      font-size: 0.875rem;
+    }
+    
+    .tab:hover { background: var(--white-05); color: var(--slate-200); }
+    
+    .tab.active {
+      background: linear-gradient(135deg, var(--cyan-500), var(--teal-500));
+      color: white;
+      box-shadow: 0 10px 40px -10px rgba(6, 182, 212, 0.5);
+    }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .card {
+      background: var(--white-10);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--white-20);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--slate-100);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    
+    @media (max-width: 1200px) { .grid-3 { grid-template-columns: repeat(2, 1fr); }}
+    @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; }}
+    
+    .podium-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 1.5rem;
+      padding: 2rem 0;
+      min-height: 320px;
+    }
+    
+    .podium-place { text-align: center; transition: transform 0.3s; }
+    .podium-place:hover { transform: translateY(-8px); }
+    
+    .podium-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem;
+      font-size: 2rem;
+      font-weight: 900;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+    }
+    
+    .podium-name { font-weight: 700; margin-bottom: 0.25rem; font-size: 0.95rem; color: var(--slate-100); }
+    .podium-score { color: var(--slate-400); font-size: 0.85rem; margin-bottom: 0.75rem; }
+    
+    .podium-block {
+      width: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      color: white;
+      border-radius: 12px 12px 0 0;
+    }
+    
+    .place-1 .podium-avatar { background: linear-gradient(135deg, #ffd700, #ffec8b); color: #7c5c00; }
+    .place-1 .podium-block { background: linear-gradient(135deg, #ffd700, #b8960f); height: 150px; }
+    .place-2 .podium-avatar { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: #4a4a4a; }
+    .place-2 .podium-block { background: linear-gradient(135deg, #a8a8a8, #707070); height: 110px; }
+    .place-3 .podium-avatar { background: linear-gradient(135deg, #cd7f32, #daa06d); color: #5c3d1e; }
+    .place-3 .podium-block { background: linear-gradient(135deg, #cd7f32, #8b4513); height: 80px; }
+    
+    .rankings-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    
+    .rank-item {
+      display: grid;
+      grid-template-columns: 45px 1fr 100px 70px;
+      align-items: center;
+      padding: 0.875rem 1rem;
+      background: var(--white-05);
+      border: 1px solid var(--white-10);
+      border-radius: 12px;
+      gap: 1rem;
+      transition: all 0.2s;
+    }
+    
+    .rank-item:hover {
+      background: var(--white-10);
+      transform: translateX(4px);
+      border-color: var(--cyan-500);
+    }
+    
+    .rank-num { font-weight: 800; font-size: 1.1rem; color: var(--cyan-400); }
+    .rank-name { color: var(--slate-200); font-weight: 500; }
+    .rank-region { color: var(--slate-500); font-size: 0.75rem; }
+    
+    .rank-bar { height: 6px; background: var(--white-10); border-radius: 3px; overflow: hidden; }
+    .rank-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--cyan-500), var(--teal-500)); transition: width 0.5s; }
+    .rank-score { font-weight: 700; text-align: right; color: var(--emerald-400); }
+    
+    .heatmap-container { overflow-x: auto; }
+    .heatmap { min-width: 900px; border-collapse: collapse; width: 100%; }
+    .heatmap th, .heatmap td { padding: 0.6rem 0.5rem; text-align: center; font-size: 0.8rem; }
+    .heatmap th { background: linear-gradient(135deg, var(--cyan-500), var(--teal-500)); color: white; font-weight: 700; position: sticky; top: 0; }
+    .heatmap th:first-child { text-align: left; min-width: 160px; border-radius: 8px 0 0 0; }
+    .heatmap th:last-child { border-radius: 0 8px 0 0; }
+    .heatmap td:first-child { text-align: left; font-weight: 600; background: var(--white-05); color: var(--slate-200); }
+    .heatmap-cell { border-radius: 6px; padding: 0.4rem 0.5rem; font-weight: 700; display: inline-block; min-width: 40px; }
+    
+    .region-card { background: var(--white-10); backdrop-filter: blur(20px); border: 1px solid var(--white-20); border-radius: 20px; padding: 1.5rem; }
+    .region-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--white-10); }
+    .region-badge { padding: 0.35rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+    .region-gc { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .region-ol { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+    .region-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+    .region-stat { text-align: center; padding: 1rem; background: var(--white-05); border-radius: 12px; border: 1px solid var(--white-10); }
+    .region-stat-value { font-size: 1.5rem; font-weight: 800; background: linear-gradient(90deg, var(--cyan-400), var(--teal-400)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .region-stat-label { font-size: 0.75rem; color: var(--slate-400); margin-top: 0.25rem; }
+    
+    .gauge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+    .gauge-item { text-align: center; padding: 1rem; background: var(--white-05); border: 1px solid var(--white-10); border-radius: 12px; }
+    .gauge-circle { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 0.75rem; position: relative; display: flex; align-items: center; justify-content: center; }
+    .gauge-value { font-size: 1.25rem; font-weight: 800; color: var(--slate-100); }
+    .gauge-label { font-size: 0.8rem; color: var(--slate-400); }
+    
+    .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--white-10); }
+    .detail-title { font-size: 1.5rem; font-weight: 800; color: var(--slate-100); }
+    .detail-rank { background: linear-gradient(135deg, var(--cyan-500), var(--teal-500)); color: white; padding: 0.5rem 1rem; border-radius: 10px; font-weight: 800; }
+    
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; }
+    .metric-item { background: var(--white-05); border: 1px solid var(--white-10); padding: 1rem; border-radius: 10px; }
+    .metric-label { font-size: 0.75rem; color: var(--slate-400); margin-bottom: 0.25rem; }
+    .metric-value { font-size: 1.1rem; font-weight: 700; color: var(--slate-100); }
+    
+    select { padding: 0.875rem 1rem; border: 1px solid var(--white-20); border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.9rem; background: var(--white-10); color: var(--slate-200); cursor: pointer; min-width: 200px; backdrop-filter: blur(10px); }
+    select:focus { outline: none; border-color: var(--cyan-500); }
+    select option { background: var(--slate-800); color: var(--slate-200); }
+    .filter-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    
+    .history-table { width: 100%; border-collapse: collapse; }
+    .history-table th, .history-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--white-10); }
+    .history-table th { background: linear-gradient(135deg, var(--cyan-500), var(--teal-500)); color: white; font-weight: 700; }
+    .history-table th:first-child { border-radius: 10px 0 0 0; }
+    .history-table th:last-child { border-radius: 0 10px 0 0; }
+    .history-table tr:hover td { background: var(--white-05); }
+    
+    .no-data { text-align: center; padding: 4rem 2rem; color: var(--slate-400); }
+    .no-data-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+    .chart-wrapper { position: relative; height: 300px; }
+    .legend-inline { display: flex; gap: 1.5rem; justify-content: center; margin-top: 1rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--slate-300); }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+    
+    @media (max-width: 768px) {
+      .header-content { flex-direction: column; gap: 1rem; text-align: center; }
+      .podium-container { flex-direction: column; align-items: center; }
+      .podium-block { width: 100px; }
+      .rank-item { grid-template-columns: 35px 1fr 50px; }
+      .rank-bar { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-pattern"></div>
+  
+  <div class="header">
+    <div class="header-content">
+      <div class="logo">
+        <div class="logo-icon">
+          <div class="logo-box">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Spyglass -->
+              <ellipse cx="30" cy="28" rx="14" ry="14" stroke="white" stroke-width="4" fill="none"/>
+              <line x1="40" y1="38" x2="58" y2="56" stroke="white" stroke-width="5" stroke-linecap="round"/>
+              <rect x="54" y="52" width="8" height="16" rx="2" fill="white" transform="rotate(45 58 60)"/>
+              <!-- Sailboat -->
+              <path d="M50 50 L50 80 L75 80 L50 50Z" fill="white" opacity="0.9"/>
+              <path d="M50 50 L50 80 L30 80 L50 50Z" fill="white" opacity="0.7"/>
+              <path d="M20 82 Q50 76 80 82 L85 88 Q50 84 15 88 Z" fill="white"/>
+              <line x1="50" y1="48" x2="50" y2="82" stroke="white" stroke-width="2"/>
+            </svg>
+          </div>
+        </div>
+        <div class="logo-text">
+          <h1>The Spyglass Regatta</h1>
+          <p>Performance • Rankings • Excellence</p>
+        </div>
+      </div>
+      <div class="month-badge" id="currentMonth">No Data Loaded</div>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="upload-section">
+      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+        📊 Upload Monthly Data
+      </button>
+      <span class="upload-info">Drop Excel file here or click to upload</span>
+      <input type="file" id="fileInput" accept=".xlsx,.xls">
+    </div>
+    
+    <div class="tabs">
+      <button class="tab active" data-tab="podium">🏆 Podium</button>
+      <button class="tab" data-tab="radar">🎯 Radar Charts</button>
+      <button class="tab" data-tab="heatmap">🔥 Heat Map</button>
+      <button class="tab" data-tab="building">🏢 Building Detail</button>
+      <button class="tab" data-tab="regional">🗺️ Regional</button>
+      <button class="tab" data-tab="trends">📉 Trends</button>
+    </div>
+    
+    <div id="podium" class="tab-content active">
+      <div class="card"><div class="card-title">🏆 Top Performers</div><div id="podiumContent"></div></div>
+      <div class="card"><div class="card-title">Complete Rankings</div><div id="quickRankings"></div></div>
+    </div>
+    
+    <div id="radar" class="tab-content">
+      <div class="card">
+        <div class="card-title">🔥 Performance Heat Map</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Scores by category (green = strong, red = needs improvement)</p>
+        <div class="heatmap-container"><table class="heatmap" id="heatmapTable"></table></div>
+      </div>
+    </div>
+    
+    <div id="radar" class="tab-content">
+      <div class="filter-row">
+        <select id="radarSelect1"><option value="">Select Building 1</option></select>
+        <select id="radarSelect2"><option value="">Select Building 2 (optional)</option></select>
+        <select id="radarSelect3"><option value="">Select Building 3 (optional)</option></select>
+      </div>
+      <div class="card"><div class="chart-wrapper" style="height:400px"><canvas id="radarChart"></canvas></div></div>
+    </div>
+    
+    <div id="heatmap" class="tab-content">
+      <div class="card">
+        <div class="card-title">🔥 Performance Heat Map</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Scores by category (green = strong, red = needs improvement)</p>
+        <div class="heatmap-container"><table class="heatmap" id="heatmapTable"></table></div>
+      </div>
+    </div>
+    
+    <div id="building" class="tab-content">
+      <div class="filter-row"><select id="buildingSelect"><option value="">Select a Building</option></select></div>
+      <div id="buildingContent"></div>
+    </div>
+    
+    <div id="regional" class="tab-content">
+      <div class="grid-2">
+        <div class="region-card">
+          <div class="region-header"><span class="region-badge region-gc">Golden Coast</span><span style="font-weight:600;color:var(--slate-300)">9 Buildings</span></div>
+          <div class="region-stats" id="gcStats"></div><div id="gcTopBuildings"></div>
+        </div>
+        <div class="region-card">
+          <div class="region-header"><span class="region-badge region-ol">Overland</span><span style="font-weight:600;color:var(--slate-300)">8 Buildings</span></div>
+          <div class="region-stats" id="olStats"></div><div id="olTopBuildings"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Category Comparison: Golden Coast vs Overland</div>
+        <div class="chart-wrapper"><canvas id="regionalChart"></canvas></div>
+        <div class="legend-inline">
+          <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Golden Coast</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div> Overland</div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="trends" class="tab-content">
+      <div class="card"><div class="card-title">📉 Score Trends Over Time</div><div class="chart-wrapper" style="height:350px"><canvas id="trendsChart"></canvas></div></div>
+      <div class="card"><div class="card-title">📊 Category Trends</div><div class="chart-wrapper" style="height:350px"><canvas id="categoryTrendsChart"></canvas></div></div>
+    </div>
+  </div>
+
+  <script>
+    const BUILDINGS = [
+      { name: "Gilroy HC", region: "Golden Coast" },
+      { name: "Camino Ridge Post Acute", region: "Golden Coast" },
+      { name: "Los Altos Post Acute", region: "Golden Coast" },
+      { name: "The Win Post Acute", region: "Golden Coast" },
+      { name: "Pac Coast PA", region: "Golden Coast" },
+      { name: "PAC Hills Post Acute", region: "Golden Coast" },
+      { name: "Manresa HC", region: "Golden Coast" },
+      { name: "Morgan Hill HC", region: "Golden Coast" },
+      { name: "Mountain View HC", region: "Golden Coast" },
+      { name: "Eden HC", region: "Overland" },
+      { name: "West Shore PA", region: "Overland" },
+      { name: "Golden Harbor HC", region: "Overland" },
+      { name: "Belmont HC", region: "Overland" },
+      { name: "Palo Alto Post Acute", region: "Overland" },
+      { name: "Bridgewood PA", region: "Overland" },
+      { name: "Cedarwood PA", region: "Overland" },
+      { name: "Capital PA", region: "Overland" }
+    ];
+
+    const CATEGORIES = {
+      care: { name: "Care", weight: 0.26, metrics: [
+        { key: "healthInspections", label: "Health Inspections Star Rating", weight: 0.30, higherBetter: true },
+        { key: "qmRating", label: "QM Star Rating", weight: 0.20, higherBetter: true },
+        { key: "rehospitalization", label: "Rehospitalization %", weight: 0.25, higherBetter: false },
+        { key: "dischargeFunctional", label: "Discharge Functional %", weight: 0.25, higherBetter: true }
+      ]},
+      census: { name: "Census", weight: 0.18, metrics: [
+        { key: "occupancy", label: "Occupancy %", weight: 0.30, higherBetter: true },
+        { key: "medicareCensus", label: "Medicare Census %", weight: 0.40, higherBetter: true },
+        { key: "skilledMix", label: "Skilled Mix #", weight: 0.30, higherBetter: true }
+      ]},
+      collections: { name: "Collections", weight: 0.10, metrics: [
+        { key: "badDebt", label: "Bad Debt %", weight: 0.70, higherBetter: false },
+        { key: "dso", label: "DSO", weight: 0.30, higherBetter: false }
+      ]},
+      controls: { name: "Controls", weight: 0.14, metrics: [
+        { key: "noi", label: "NOI %", weight: 0.30, higherBetter: true },
+        { key: "labor", label: "Labor %", weight: 0.30, higherBetter: false },
+        { key: "otdt", label: "OT/DT %", weight: 0.15, higherBetter: false },
+        { key: "budgetVariance", label: "Budget Var %", weight: 0.10, higherBetter: false },
+        { key: "rehabProductivity", label: "Rehab Prod %", weight: 0.15, higherBetter: true }
+      ]},
+      culture: { name: "Culture", weight: 0.12, metrics: [
+        { key: "turnover", label: "Turnover %", weight: 0.50, higherBetter: false },
+        { key: "workerSafety", label: "Worker Safety", weight: 0.50, higherBetter: true }
+      ]},
+      compliance: { name: "Compliance", weight: 0.10, metrics: [
+        { key: "admissionPacket", label: "Admission Packet %", weight: 0.20, higherBetter: true },
+        { key: "arbitration", label: "Arbitration %", weight: 0.40, higherBetter: true },
+        { key: "substandardQoc", label: "Substandard QoC", weight: 0.40, higherBetter: false }
+      ]},
+      credibility: { name: "Credibility", weight: 0.08, metrics: [
+        { key: "googleRating", label: "Google Rating", weight: 0.10, higherBetter: true },
+        { key: "yelpRating", label: "Yelp Rating", weight: 0.20, higherBetter: true },
+        { key: "legalClaims", label: "Legal Claims", weight: 0.70, higherBetter: false }
+      ]}
+    };
+
+    const METRIC_ROW_MAP = {
+      healthInspections: 4, qmRating: 5, rehospitalization: 6, dischargeFunctional: 7,
+      occupancy: 10, medicareCensus: 11, skilledMix: 12,
+      badDebt: 15, dso: 16,
+      noi: 19, labor: 20, otdt: 21, budgetVariance: 22, rehabProductivity: 23,
+      turnover: 26, workerSafety: 27,
+      admissionPacket: 30, arbitration: 31, substandardQoc: 32,
+      googleRating: 35, yelpRating: 36, legalClaims: 37
+    };
+
+    const COLORS = {
+      buildings: ['#22d3ee','#14b8a6','#10b981','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#ec4899','#06b6d4','#6366f1','#84cc16','#f97316','#2dd4bf','#a855f7','#34d399','#e11d48','#0ea5e9'],
+      gc: '#3b82f6', ol: '#a855f7'
+    };
+
+    let allData = JSON.parse(localStorage.getItem('spyglassData') || '[]');
+    let currentData = null;
+    let charts = {};
+
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTabs(); initUpload(); initSelects();
+      if (allData.length > 0) { currentData = allData[allData.length - 1]; updateAllDisplays(); }
+      else { showNoData(); }
+    });
+
+    function initTabs() {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById(tab.dataset.tab).classList.add('active');
+          if (currentData) {
+            if (tab.dataset.tab === 'radar') renderRadarChart();
+            if (tab.dataset.tab === 'regional') renderRegionalChart();
+            if (tab.dataset.tab === 'trends') { renderTrendsChart(); renderCategoryTrendsChart(); }
+          }
+        });
+      });
+    }
+
+    function initUpload() {
+      const input = document.getElementById('fileInput');
+      const section = document.querySelector('.upload-section');
+      section.addEventListener('dragover', e => { e.preventDefault(); section.style.borderColor = '#22d3ee'; });
+      section.addEventListener('dragleave', () => section.style.borderColor = 'rgba(255,255,255,0.2)');
+      section.addEventListener('drop', e => { e.preventDefault(); section.style.borderColor = 'rgba(255,255,255,0.2)'; if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
+      input.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+    }
+
+    function initSelects() {
+      ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3'].forEach(id => {
+        const select = document.getElementById(id);
+        BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.name; opt.textContent = b.name; select.appendChild(opt); });
+      });
+      document.getElementById('buildingSelect').addEventListener('change', e => renderBuildingDetail(e.target.value));
+      ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); });
+    }
+
+    function processFile(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const sheet = wb.Sheets['Monthly Data'] || wb.Sheets['September'] || wb.Sheets[wb.SheetNames[0]];
+        if (!sheet) { alert('Invalid file format'); return; }
+        const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        const month = data[1] ? (data[1][2] || new Date().toLocaleDateString('en-US', {month:'long', year:'numeric'})) : 'Unknown';
+        const buildingData = {};
+        BUILDINGS.forEach((b, i) => {
+          const col = i + 2;
+          const metrics = {};
+          Object.entries(METRIC_ROW_MAP).forEach(([key, row]) => {
+            const val = data[row - 1] ? data[row - 1][col] : null;
+            metrics[key] = val !== undefined && val !== '' ? parseFloat(val) : null;
+          });
+          buildingData[b.name] = metrics;
+        });
+        const scores = calculateScores(buildingData);
+        const entry = { month, date: new Date().toISOString(), buildingData, scores };
+        const idx = allData.findIndex(d => d.month === month);
+        if (idx >= 0) allData[idx] = entry; else allData.push(entry);
+        localStorage.setItem('spyglassData', JSON.stringify(allData));
+        currentData = entry;
+        updateAllDisplays();
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function calculateScores(buildingData) {
+      const scores = {};
+      BUILDINGS.forEach(b => {
+        const metrics = buildingData[b.name];
+        let totalScore = 0;
+        const categoryScores = {};
+        Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+          let catScore = 0, validWeight = 0;
+          cat.metrics.forEach(metric => {
+            const val = metrics[metric.key];
+            if (val !== null && !isNaN(val)) {
+              const allVals = BUILDINGS.map(bb => buildingData[bb.name][metric.key]).filter(v => v !== null && !isNaN(v));
+              if (allVals.length > 0) {
+                const min = Math.min(...allVals), max = Math.max(...allVals);
+                let norm = max !== min ? (val - min) / (max - min) : 0.5;
+                if (!metric.higherBetter) norm = 1 - norm;
+                catScore += norm * metric.weight;
+                validWeight += metric.weight;
+              }
+            }
+          });
+          const finalCatScore = validWeight > 0 ? (catScore / validWeight) * 100 : 0;
+          categoryScores[catKey] = finalCatScore;
+          totalScore += finalCatScore * cat.weight;
+        });
+        scores[b.name] = { total: totalScore, categories: categoryScores, metrics };
+      });
+      return scores;
+    }
+
+    function showNoData() {
+      ['podiumContent','quickRankings','buildingContent'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<div class="no-data"><div class="no-data-icon">📊</div><p>Upload data to see results</p></div>';
+      });
+    }
+
+    function updateAllDisplays() {
+      document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data';
+      renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
+      const bs = document.getElementById('buildingSelect');
+      if (bs.value) renderBuildingDetail(bs.value);
+    }
+
+    function getRanked() {
+      return BUILDINGS.map(b => ({ ...b, score: currentData.scores[b.name].total, categories: currentData.scores[b.name].categories })).sort((a, b) => b.score - a.score);
+    }
+
+    function renderPodium() {
+      if (!currentData) return;
+      const ranked = getRanked();
+      document.getElementById('podiumContent').innerHTML = `<div class="podium-container">
+        <div class="podium-place place-2"><div class="podium-avatar">2</div><div class="podium-name">${ranked[1].name}</div><div class="podium-score">${ranked[1].score.toFixed(1)} pts</div><div class="podium-block">🥈</div></div>
+        <div class="podium-place place-1"><div class="podium-avatar">1</div><div class="podium-name">${ranked[0].name}</div><div class="podium-score">${ranked[0].score.toFixed(1)} pts</div><div class="podium-block">🥇</div></div>
+        <div class="podium-place place-3"><div class="podium-avatar">3</div><div class="podium-name">${ranked[2].name}</div><div class="podium-score">${ranked[2].score.toFixed(1)} pts</div><div class="podium-block">🥉</div></div>
+      </div>`;
+    }
+
+    function renderQuickRankings() {
+      if (!currentData) return;
+      const ranked = getRanked();
+      const max = ranked[0].score;
+      document.getElementById('quickRankings').innerHTML = `<div class="rankings-list">${ranked.map((r, i) => `
+        <div class="rank-item"><span class="rank-num">${i + 1}</span><div><span class="rank-name">${r.name}</span><div class="rank-region">${r.region}</div></div>
+        <div class="rank-bar"><div class="rank-bar-fill" style="width:${(r.score/max)*100}%"></div></div><span class="rank-score">${r.score.toFixed(1)}</span></div>
+      `).join('')}</div>`;
+    }
+
+    function renderRegionalRankings() {
+      if (!currentData) return;
+      const ranked = getRanked();
+      const gc = ranked.filter(r => r.region === 'Golden Coast');
+      const ol = ranked.filter(r => r.region === 'Overland');
+      const renderList = (list) => `<div class="rankings-list">${list.map((r, i) => `
+        <div class="rank-item"><span class="rank-num">${i + 1}</span><div><span class="rank-name">${r.name}</span></div>
+        <div class="rank-bar"><div class="rank-bar-fill" style="width:${(r.score/list[0].score)*100}%"></div></div><span class="rank-score">${r.score.toFixed(1)}</span></div>
+      `).join('')}</div>`;
+      document.getElementById('gcRankings').innerHTML = renderList(gc);
+      document.getElementById('olRankings').innerHTML = renderList(ol);
+    }
+
+    function renderDistributionChart() {
+      if (!currentData) return;
+      const ctx = document.getElementById('distributionChart').getContext('2d');
+      if (charts.distribution) charts.distribution.destroy();
+      const ranked = getRanked();
+      charts.distribution = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: ranked.map(r => r.name), datasets: [{ label: 'Total Score', data: ranked.map(r => r.score), backgroundColor: ranked.map((r, i) => COLORS.buildings[i % 17]), borderRadius: 6 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 }}}, y: { beginAtZero: true, title: { display: true, text: 'Score' }}}}
+      });
+    }
+
+    function renderHeatMap() {
+      if (!currentData) return;
+      const ranked = getRanked();
+      const catKeys = Object.keys(CATEGORIES);
+      let html = `<thead><tr><th>Building</th>${catKeys.map(k => `<th>${CATEGORIES[k].name}</th>`).join('')}<th>Total</th></tr></thead><tbody>`;
+      ranked.forEach(r => {
+        html += `<tr><td>${r.name}</td>`;
+        catKeys.forEach(k => { const score = r.categories[k]; const color = getHeatColor(score); html += `<td><span class="heatmap-cell" style="background:${color};color:${score > 50 ? '#fff' : '#000'}">${score.toFixed(0)}</span></td>`; });
+        html += `<td><strong style="color:#22d3ee">${r.score.toFixed(1)}</strong></td></tr>`;
+      });
+      html += '</tbody>';
+      document.getElementById('heatmapTable').innerHTML = html;
+    }
+
+    function getHeatColor(score) {
+      if (score >= 80) return '#10b981'; if (score >= 60) return '#22c55e'; if (score >= 40) return '#f59e0b'; if (score >= 20) return '#f97316'; return '#ef4444';
+    }
+
+    function renderRadarChart() {
+      if (!currentData) return;
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      if (charts.radar) charts.radar.destroy();
+      const selected = ['radarSelect1','radarSelect2','radarSelect3'].map(id => document.getElementById(id).value).filter(Boolean);
+      if (selected.length === 0) { const ranked = getRanked(); selected.push(ranked[0].name, ranked[1].name, ranked[2].name); }
+      const labels = Object.values(CATEGORIES).map(c => c.name);
+      const datasets = selected.map((name, i) => ({ label: name, data: Object.keys(CATEGORIES).map(k => currentData.scores[name].categories[k]), borderColor: COLORS.buildings[i], backgroundColor: COLORS.buildings[i] + '30', pointBackgroundColor: COLORS.buildings[i], pointRadius: 4 }));
+      charts.radar = new Chart(ctx, { type: 'radar', data: { labels, datasets }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20 }}}, plugins: { legend: { position: 'bottom' }}}});
+    }
+
+    function renderRegionalStats() {
+      if (!currentData) return;
+      const ranked = getRanked();
+      const gc = ranked.filter(r => r.region === 'Golden Coast');
+      const ol = ranked.filter(r => r.region === 'Overland');
+      const avgGC = gc.reduce((s, r) => s + r.score, 0) / gc.length;
+      const avgOL = ol.reduce((s, r) => s + r.score, 0) / ol.length;
+      document.getElementById('gcStats').innerHTML = `<div class="region-stat"><div class="region-stat-value">${avgGC.toFixed(1)}</div><div class="region-stat-label">Avg Score</div></div><div class="region-stat"><div class="region-stat-value">${gc[0].score.toFixed(1)}</div><div class="region-stat-label">Top Score</div></div><div class="region-stat"><div class="region-stat-value">#${ranked.findIndex(r => r.name === gc[0].name) + 1}</div><div class="region-stat-label">Best Rank</div></div>`;
+      document.getElementById('olStats').innerHTML = `<div class="region-stat"><div class="region-stat-value">${avgOL.toFixed(1)}</div><div class="region-stat-label">Avg Score</div></div><div class="region-stat"><div class="region-stat-value">${ol[0].score.toFixed(1)}</div><div class="region-stat-label">Top Score</div></div><div class="region-stat"><div class="region-stat-value">#${ranked.findIndex(r => r.name === ol[0].name) + 1}</div><div class="region-stat-label">Best Rank</div></div>`;
+      document.getElementById('gcTopBuildings').innerHTML = `<div style="font-size:0.9rem">${gc.slice(0,3).map((r,i) => `<div style="padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.1)">${['🥇','🥈','🥉'][i]} ${r.name} - ${r.score.toFixed(1)}</div>`).join('')}</div>`;
+      document.getElementById('olTopBuildings').innerHTML = `<div style="font-size:0.9rem">${ol.slice(0,3).map((r,i) => `<div style="padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.1)">${['🥇','🥈','🥉'][i]} ${r.name} - ${r.score.toFixed(1)}</div>`).join('')}</div>`;
+    }
+
+    function renderRegionalChart() {
+      if (!currentData) return;
+      const ctx = document.getElementById('regionalChart').getContext('2d');
+      if (charts.regional) charts.regional.destroy();
+      const ranked = getRanked();
+      const gc = ranked.filter(r => r.region === 'Golden Coast');
+      const ol = ranked.filter(r => r.region === 'Overland');
+      const catKeys = Object.keys(CATEGORIES);
+      const gcAvg = catKeys.map(k => gc.reduce((s, r) => s + r.categories[k], 0) / gc.length);
+      const olAvg = catKeys.map(k => ol.reduce((s, r) => s + r.categories[k], 0) / ol.length);
+      charts.regional = new Chart(ctx, { type: 'bar', data: { labels: catKeys.map(k => CATEGORIES[k].name), datasets: [{ label: 'Golden Coast', data: gcAvg, backgroundColor: COLORS.gc, borderRadius: 6 }, { label: 'Overland', data: olAvg, backgroundColor: COLORS.ol, borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { y: { beginAtZero: true, max: 100 }}}});
+    }
+
+    function renderCategoryCards() {
+      if (!currentData) return;
+      const ranked = getRanked();
+      document.getElementById('categoryCards').innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => {
+        const catRanked = [...ranked].sort((a, b) => b.categories[key] - a.categories[key]);
+        return `<div class="card"><div class="card-title" style="justify-content:space-between"><span>${cat.name}</span><span style="background:linear-gradient(135deg,#22d3ee,#14b8a6);color:white;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem">${(cat.weight*100).toFixed(0)}%</span></div>
+        <div class="rankings-list">${catRanked.slice(0,5).map((r, i) => `<div class="rank-item" style="grid-template-columns:30px 1fr 50px"><span class="rank-num" style="font-size:0.9rem">${i+1}</span><span style="font-size:0.9rem;color:var(--slate-200)">${r.name}</span><span class="rank-score" style="font-size:0.9rem">${r.categories[key].toFixed(0)}</span></div>`).join('')}</div></div>`;
+      }).join('');
+    }
+
+    function renderBuildingDetail(name) {
+      if (!name || !currentData) { document.getElementById('buildingContent').innerHTML = '<div class="no-data"><div class="no-data-icon">🏢</div><p>Select a building</p></div>'; return; }
+      const building = BUILDINGS.find(b => b.name === name);
+      const scores = currentData.scores[name];
+      const ranked = getRanked();
+      const rank = ranked.findIndex(r => r.name === name) + 1;
+      document.getElementById('buildingContent').innerHTML = `<div class="card"><div class="detail-header"><div><div class="detail-title">${name}</div><span style="color:var(--slate-400)">${building.region}</span></div><div style="text-align:right"><div class="detail-rank">Rank #${rank}</div><div style="font-size:1.5rem;font-weight:800;margin-top:0.5rem;background:linear-gradient(90deg,#22d3ee,#14b8a6);-webkit-background-clip:text;-webkit-text-fill-color:transparent">${scores.total.toFixed(1)} pts</div></div></div>
+        <div class="gauge-grid" style="margin-bottom:1.5rem">${Object.entries(CATEGORIES).map(([k, cat]) => { const score = scores.categories[k]; const color = getHeatColor(score); return `<div class="gauge-item"><div class="gauge-circle" style="background:conic-gradient(${color} ${score*3.6}deg, rgba(255,255,255,0.1) ${score*3.6}deg)"><div style="width:60px;height:60px;background:var(--slate-800);border-radius:50%;display:flex;align-items:center;justify-content:center"><span class="gauge-value">${score.toFixed(0)}</span></div></div><div class="gauge-label">${cat.name}</div></div>`; }).join('')}</div>
+        ${Object.entries(CATEGORIES).map(([k, cat]) => `<div style="margin-bottom:1.5rem"><div style="font-weight:700;margin-bottom:0.75rem;display:flex;justify-content:space-between;color:var(--slate-200)"><span>${cat.name}</span><span style="color:#22d3ee">${scores.categories[k].toFixed(1)} pts</span></div><div class="metrics-grid">${cat.metrics.map(m => `<div class="metric-item"><div class="metric-label">${m.label}</div><div class="metric-value">${scores.metrics[m.key] !== null ? scores.metrics[m.key] : 'N/A'}</div></div>`).join('')}</div></div>`).join('')}</div>`;
+    }
+
+    function renderTrendsChart() {
+      const ctx = document.getElementById('trendsChart').getContext('2d');
+      if (charts.trends) charts.trends.destroy();
+      if (allData.length < 2) { charts.trends = new Chart(ctx, { type: 'line', data: { labels: ['Need more data'], datasets: [] }}); return; }
+      const top5 = BUILDINGS.map(b => ({ name: b.name, avg: allData.reduce((s, d) => s + d.scores[b.name].total, 0) / allData.length })).sort((a, b) => b.avg - a.avg).slice(0, 5);
+      charts.trends = new Chart(ctx, { type: 'line', data: { labels: allData.map(d => d.month), datasets: top5.map((b, i) => ({ label: b.name, data: allData.map(d => d.scores[b.name].total), borderColor: COLORS.buildings[i], backgroundColor: 'transparent', tension: 0.3, pointRadius: 4 })) }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }}, scales: { y: { beginAtZero: false }}}});
+    }
+
+    function renderCategoryTrendsChart() {
+      const ctx = document.getElementById('categoryTrendsChart').getContext('2d');
+      if (charts.catTrends) charts.catTrends.destroy();
+      if (allData.length < 2) { charts.catTrends = new Chart(ctx, { type: 'line', data: { labels: ['Need more data'], datasets: [] }}); return; }
+      const catKeys = Object.keys(CATEGORIES);
+      charts.catTrends = new Chart(ctx, { type: 'line', data: { labels: allData.map(d => d.month), datasets: catKeys.map((k, i) => ({ label: CATEGORIES[k].name, data: allData.map(d => { const avg = BUILDINGS.reduce((s, b) => s + d.scores[b.name].categories[k], 0) / BUILDINGS.length; return avg; }), borderColor: COLORS.buildings[i], backgroundColor: 'transparent', tension: 0.3 })) }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }}, scales: { y: { beginAtZero: true, max: 100 }}}});
+    }
+
+    function renderHistory() {
+      if (allData.length === 0) { document.getElementById('historyContent').innerHTML = '<div class="no-data"><div class="no-data-icon">📅</div><p>No history yet</p></div>'; return; }
+      document.getElementById('historyContent').innerHTML = `<table class="history-table"><thead><tr><th>Month</th><th>🥇 1st</th><th>🥈 2nd</th><th>🥉 3rd</th><th>Top Score</th><th>Avg Score</th></tr></thead><tbody>
+        ${allData.slice().reverse().map(d => { const ranked = BUILDINGS.map(b => ({ name: b.name, score: d.scores[b.name].total })).sort((a, b) => b.score - a.score); const avg = ranked.reduce((s, r) => s + r.score, 0) / ranked.length;
+          return `<tr><td><strong>${d.month}</strong></td><td>${ranked[0].name}</td><td>${ranked[1].name}</td><td>${ranked[2].name}</td><td style="color:#22d3ee;font-weight:700">${ranked[0].score.toFixed(1)}</td><td>${avg.toFixed(1)}</td></tr>`; }).join('')}</tbody></table>`;
+    }
+  </script>
+</body>
+</html>
