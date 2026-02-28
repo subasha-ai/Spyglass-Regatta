@@ -514,8 +514,7 @@
         { key: "noi", label: "NOI %", weight: 0.30, higherBetter: true },
         { key: "labor", label: "Labor %", weight: 0.30, higherBetter: false },
         { key: "otdt", label: "OT/DT %", weight: 0.15, higherBetter: false },
-        { key: "budgetVariance", label: "Budget Var %", weight: 0.10, higherBetter: false },
-        { key: "rehabProductivity", label: "Rehab Prod %", weight: 0.15, higherBetter: true }
+        { key: "rehabProductivity", label: "Rehab Prod %", weight: 0.25, higherBetter: true }
       ]},
       culture: { name: "Culture", weight: 0.12, metrics: [
         { key: "turnover", label: "Turnover %", weight: 0.50, higherBetter: false },
@@ -534,13 +533,13 @@
     };
 
     const METRIC_ROW_MAP = {
-      healthInspections: 2, qmRating: 3, rehospitalization: 4, dischargeFunctional: 5,
-      occupancy: 8, medicareCensus: 9, skilledMix: 10,
-      badDebt: 13, dso: 14,
-      noi: 17, labor: 18, otdt: 19, budgetVariance: 20, rehabProductivity: 21,
-      turnover: 24, workerSafety: 25,
-      admissionPacket: 28, arbitration: 29, substandardQoc: 30,
-      googleRating: 33, yelpRating: 34, legalClaims: 35
+      healthInspections: 1, qmRating: 2, rehospitalization: 3, dischargeFunctional: 4,
+      occupancy: 7, medicareCensus: 8, skilledMix: 9,
+      badDebt: 12, dso: 13,
+      noi: 16, labor: 17, otdt: 18, rehabProductivity: 19,
+      turnover: 22, workerSafety: 23,
+      admissionPacket: 26, arbitration: 27, substandardQoc: 28,
+      googleRating: 31, yelpRating: 32, legalClaims: 33
     };
 
     const COLORS = {
