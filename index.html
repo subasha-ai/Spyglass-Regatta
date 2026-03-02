@@ -107,34 +107,6 @@
       color: var(--slate-200);
     }
     .container { position: relative; z-index: 1; max-width: 1600px; margin: 0 auto; padding: 2rem; }
-    .upload-section {
-      background: var(--white-10);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--white-20);
-      border-radius: 20px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-    .upload-btn {
-      background: linear-gradient(135deg, var(--cyan-500), var(--teal-500));
-      color: white;
-      border: none;
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s;
-      box-shadow: 0 10px 40px -10px rgba(6, 182, 212, 0.5);
-    }
-    .upload-btn:hover { transform: translateY(-2px); }
-    .upload-info { color: var(--slate-400); font-size: 0.9rem; }
-    #fileInput { display: none; }
     .tabs {
       display: flex;
       gap: 0.5rem;
@@ -277,6 +249,7 @@
     .legend-inline { display: flex; gap: 1.5rem; justify-content: center; margin-top: 1rem; }
     .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--slate-300); }
     .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .loading { text-align: center; padding: 4rem; color: var(--slate-400); }
     @media (max-width: 768px) {
       .header-content { flex-direction: column; gap: 1rem; text-align: center; }
       .podium-container { flex-direction: column; align-items: center; }
@@ -310,16 +283,11 @@
       </div>
       <div style="display:flex;align-items:center;gap:1rem;">
         <select id="monthSelect"></select>
-        <div class="month-badge" id="currentMonth">September</div>
+        <div class="month-badge" id="currentMonth">Loading...</div>
       </div>
     </div>
   </div>
   <div class="container">
-    <div class="upload-section">
-      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">📊 Upload New Month</button>
-      <span class="upload-info">Upload October, November data to add more months</span>
-      <input type="file" id="fileInput" accept=".xlsx,.xls">
-    </div>
     <div class="tabs">
       <button class="tab active" data-tab="podium">🏆 Podium</button>
       <button class="tab" data-tab="radar">🎯 Radar Charts</button>
@@ -329,7 +297,7 @@
       <button class="tab" data-tab="trends">📉 Trends</button>
     </div>
     <div id="podium" class="tab-content active">
-      <div class="card"><div class="card-title">🏆 Top Performers</div><div id="podiumContent"></div></div>
+      <div class="card"><div class="card-title">🏆 Top Performers</div><div id="podiumContent"><div class="loading">Loading data...</div></div></div>
       <div class="card"><div class="card-title">Complete Rankings</div><div id="quickRankings"></div></div>
     </div>
     <div id="radar" class="tab-content">
@@ -433,37 +401,6 @@
         { key: "legalClaims", label: "Legal Claims", weight: 0.70, higherBetter: false }
       ]}
     };
-    const METRIC_ROW_MAP = {
-      healthInspections: 2, qmRating: 3, rehospitalization: 4, dischargeFunctional: 5,
-      occupancy: 8, medicareCensus: 9, skilledMix: 10,
-      badDebt: 13, dso: 14,
-      noi: 17, labor: 18, otdt: 19, rehabProductivity: 20,
-      turnover: 23, workerSafety: 24,
-      admissionPacket: 27, arbitration: 28, substandardQoc: 29,
-      googleRating: 32, yelpRating: 33, legalClaims: 34
-    };
-    // PRE-LOADED DATA - September
-    const PRELOADED_DATA = {
-      "September": {
-        "Gilroy HC": {"healthInspections":5,"qmRating":5,"rehospitalization":0,"dischargeFunctional":77.78,"occupancy":95.2,"medicareCensus":15.3,"skilledMix":36.23,"badDebt":1.5,"dso":48.97,"noi":null,"labor":null,"otdt":5,"rehabProductivity":83.8,"turnover":31,"workerSafety":null,"admissionPacket":4.1,"arbitration":0,"substandardQoc":null,"googleRating":4,"yelpRating":5,"legalClaims":0},
-        "Camino Ridge Post Acute": {"healthInspections":2,"qmRating":5,"rehospitalization":25,"dischargeFunctional":50,"occupancy":93.7,"medicareCensus":19.74,"skilledMix":41.1,"badDebt":1.5,"dso":53.03,"noi":null,"labor":null,"otdt":8.5,"rehabProductivity":86.9,"turnover":35,"workerSafety":null,"admissionPacket":42,"arbitration":42,"substandardQoc":null,"googleRating":4,"yelpRating":2,"legalClaims":0},
-        "Los Altos Post Acute": {"healthInspections":3,"qmRating":4,"rehospitalization":38.1,"dischargeFunctional":35.62,"occupancy":95.7,"medicareCensus":14.45,"skilledMix":49.47,"badDebt":1.5,"dso":47.76,"noi":null,"labor":null,"otdt":9.4,"rehabProductivity":85.3,"turnover":45,"workerSafety":null,"admissionPacket":0,"arbitration":0,"substandardQoc":null,"googleRating":4,"yelpRating":4,"legalClaims":0},
-        "The Win Post Acute": {"healthInspections":4,"qmRating":5,"rehospitalization":52.17,"dischargeFunctional":40.85,"occupancy":98,"medicareCensus":14.65,"skilledMix":43.47,"badDebt":1.5,"dso":57.72,"noi":null,"labor":null,"otdt":7.1,"rehabProductivity":89.4,"turnover":33,"workerSafety":null,"admissionPacket":43.9,"arbitration":51.5,"substandardQoc":null,"googleRating":4,"yelpRating":3,"legalClaims":0},
-        "Pac Coast PA": {"healthInspections":4,"qmRating":5,"rehospitalization":25.53,"dischargeFunctional":75,"occupancy":99.1,"medicareCensus":49.67,"skilledMix":62.03,"badDebt":1.5,"dso":34.63,"noi":null,"labor":null,"otdt":4.3,"rehabProductivity":83.3,"turnover":43,"workerSafety":null,"admissionPacket":26.8,"arbitration":71.4,"substandardQoc":null,"googleRating":4,"yelpRating":4,"legalClaims":0},
-        "PAC Hills Post Acute": {"healthInspections":4,"qmRating":5,"rehospitalization":15,"dischargeFunctional":33.33,"occupancy":98.6,"medicareCensus":29.59,"skilledMix":40.63,"badDebt":1.5,"dso":53.91,"noi":null,"labor":null,"otdt":4.7,"rehabProductivity":87.5,"turnover":31,"workerSafety":null,"admissionPacket":93.3,"arbitration":64.4,"substandardQoc":null,"googleRating":5,"yelpRating":4,"legalClaims":0},
-        "Manresa HC": {"healthInspections":3,"qmRating":4,"rehospitalization":41.18,"dischargeFunctional":85.71,"occupancy":96.2,"medicareCensus":29.86,"skilledMix":17.8,"badDebt":1.5,"dso":64.93,"noi":null,"labor":null,"otdt":5.3,"rehabProductivity":76,"turnover":28,"workerSafety":null,"admissionPacket":77.8,"arbitration":50,"substandardQoc":null,"googleRating":4,"yelpRating":5,"legalClaims":0},
-        "Morgan Hill HC": {"healthInspections":3,"qmRating":5,"rehospitalization":12.5,"dischargeFunctional":33.33,"occupancy":98,"medicareCensus":16.87,"skilledMix":11.27,"badDebt":1.5,"dso":58.76,"noi":null,"labor":null,"otdt":5.5,"rehabProductivity":87.2,"turnover":40,"workerSafety":null,"admissionPacket":70,"arbitration":60,"substandardQoc":null,"googleRating":5,"yelpRating":5,"legalClaims":0},
-        "Mountain View HC": {"healthInspections":3,"qmRating":4,"rehospitalization":13.11,"dischargeFunctional":62.5,"occupancy":94.6,"medicareCensus":29.13,"skilledMix":54.3,"badDebt":2.5,"dso":46.36,"noi":null,"labor":null,"otdt":4.2,"rehabProductivity":89.2,"turnover":34,"workerSafety":null,"admissionPacket":82.5,"arbitration":66.2,"substandardQoc":null,"googleRating":5,"yelpRating":4,"legalClaims":0},
-        "Eden HC": {"healthInspections":2,"qmRating":1,"rehospitalization":8.33,"dischargeFunctional":71.43,"occupancy":97.7,"medicareCensus":12.79,"skilledMix":48.37,"badDebt":4,"dso":117.25,"noi":null,"labor":null,"otdt":9.5,"rehabProductivity":83.6,"turnover":27,"workerSafety":null,"admissionPacket":0,"arbitration":88.2,"substandardQoc":null,"googleRating":5,"yelpRating":4,"legalClaims":1},
-        "West Shore PA": {"healthInspections":2,"qmRating":4,"rehospitalization":27.91,"dischargeFunctional":66.67,"occupancy":98.4,"medicareCensus":4.2,"skilledMix":29.03,"badDebt":1.5,"dso":50.3,"noi":null,"labor":null,"otdt":5.5,"rehabProductivity":82.3,"turnover":39,"workerSafety":null,"admissionPacket":100,"arbitration":93.3,"substandardQoc":null,"googleRating":5,"yelpRating":5,"legalClaims":0},
-        "Golden Harbor HC": {"healthInspections":2,"qmRating":2,"rehospitalization":17.39,"dischargeFunctional":50,"occupancy":96.8,"medicareCensus":20.09,"skilledMix":32.03,"badDebt":1.5,"dso":133.73,"noi":null,"labor":null,"otdt":5.1,"rehabProductivity":77.3,"turnover":null,"workerSafety":null,"admissionPacket":0,"arbitration":0,"substandardQoc":null,"googleRating":5,"yelpRating":3,"legalClaims":0},
-        "Belmont HC": {"healthInspections":4,"qmRating":4,"rehospitalization":7.89,"dischargeFunctional":85.71,"occupancy":97.6,"medicareCensus":32.28,"skilledMix":35.13,"badDebt":2.25,"dso":66.82,"noi":null,"labor":null,"otdt":4.7,"rehabProductivity":85.1,"turnover":48,"workerSafety":null,"admissionPacket":86.4,"arbitration":56.8,"substandardQoc":null,"googleRating":5,"yelpRating":4,"legalClaims":0},
-        "Palo Alto Post Acute": {"healthInspections":3,"qmRating":4,"rehospitalization":36.11,"dischargeFunctional":87.5,"occupancy":96.2,"medicareCensus":28.57,"skilledMix":37.1,"badDebt":1.5,"dso":50.64,"noi":null,"labor":null,"otdt":4,"rehabProductivity":89.6,"turnover":35,"workerSafety":null,"admissionPacket":50,"arbitration":50,"substandardQoc":null,"googleRating":4,"yelpRating":5,"legalClaims":0},
-        "Bridgewood PA": {"healthInspections":2,"qmRating":5,"rehospitalization":6.25,"dischargeFunctional":80,"occupancy":97.1,"medicareCensus":11.13,"skilledMix":17.47,"badDebt":2.5,"dso":45.82,"noi":null,"labor":null,"otdt":4.5,"rehabProductivity":85.3,"turnover":38,"workerSafety":null,"admissionPacket":35.7,"arbitration":28.6,"substandardQoc":null,"googleRating":5,"yelpRating":4,"legalClaims":0},
-        "Cedarwood PA": {"healthInspections":2,"qmRating":4,"rehospitalization":11.11,"dischargeFunctional":80,"occupancy":94.5,"medicareCensus":20.26,"skilledMix":21.67,"badDebt":1.5,"dso":58.65,"noi":null,"labor":null,"otdt":5.4,"rehabProductivity":78.3,"turnover":50,"workerSafety":null,"admissionPacket":85.2,"arbitration":55.6,"substandardQoc":null,"googleRating":5,"yelpRating":4,"legalClaims":0},
-        "Capital PA": {"healthInspections":2,"qmRating":4,"rehospitalization":10.53,"dischargeFunctional":100,"occupancy":97.2,"medicareCensus":10.52,"skilledMix":35.4,"badDebt":1.5,"dso":37.96,"noi":null,"labor":null,"otdt":5.6,"rehabProductivity":79.8,"turnover":44,"workerSafety":null,"admissionPacket":90.9,"arbitration":83.6,"substandardQoc":null,"googleRating":5,"yelpRating":4,"legalClaims":0}
-      }
-    };
     const COLORS = {
       buildings: ['#22d3ee','#14b8a6','#10b981','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#ec4899','#06b6d4','#6366f1','#84cc16','#f97316','#2dd4bf','#a855f7','#34d399','#e11d48','#0ea5e9'],
       gc: '#3b82f6', ol: '#a855f7'
@@ -473,21 +410,30 @@
     let charts = {};
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
-    document.addEventListener('DOMContentLoaded', () => {
-      loadPreloadedData();
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadDataFromJSON();
       initTabs();
-      initUpload();
       initSelects();
       initMonthSelect();
       updateAllDisplays();
     });
-    function loadPreloadedData() {
-      Object.entries(PRELOADED_DATA).forEach(([month, buildingData]) => {
-        const scores = calculateScores(buildingData);
-        allData.push({ month, date: new Date().toISOString(), buildingData, scores });
-      });
-      currentData = allData[allData.length - 1];
+
+    async function loadDataFromJSON() {
+      try {
+        const response = await fetch('data.json');
+        const jsonData = await response.json();
+        Object.entries(jsonData).forEach(([month, buildingData]) => {
+          const scores = calculateScores(buildingData);
+          allData.push({ month, date: new Date().toISOString(), buildingData, scores });
+        });
+        currentData = allData[allData.length - 1];
+      } catch (err) {
+        console.error('Error loading data:', err);
+        document.getElementById('podiumContent').innerHTML = '<div class="no-data"><div class="no-data-icon">❌</div><p>Error loading data.json</p></div>';
+      }
     }
+
     function initMonthSelect() {
       const select = document.getElementById('monthSelect');
       select.innerHTML = '';
@@ -503,6 +449,7 @@
         updateAllDisplays();
       });
     }
+
     function initTabs() {
       document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -518,14 +465,7 @@
         });
       });
     }
-    function initUpload() {
-      const input = document.getElementById('fileInput');
-      const section = document.querySelector('.upload-section');
-      section.addEventListener('dragover', e => { e.preventDefault(); section.style.borderColor = '#22d3ee'; });
-      section.addEventListener('dragleave', () => section.style.borderColor = 'rgba(255,255,255,0.2)');
-      section.addEventListener('drop', e => { e.preventDefault(); section.style.borderColor = 'rgba(255,255,255,0.2)'; if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
-      input.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
-    }
+
     function initSelects() {
       ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3'].forEach(id => {
         const select = document.getElementById(id);
@@ -534,42 +474,7 @@
       document.getElementById('buildingSelect').addEventListener('change', e => renderBuildingDetail(e.target.value));
       ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); });
     }
-    function processFile(file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const wb = XLSX.read(e.target.result, { type: 'array' });
-          const sheetName = wb.SheetNames.find(n => n === 'September' || n === 'October' || n === 'November' || n === 'Monthly Data') || wb.SheetNames[0];
-          const sheet = wb.Sheets[sheetName];
-          if (!sheet) { alert('Cannot read sheet'); return; }
-          const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-          const month = sheetName || new Date().toLocaleDateString('en-US', {month:'long', year:'numeric'});
-          const buildingData = {};
-          BUILDINGS.forEach((b, i) => {
-            const col = i + 3;
-            const metrics = {};
-            Object.entries(METRIC_ROW_MAP).forEach(([key, row]) => {
-              const rowData = data[row];
-              const val = rowData ? rowData[col] : null;
-              metrics[key] = (val !== undefined && val !== '' && val !== null) ? parseFloat(val) : null;
-            });
-            buildingData[b.name] = metrics;
-          });
-          const scores = calculateScores(buildingData);
-          const entry = { month, date: new Date().toISOString(), buildingData, scores };
-          const idx = allData.findIndex(d => d.month === month);
-          if (idx >= 0) allData[idx] = entry; else allData.push(entry);
-          currentData = entry;
-          initMonthSelect();
-          updateAllDisplays();
-          alert('Data loaded successfully for ' + month + '!');
-        } catch (err) {
-          console.error('Error processing file:', err);
-          alert('Error processing file: ' + err.message);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
+
     function calculateScores(buildingData) {
       const scores = {};
       BUILDINGS.forEach(b => {
@@ -599,15 +504,18 @@
       });
       return scores;
     }
+
     function updateAllDisplays() {
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data';
       renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
       const bs = document.getElementById('buildingSelect');
       if (bs.value) renderBuildingDetail(bs.value);
     }
+
     function getRanked() {
       return BUILDINGS.map(b => ({ ...b, score: currentData.scores[b.name].total, categories: currentData.scores[b.name].categories })).sort((a, b) => b.score - a.score);
     }
+
     function renderPodium() {
       if (!currentData) return;
       const ranked = getRanked();
@@ -617,6 +525,7 @@
         <div class="podium-place place-3"><div class="podium-avatar">3</div><div class="podium-name">${ranked[2].name}</div><div class="podium-score">${ranked[2].score.toFixed(1)} pts</div><div class="podium-block">🥉</div></div>
       </div>`;
     }
+
     function renderQuickRankings() {
       if (!currentData) return;
       const ranked = getRanked();
@@ -626,6 +535,7 @@
         <div class="rank-bar"><div class="rank-bar-fill" style="width:${(r.score/max)*100}%"></div></div><span class="rank-score">${r.score.toFixed(1)}</span></div>
       `).join('')}</div>`;
     }
+
     function renderHeatMap() {
       if (!currentData) return;
       const ranked = getRanked();
@@ -639,9 +549,11 @@
       html += '</tbody>';
       document.getElementById('heatmapTable').innerHTML = html;
     }
+
     function getHeatColor(score) {
       if (score >= 80) return '#10b981'; if (score >= 60) return '#22c55e'; if (score >= 40) return '#f59e0b'; if (score >= 20) return '#f97316'; return '#ef4444';
     }
+
     function renderRadarChart() {
       if (!currentData) return;
       const ctx = document.getElementById('radarChart').getContext('2d');
@@ -652,6 +564,7 @@
       const datasets = selected.map((name, i) => ({ label: name, data: Object.keys(CATEGORIES).map(k => currentData.scores[name].categories[k]), borderColor: COLORS.buildings[i], backgroundColor: COLORS.buildings[i] + '30', pointBackgroundColor: COLORS.buildings[i], pointRadius: 4 }));
       charts.radar = new Chart(ctx, { type: 'radar', data: { labels, datasets }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20 }}}, plugins: { legend: { position: 'bottom' }}}});
     }
+
     function renderRegionalStats() {
       if (!currentData) return;
       const ranked = getRanked();
@@ -664,6 +577,7 @@
       document.getElementById('gcTopBuildings').innerHTML = `<div style="font-size:0.9rem">${gc.slice(0,3).map((r,i) => `<div style="padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.1)">${['🥇','🥈','🥉'][i]} ${r.name} - ${r.score.toFixed(1)}</div>`).join('')}</div>`;
       document.getElementById('olTopBuildings').innerHTML = `<div style="font-size:0.9rem">${ol.slice(0,3).map((r,i) => `<div style="padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.1)">${['🥇','🥈','🥉'][i]} ${r.name} - ${r.score.toFixed(1)}</div>`).join('')}</div>`;
     }
+
     function renderRegionalChart() {
       if (!currentData) return;
       const ctx = document.getElementById('regionalChart').getContext('2d');
@@ -676,6 +590,7 @@
       const olAvg = catKeys.map(k => ol.reduce((s, r) => s + r.categories[k], 0) / ol.length);
       charts.regional = new Chart(ctx, { type: 'bar', data: { labels: catKeys.map(k => CATEGORIES[k].name), datasets: [{ label: 'Golden Coast', data: gcAvg, backgroundColor: COLORS.gc, borderRadius: 6 }, { label: 'Overland', data: olAvg, backgroundColor: COLORS.ol, borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { y: { beginAtZero: true, max: 100 }}}});
     }
+
     function renderBuildingDetail(name) {
       if (!name || !currentData) { document.getElementById('buildingContent').innerHTML = '<div class="no-data"><div class="no-data-icon">🏢</div><p>Select a building</p></div>'; return; }
       const building = BUILDINGS.find(b => b.name === name);
@@ -686,6 +601,7 @@
         <div class="gauge-grid" style="margin-bottom:1.5rem">${Object.entries(CATEGORIES).map(([k, cat]) => { const score = scores.categories[k]; const color = getHeatColor(score); return `<div class="gauge-item"><div class="gauge-circle" style="background:conic-gradient(${color} ${score*3.6}deg, rgba(255,255,255,0.1) ${score*3.6}deg)"><div style="width:60px;height:60px;background:var(--slate-800);border-radius:50%;display:flex;align-items:center;justify-content:center"><span class="gauge-value">${score.toFixed(0)}</span></div></div><div class="gauge-label">${cat.name}</div></div>`; }).join('')}</div>
         ${Object.entries(CATEGORIES).map(([k, cat]) => `<div style="margin-bottom:1.5rem"><div style="font-weight:700;margin-bottom:0.75rem;display:flex;justify-content:space-between;color:var(--slate-200)"><span>${cat.name}</span><span style="color:#22d3ee">${scores.categories[k].toFixed(1)} pts</span></div><div class="metrics-grid">${cat.metrics.map(m => `<div class="metric-item"><div class="metric-label">${m.label}</div><div class="metric-value">${scores.metrics[m.key] !== null ? scores.metrics[m.key] : 'N/A'}</div></div>`).join('')}</div></div>`).join('')}</div>`;
     }
+
     function renderTrendsChart() {
       const ctx = document.getElementById('trendsChart').getContext('2d');
       if (charts.trends) charts.trends.destroy();
@@ -693,6 +609,7 @@
       const top5 = BUILDINGS.map(b => ({ name: b.name, avg: allData.reduce((s, d) => s + d.scores[b.name].total, 0) / allData.length })).sort((a, b) => b.avg - a.avg).slice(0, 5);
       charts.trends = new Chart(ctx, { type: 'line', data: { labels: allData.map(d => d.month), datasets: top5.map((b, i) => ({ label: b.name, data: allData.map(d => d.scores[b.name].total), borderColor: COLORS.buildings[i], backgroundColor: 'transparent', tension: 0.3, pointRadius: 4 })) }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }}, scales: { y: { beginAtZero: false }}}});
     }
+
     function renderCategoryTrendsChart() {
       const ctx = document.getElementById('categoryTrendsChart').getContext('2d');
       if (charts.catTrends) charts.catTrends.destroy();
