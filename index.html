@@ -67,7 +67,7 @@
     .heatmap { min-width: 900px; border-collapse: collapse; width: 100%; }
     .heatmap th, .heatmap td { padding: 0.6rem 0.5rem; text-align: center; font-size: 0.75rem; }
     .heatmap th { background: linear-gradient(135deg, var(--blue-500), var(--blue-600)); color: white; font-weight: 700; }
-    .heatmap th:first-child { text-align: left; min-width: 180px; border-radius: 8px 0 0 0; }
+    .heatmap th:first-child { text-align: left; min-width: 200px; border-radius: 8px 0 0 0; }
     .heatmap th:last-child { border-radius: 0 8px 0 0; }
     .heatmap td:first-child { text-align: left; font-weight: 600; background: var(--white-05); color: var(--slate-200); white-space: nowrap; }
     .heatmap-cell { border-radius: 4px; padding: 0.3rem 0.4rem; font-weight: 600; display: inline-block; min-width: 36px; font-size: 0.7rem; }
@@ -98,11 +98,21 @@
     .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--slate-300); }
     .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
     .loading { text-align: center; padding: 4rem; color: var(--slate-400); }
+    .trend-up { color: #10b981; }
+    .trend-down { color: #ef4444; }
+    .trend-same { color: var(--slate-400); }
+    .trend-item { display: grid; grid-template-columns: 1fr 80px 80px 80px 80px; align-items: center; padding: 0.875rem 1rem; background: var(--white-05); border: 1px solid var(--white-10); border-radius: 12px; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .trend-item:hover { background: var(--white-10); }
+    .trend-name { font-weight: 600; color: var(--slate-200); }
+    .trend-region { font-size: 0.75rem; color: var(--slate-500); }
+    .trend-value { text-align: center; font-weight: 600; }
+    .trend-change { text-align: center; font-weight: 700; font-size: 0.9rem; }
     @media (max-width: 768px) {
       .header-content { flex-direction: column; gap: 1rem; text-align: center; }
       .podium-container { flex-direction: column; align-items: center; }
       .rank-item { grid-template-columns: 35px 1fr 50px; }
       .rank-bar { display: none; }
+      .trend-item { grid-template-columns: 1fr 60px 60px 60px; font-size: 0.85rem; }
     }
   </style>
 </head>
@@ -113,21 +123,13 @@
       <div class="logo">
         <div class="logo-icon">
           <div class="logo-box">
-            <!-- Yacht/Sailboat SVG in blue and yellow -->
             <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Main sail (yellow) -->
               <path d="M50 12 L50 70 L85 70 Z" fill="#facc15"/>
-              <!-- Secondary sail (white) -->
               <path d="M50 20 L50 65 L25 65 Z" fill="white" opacity="0.9"/>
-              <!-- Mast -->
               <line x1="50" y1="10" x2="50" y2="75" stroke="white" stroke-width="3"/>
-              <!-- Hull (yellow) -->
               <path d="M20 72 Q50 68 80 72 L75 85 Q50 82 25 85 Z" fill="#facc15"/>
-              <!-- Hull accent line -->
               <path d="M25 78 Q50 75 75 78" stroke="#eab308" stroke-width="2" fill="none"/>
-              <!-- Water waves -->
               <path d="M10 90 Q25 86 40 90 Q55 94 70 90 Q85 86 95 90" stroke="white" stroke-width="2" fill="none" opacity="0.5"/>
-              <!-- Flag -->
               <path d="M50 12 L50 8 L60 10 L50 12" fill="#facc15"/>
             </svg>
           </div>
@@ -146,6 +148,7 @@
   <div class="container">
     <div class="tabs">
       <button class="tab active" data-tab="podium">🏆 Podium</button>
+      <button class="tab" data-tab="trends">📈 Trends</button>
       <button class="tab" data-tab="radar">🎯 Radar</button>
       <button class="tab" data-tab="heatmap">🔥 Heat Map</button>
       <button class="tab" data-tab="building">🏢 Building Detail</button>
@@ -154,6 +157,23 @@
     <div id="podium" class="tab-content active">
       <div class="card"><div class="card-title">🏆 Top Performers</div><div id="podiumContent"><div class="loading">Loading data...</div></div></div>
       <div class="card"><div class="card-title">Complete Rankings</div><div id="quickRankings"></div></div>
+    </div>
+    <div id="trends" class="tab-content">
+      <div class="card">
+        <div class="card-title">📈 Score Trends Over Time</div>
+        <div class="chart-wrapper"><canvas id="trendsChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Month-over-Month Changes</div>
+        <div style="display:grid;grid-template-columns:1fr 80px 80px 80px 80px;padding:0.5rem 1rem;font-weight:700;color:var(--slate-400);font-size:0.8rem;border-bottom:1px solid var(--white-10);margin-bottom:0.5rem;">
+          <div>Building</div>
+          <div style="text-align:center">Sept</div>
+          <div style="text-align:center">Oct</div>
+          <div style="text-align:center">Change</div>
+          <div style="text-align:center">Rank Δ</div>
+        </div>
+        <div id="trendsList"></div>
+      </div>
     </div>
     <div id="radar" class="tab-content">
       <div class="filter-row">
@@ -196,7 +216,6 @@
     </div>
   </div>
   <script>
-    // Full building names
     const BUILDINGS = [
       { name: "Gilroy Healthcare Center", region: "Golden Coast", dataKey: "Gilroy HC" },
       { name: "Camino Ridge Post Acute", region: "Golden Coast", dataKey: "Camino Ridge Post Acute" },
@@ -255,7 +274,7 @@
       ]}
     };
     
-    const COLORS = ['#3b82f6','#facc15','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899','#22d3ee'];
+    const COLORS = ['#3b82f6','#facc15','#10b981','#8b5cf6','#f59e0b','#ef4444','#ec4899','#22d3ee','#a855f7','#14b8a6','#f97316','#6366f1','#84cc16','#06b6d4','#e879f9','#fb7185','#4ade80'];
     
     let allData = [];
     let currentData = null;
@@ -312,6 +331,7 @@
           if (currentData) {
             if (tab.dataset.tab === 'radar') renderRadarChart();
             if (tab.dataset.tab === 'regional') renderRegionalChart();
+            if (tab.dataset.tab === 'trends') renderTrends();
           }
         });
       });
@@ -433,6 +453,71 @@
       });
       html += '</tbody>';
       document.getElementById('heatmapTable').innerHTML = html;
+    }
+
+    function renderTrends() {
+      if (allData.length < 2) {
+        document.getElementById('trendsList').innerHTML = '<div class="no-data">Need at least 2 months of data for trends</div>';
+        return;
+      }
+      
+      // Line chart
+      const ctx = document.getElementById('trendsChart').getContext('2d');
+      if (charts.trends) charts.trends.destroy();
+      
+      const months = allData.map(d => d.month);
+      const datasets = BUILDINGS.map((b, i) => ({
+        label: b.name,
+        data: allData.map(d => d.buildingData[b.dataKey]._score),
+        borderColor: COLORS[i % COLORS.length],
+        backgroundColor: COLORS[i % COLORS.length] + '20',
+        tension: 0.3,
+        pointRadius: 4
+      }));
+      
+      charts.trends = new Chart(ctx, {
+        type: 'line',
+        data: { labels: months, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } } },
+          scales: { y: { beginAtZero: false, min: 30, max: 85 } }
+        }
+      });
+      
+      // Month-over-month list
+      const prevMonth = allData[allData.length - 2];
+      const currMonth = allData[allData.length - 1];
+      
+      const changes = BUILDINGS.map(b => {
+        const prevScore = prevMonth.buildingData[b.dataKey]._score;
+        const currScore = currMonth.buildingData[b.dataKey]._score;
+        const prevRank = prevMonth.buildingData[b.dataKey]._rank;
+        const currRank = currMonth.buildingData[b.dataKey]._rank;
+        return {
+          name: b.name,
+          region: b.region,
+          prevScore,
+          currScore,
+          change: currScore - prevScore,
+          rankChange: prevRank - currRank // positive = improved
+        };
+      }).sort((a, b) => b.change - a.change);
+      
+      document.getElementById('trendsList').innerHTML = changes.map(c => {
+        const changeClass = c.change > 0 ? 'trend-up' : c.change < 0 ? 'trend-down' : 'trend-same';
+        const rankClass = c.rankChange > 0 ? 'trend-up' : c.rankChange < 0 ? 'trend-down' : 'trend-same';
+        const changeIcon = c.change > 0 ? '↑' : c.change < 0 ? '↓' : '→';
+        const rankIcon = c.rankChange > 0 ? '↑' : c.rankChange < 0 ? '↓' : '→';
+        return `<div class="trend-item">
+          <div><div class="trend-name">${c.name}</div><div class="trend-region">${c.region}</div></div>
+          <div class="trend-value">${c.prevScore.toFixed(1)}</div>
+          <div class="trend-value">${c.currScore.toFixed(1)}</div>
+          <div class="trend-change ${changeClass}">${changeIcon} ${Math.abs(c.change).toFixed(1)}</div>
+          <div class="trend-change ${rankClass}">${rankIcon} ${Math.abs(c.rankChange)}</div>
+        </div>`;
+      }).join('');
     }
 
     function renderRadarChart() {
