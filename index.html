@@ -87,7 +87,7 @@
     .metric-item { background: var(--white-05); padding: 1rem; border-radius: 10px; }
     .metric-label { font-size: 0.75rem; color: var(--slate-400); margin-bottom: 0.25rem; }
     .metric-value { font-size: 1.1rem; font-weight: 700; color: var(--slate-100); }
-    select { padding: 0.875rem 1rem; border: 1px solid var(--white-20); border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.9rem; background: var(--white-10); color: var(--slate-200); cursor: pointer; min-width: 220px; }
+    select { padding: 0.875rem 1rem; border: 1px solid var(--white-20); border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 0.9rem; background: var(--white-10); color: var(--slate-200); cursor: pointer; min-width: 180px; }
     select:focus { outline: none; border-color: var(--blue-500); }
     select option { background: var(--slate-800); color: var(--slate-200); }
     .filter-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
@@ -107,6 +107,11 @@
     .trend-region { font-size: 0.75rem; color: var(--slate-500); }
     .trend-value { text-align: center; font-weight: 600; }
     .trend-change { text-align: center; font-weight: 700; font-size: 0.9rem; }
+    .bump-row { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--white-05); }
+    .bump-rank { width: 30px; font-weight: 800; color: var(--yellow-400); }
+    .bump-line { flex: 1; height: 40px; position: relative; }
+    .bump-connector { position: absolute; height: 2px; top: 50%; transform: translateY(-50%); }
+    .bump-dot { width: 12px; height: 12px; border-radius: 50%; position: absolute; top: 50%; transform: translate(-50%, -50%); }
     @media (max-width: 768px) {
       .header-content { flex-direction: column; gap: 1rem; text-align: center; }
       .podium-container { flex-direction: column; align-items: center; }
@@ -148,32 +153,15 @@
   <div class="container">
     <div class="tabs">
       <button class="tab active" data-tab="podium">🏆 Podium</button>
-      <button class="tab" data-tab="trends">📈 Trends</button>
       <button class="tab" data-tab="radar">🎯 Radar</button>
       <button class="tab" data-tab="heatmap">🔥 Heat Map</button>
       <button class="tab" data-tab="building">🏢 Building Detail</button>
       <button class="tab" data-tab="regional">🗺️ Regional</button>
+      <button class="tab" data-tab="trends">📈 Trends</button>
     </div>
     <div id="podium" class="tab-content active">
       <div class="card"><div class="card-title">🏆 Top Performers</div><div id="podiumContent"><div class="loading">Loading data...</div></div></div>
       <div class="card"><div class="card-title">Complete Rankings</div><div id="quickRankings"></div></div>
-    </div>
-    <div id="trends" class="tab-content">
-      <div class="card">
-        <div class="card-title">📈 Score Trends Over Time</div>
-        <div class="chart-wrapper"><canvas id="trendsChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Month-over-Month Changes</div>
-        <div style="display:grid;grid-template-columns:1fr 80px 80px 80px 80px;padding:0.5rem 1rem;font-weight:700;color:var(--slate-400);font-size:0.8rem;border-bottom:1px solid var(--white-10);margin-bottom:0.5rem;">
-          <div>Building</div>
-          <div style="text-align:center">Sept</div>
-          <div style="text-align:center">Oct</div>
-          <div style="text-align:center">Change</div>
-          <div style="text-align:center">Rank Δ</div>
-        </div>
-        <div id="trendsList"></div>
-      </div>
     </div>
     <div id="radar" class="tab-content">
       <div class="filter-row">
@@ -195,6 +183,9 @@
       <div id="buildingContent"></div>
     </div>
     <div id="regional" class="tab-content">
+      <div class="filter-row">
+        <select id="regionalMonthSelect"></select>
+      </div>
       <div class="grid-2">
         <div class="region-card">
           <div class="region-header"><span class="region-badge region-gc">Golden Coast</span><span style="font-weight:600;color:var(--slate-300)">9 Buildings</span></div>
@@ -212,6 +203,27 @@
           <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Golden Coast</div>
           <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div> Overland</div>
         </div>
+      </div>
+    </div>
+    <div id="trends" class="tab-content">
+      <div class="card">
+        <div class="card-title">📊 Score Comparison: September vs October</div>
+        <div class="chart-wrapper" style="height:500px"><canvas id="trendsChart"></canvas></div>
+        <div class="legend-inline">
+          <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> September</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#facc15"></div> October</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Month-over-Month Changes</div>
+        <div style="display:grid;grid-template-columns:1fr 80px 80px 80px 80px;padding:0.5rem 1rem;font-weight:700;color:var(--slate-400);font-size:0.8rem;border-bottom:1px solid var(--white-10);margin-bottom:0.5rem;">
+          <div>Building</div>
+          <div style="text-align:center">Sept</div>
+          <div style="text-align:center">Oct</div>
+          <div style="text-align:center">Change</div>
+          <div style="text-align:center">Rank Δ</div>
+        </div>
+        <div id="trendsList"></div>
       </div>
     </div>
   </div>
@@ -278,6 +290,7 @@
     
     let allData = [];
     let currentData = null;
+    let regionalMonthData = null;
     let charts = {};
     
     Chart.defaults.color = '#94a3b8';
@@ -288,6 +301,7 @@
       initTabs();
       initSelects();
       initMonthSelect();
+      initRegionalMonthSelect();
       updateAllDisplays();
     });
 
@@ -299,6 +313,7 @@
           allData.push({ month, buildingData });
         });
         currentData = allData[allData.length - 1];
+        regionalMonthData = allData[allData.length - 1];
       } catch (err) {
         console.error('Error loading data:', err);
         document.getElementById('podiumContent').innerHTML = '<div class="no-data"><div class="no-data-icon">❌</div><p>Error loading data.json</p></div>';
@@ -318,6 +333,23 @@
       select.addEventListener('change', e => {
         currentData = allData[parseInt(e.target.value)];
         updateAllDisplays();
+      });
+    }
+
+    function initRegionalMonthSelect() {
+      const select = document.getElementById('regionalMonthSelect');
+      select.innerHTML = '';
+      allData.forEach((d, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = d.month;
+        if (i === allData.length - 1) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', e => {
+        regionalMonthData = allData[parseInt(e.target.value)];
+        renderRegionalStats();
+        renderRegionalChart();
       });
     }
 
@@ -358,11 +390,6 @@
       return b ? b.name : dataKey;
     }
 
-    function getRegion(dataKey) {
-      const b = BUILDINGS.find(b => b.dataKey === dataKey);
-      return b ? b.region : '';
-    }
-
     function getRanked() {
       return BUILDINGS.map(b => ({
         name: b.name,
@@ -374,15 +401,26 @@
       })).sort((a, b) => a.rank - b.rank);
     }
 
-    function getCategoryScores(dataKey) {
-      const metrics = currentData.buildingData[dataKey];
+    function getRankedForMonth(monthData) {
+      return BUILDINGS.map(b => ({
+        name: b.name,
+        dataKey: b.dataKey,
+        region: b.region,
+        score: monthData.buildingData[b.dataKey]._score,
+        rank: monthData.buildingData[b.dataKey]._rank,
+        metrics: monthData.buildingData[b.dataKey]
+      })).sort((a, b) => a.rank - b.rank);
+    }
+
+    function getCategoryScores(dataKey, monthData = currentData) {
+      const metrics = monthData.buildingData[dataKey];
       const scores = {};
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
         let total = 0, count = 0;
         cat.metrics.forEach(m => {
           const val = metrics[m.key];
           if (val !== null && val !== undefined) {
-            const allVals = BUILDINGS.map(b => currentData.buildingData[b.dataKey][m.key]).filter(v => v !== null && v !== undefined);
+            const allVals = BUILDINGS.map(b => monthData.buildingData[b.dataKey][m.key]).filter(v => v !== null && v !== undefined);
             if (allVals.length > 0) {
               const min = Math.min(...allVals), max = Math.max(...allVals);
               let norm = max !== min ? ((val - min) / (max - min)) * 100 : 50;
@@ -461,35 +499,44 @@
         return;
       }
       
-      // Line chart
+      // Horizontal bar chart comparing Sept vs Oct
       const ctx = document.getElementById('trendsChart').getContext('2d');
       if (charts.trends) charts.trends.destroy();
       
-      const months = allData.map(d => d.month);
-      const datasets = BUILDINGS.map((b, i) => ({
-        label: b.name,
-        data: allData.map(d => d.buildingData[b.dataKey]._score),
-        borderColor: COLORS[i % COLORS.length],
-        backgroundColor: COLORS[i % COLORS.length] + '20',
-        tension: 0.3,
-        pointRadius: 4
-      }));
+      const prevMonth = allData[allData.length - 2];
+      const currMonth = allData[allData.length - 1];
+      
+      // Sort by Oct score
+      const sortedBuildings = [...BUILDINGS].sort((a, b) => 
+        currMonth.buildingData[b.dataKey]._score - currMonth.buildingData[a.dataKey]._score
+      );
+      
+      const labels = sortedBuildings.map(b => b.name);
+      const septScores = sortedBuildings.map(b => prevMonth.buildingData[b.dataKey]._score);
+      const octScores = sortedBuildings.map(b => currMonth.buildingData[b.dataKey]._score);
       
       charts.trends = new Chart(ctx, {
-        type: 'line',
-        data: { labels: months, datasets },
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: prevMonth.month, data: septScores, backgroundColor: '#3b82f6', borderRadius: 4 },
+            { label: currMonth.month, data: octScores, backgroundColor: '#facc15', borderRadius: 4 }
+          ]
+        },
         options: {
+          indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } } },
-          scales: { y: { beginAtZero: false, min: 30, max: 85 } }
+          plugins: { legend: { display: false } },
+          scales: { 
+            x: { beginAtZero: true, max: 85 },
+            y: { ticks: { font: { size: 11 } } }
+          }
         }
       });
       
       // Month-over-month list
-      const prevMonth = allData[allData.length - 2];
-      const currMonth = allData[allData.length - 1];
-      
       const changes = BUILDINGS.map(b => {
         const prevScore = prevMonth.buildingData[b.dataKey]._score;
         const currScore = currMonth.buildingData[b.dataKey]._score;
@@ -501,7 +548,7 @@
           prevScore,
           currScore,
           change: currScore - prevScore,
-          rankChange: prevRank - currRank // positive = improved
+          rankChange: prevRank - currRank
         };
       }).sort((a, b) => b.change - a.change);
       
@@ -557,8 +604,8 @@
     }
 
     function renderRegionalStats() {
-      if (!currentData) return;
-      const ranked = getRanked();
+      if (!regionalMonthData) return;
+      const ranked = getRankedForMonth(regionalMonthData);
       const gc = ranked.filter(r => r.region === 'Golden Coast');
       const ol = ranked.filter(r => r.region === 'Overland');
       const avgGC = gc.reduce((s, r) => s + r.score, 0) / gc.length;
@@ -571,21 +618,21 @@
     }
 
     function renderRegionalChart() {
-      if (!currentData) return;
+      if (!regionalMonthData) return;
       const ctx = document.getElementById('regionalChart').getContext('2d');
       if (charts.regional) charts.regional.destroy();
       
-      const ranked = getRanked();
+      const ranked = getRankedForMonth(regionalMonthData);
       const gc = ranked.filter(r => r.region === 'Golden Coast');
       const ol = ranked.filter(r => r.region === 'Overland');
       const catKeys = Object.keys(CATEGORIES);
       
       const gcAvg = catKeys.map(k => {
-        const scores = gc.map(r => getCategoryScores(r.dataKey)[k]);
+        const scores = gc.map(r => getCategoryScores(r.dataKey, regionalMonthData)[k]);
         return scores.reduce((a,b) => a+b, 0) / scores.length;
       });
       const olAvg = catKeys.map(k => {
-        const scores = ol.map(r => getCategoryScores(r.dataKey)[k]);
+        const scores = ol.map(r => getCategoryScores(r.dataKey, regionalMonthData)[k]);
         return scores.reduce((a,b) => a+b, 0) / scores.length;
       });
       
