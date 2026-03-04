@@ -6,6 +6,12 @@
   <title>The Spyglass Regatta</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Regatta">
+  <meta name="theme-color" content="#3b82f6">
   <style>
     :root {
       --slate-900: #0f172a; --slate-800: #1e293b; --slate-700: #334155; --slate-600: #475569;
@@ -18,6 +24,22 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', -apple-system, sans-serif; background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 50%, var(--slate-900) 100%); min-height: 100vh; color: var(--slate-200); }
     .bg-pattern { position: fixed; inset: 0; opacity: 0.2; background-image: radial-gradient(circle at 2px 2px, rgba(100, 200, 255, 0.3) 1px, transparent 0); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+    
+    /* Login Screen */
+    .login-screen { position: fixed; inset: 0; z-index: 1000; background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 50%, var(--slate-900) 100%); display: flex; align-items: center; justify-content: center; }
+    .login-box { background: var(--white-10); backdrop-filter: blur(20px); border: 1px solid var(--white-20); border-radius: 24px; padding: 3rem; text-align: center; max-width: 400px; width: 90%; }
+    .login-logo { width: 80px; height: 80px; background: linear-gradient(135deg, var(--blue-600), var(--blue-500)); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .login-logo svg { width: 56px; height: 56px; }
+    .login-title { font-size: 1.75rem; font-weight: 900; background: linear-gradient(90deg, var(--blue-500), var(--yellow-400)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }
+    .login-subtitle { color: var(--slate-400); margin-bottom: 2rem; }
+    .login-input { width: 100%; padding: 1rem; border: 1px solid var(--white-20); border-radius: 12px; background: var(--white-05); color: var(--slate-200); font-family: 'Inter', sans-serif; font-size: 1rem; text-align: center; margin-bottom: 1rem; }
+    .login-input:focus { outline: none; border-color: var(--blue-500); }
+    .login-input::placeholder { color: var(--slate-500); }
+    .login-btn { width: 100%; padding: 1rem; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--blue-500), var(--blue-600)); color: white; font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.5); }
+    .login-error { color: #ef4444; font-size: 0.875rem; margin-top: 1rem; display: none; }
+    .login-screen.hidden { display: none; }
+    
     .header { position: sticky; top: 0; z-index: 50; background: var(--white-10); backdrop-filter: blur(20px); border-bottom: 1px solid var(--white-20); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
     .header-content { max-width: 1600px; margin: 0 auto; padding: 1.25rem 2rem; display: flex; justify-content: space-between; align-items: center; }
     .logo { display: flex; align-items: center; gap: 1rem; }
@@ -107,11 +129,34 @@
     .trend-region { font-size: 0.75rem; color: var(--slate-500); }
     .trend-value { text-align: center; font-weight: 600; }
     .trend-change { text-align: center; font-weight: 700; font-size: 0.9rem; }
-    .bump-row { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--white-05); }
-    .bump-rank { width: 30px; font-weight: 800; color: var(--yellow-400); }
-    .bump-line { flex: 1; height: 40px; position: relative; }
-    .bump-connector { position: absolute; height: 2px; top: 50%; transform: translateY(-50%); }
-    .bump-dot { width: 12px; height: 12px; border-radius: 50%; position: absolute; top: 50%; transform: translate(-50%, -50%); }
+    .main-content { display: none; }
+    .main-content.visible { display: block; }
+    
+    /* Methodology Styles */
+    .method-section { margin-bottom: 2rem; }
+    .method-section:last-child { margin-bottom: 0; }
+    .method-title { font-size: 1.25rem; font-weight: 800; color: var(--slate-100); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .method-text { color: var(--slate-300); line-height: 1.7; margin-bottom: 1rem; }
+    .formula-box { background: var(--slate-900); border: 1px solid var(--white-20); border-radius: 12px; padding: 1.25rem; font-family: 'Monaco', 'Consolas', monospace; color: var(--yellow-400); text-align: center; font-size: 1rem; margin: 1rem 0; }
+    .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+    .category-card { background: var(--white-05); border: 1px solid var(--white-10); border-radius: 12px; padding: 1rem; }
+    .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--white-10); }
+    .category-name { font-weight: 700; color: var(--slate-100); }
+    .category-weight { background: linear-gradient(135deg, var(--blue-500), var(--blue-600)); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+    .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--white-05); font-size: 0.875rem; }
+    .metric-row:last-child { border-bottom: none; }
+    .metric-name { color: var(--slate-300); }
+    .metric-weight { color: var(--yellow-400); font-weight: 600; }
+    .metric-direction { font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 10px; margin-left: 0.5rem; }
+    .higher-better { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .lower-better { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .step-list { counter-reset: step; }
+    .step-item { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+    .step-num { width: 32px; height: 32px; background: linear-gradient(135deg, var(--blue-500), var(--blue-600)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; flex-shrink: 0; }
+    .step-content { flex: 1; }
+    .step-title { font-weight: 700; color: var(--slate-100); margin-bottom: 0.25rem; }
+    .step-desc { color: var(--slate-400); font-size: 0.9rem; }
+    
     @media (max-width: 768px) {
       .header-content { flex-direction: column; gap: 1rem; text-align: center; }
       .podium-container { flex-direction: column; align-items: center; }
@@ -120,120 +165,294 @@
       .trend-item { grid-template-columns: 1fr 60px 60px 60px; font-size: 0.85rem; }
     }
   </style>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Regatta">
-  <meta name="theme-color" content="#3b82f6">
 </head>
 <body>
   <div class="bg-pattern"></div>
-  <div class="header">
-    <div class="header-content">
-      <div class="logo">
-        <div class="logo-icon">
-          <div class="logo-box">
-            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M50 12 L50 70 L85 70 Z" fill="#facc15"/>
-              <path d="M50 20 L50 65 L25 65 Z" fill="white" opacity="0.9"/>
-              <line x1="50" y1="10" x2="50" y2="75" stroke="white" stroke-width="3"/>
-              <path d="M20 72 Q50 68 80 72 L75 85 Q50 82 25 85 Z" fill="#facc15"/>
-              <path d="M25 78 Q50 75 75 78" stroke="#eab308" stroke-width="2" fill="none"/>
-              <path d="M10 90 Q25 86 40 90 Q55 94 70 90 Q85 86 95 90" stroke="white" stroke-width="2" fill="none" opacity="0.5"/>
-              <path d="M50 12 L50 8 L60 10 L50 12" fill="#facc15"/>
-            </svg>
+  
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-box">
+      <div class="login-logo">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 12 L50 70 L85 70 Z" fill="#facc15"/>
+          <path d="M50 20 L50 65 L25 65 Z" fill="white" opacity="0.9"/>
+          <line x1="50" y1="10" x2="50" y2="75" stroke="white" stroke-width="3"/>
+          <path d="M20 72 Q50 68 80 72 L75 85 Q50 82 25 85 Z" fill="#facc15"/>
+          <path d="M25 78 Q50 75 75 78" stroke="#eab308" stroke-width="2" fill="none"/>
+          <path d="M50 12 L50 8 L60 10 L50 12" fill="#facc15"/>
+        </svg>
+      </div>
+      <h1 class="login-title">The Spyglass Regatta</h1>
+      <p class="login-subtitle">Enter password to continue</p>
+      <input type="password" class="login-input" id="passwordInput" placeholder="Password" onkeypress="if(event.key==='Enter')checkPassword()">
+      <button class="login-btn" onclick="checkPassword()">Set Sail ⛵</button>
+      <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <div class="header">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">
+            <div class="logo-box">
+              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 12 L50 70 L85 70 Z" fill="#facc15"/>
+                <path d="M50 20 L50 65 L25 65 Z" fill="white" opacity="0.9"/>
+                <line x1="50" y1="10" x2="50" y2="75" stroke="white" stroke-width="3"/>
+                <path d="M20 72 Q50 68 80 72 L75 85 Q50 82 25 85 Z" fill="#facc15"/>
+                <path d="M25 78 Q50 75 75 78" stroke="#eab308" stroke-width="2" fill="none"/>
+                <path d="M10 90 Q25 86 40 90 Q55 94 70 90 Q85 86 95 90" stroke="white" stroke-width="2" fill="none" opacity="0.5"/>
+                <path d="M50 12 L50 8 L60 10 L50 12" fill="#facc15"/>
+              </svg>
+            </div>
+          </div>
+          <div class="logo-text">
+            <h1>The Spyglass Regatta</h1>
+            <p>Performance • Rankings • Excellence</p>
           </div>
         </div>
-        <div class="logo-text">
-          <h1>The Spyglass Regatta</h1>
-          <p>Performance • Rankings • Excellence</p>
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <select id="monthSelect"></select>
+          <div class="month-badge" id="currentMonth">Loading...</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <select id="monthSelect"></select>
-        <div class="month-badge" id="currentMonth">Loading...</div>
+    </div>
+    <div class="container">
+      <div class="tabs">
+        <button class="tab active" data-tab="podium">⛵ The Fleet</button>
+        <button class="tab" data-tab="radar">🎯 Radar</button>
+        <button class="tab" data-tab="heatmap">🔥 Heat Map</button>
+        <button class="tab" data-tab="building">🏢 Building Detail</button>
+        <button class="tab" data-tab="regional">🗺️ Regional</button>
+        <button class="tab" data-tab="trends">📈 Trends</button>
+        <button class="tab" data-tab="methodology">📋 Methodology</button>
+      </div>
+      <div id="podium" class="tab-content active">
+        <div class="card"><div class="card-title">🏆 Top Performers</div><div id="podiumContent"><div class="loading">Loading data...</div></div></div>
+        <div class="card"><div class="card-title">Complete Rankings</div><div id="quickRankings"></div></div>
+      </div>
+      <div id="radar" class="tab-content">
+        <div class="filter-row">
+          <select id="radarSelect1"><option value="">Select Building 1</option></select>
+          <select id="radarSelect2"><option value="">Select Building 2 (optional)</option></select>
+          <select id="radarSelect3"><option value="">Select Building 3 (optional)</option></select>
+        </div>
+        <div class="card"><div class="card-title">🎯 Category Comparison</div><div class="chart-wrapper"><canvas id="radarChart"></canvas></div></div>
+      </div>
+      <div id="heatmap" class="tab-content">
+        <div class="card">
+          <div class="card-title">🔥 Performance Heat Map</div>
+          <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Normalized scores by category (green = strong, red = needs improvement)</p>
+          <div class="heatmap-container"><table class="heatmap" id="heatmapTable"></table></div>
+        </div>
+      </div>
+      <div id="building" class="tab-content">
+        <div class="filter-row"><select id="buildingSelect"><option value="">Select a Building</option></select></div>
+        <div id="buildingContent"></div>
+      </div>
+      <div id="regional" class="tab-content">
+        <div class="filter-row">
+          <select id="regionalMonthSelect"></select>
+        </div>
+        <div class="grid-2">
+          <div class="region-card">
+            <div class="region-header"><span class="region-badge region-gc">Golden Coast</span><span style="font-weight:600;color:var(--slate-300)">9 Buildings</span></div>
+            <div class="region-stats" id="gcStats"></div><div id="gcTopBuildings"></div>
+          </div>
+          <div class="region-card">
+            <div class="region-header"><span class="region-badge region-ol">Overland</span><span style="font-weight:600;color:var(--slate-300)">8 Buildings</span></div>
+            <div class="region-stats" id="olStats"></div><div id="olTopBuildings"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:1.5rem">
+          <div class="card-title">Category Comparison: Golden Coast vs Overland</div>
+          <div class="chart-wrapper" style="height:300px"><canvas id="regionalChart"></canvas></div>
+          <div class="legend-inline">
+            <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Golden Coast</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div> Overland</div>
+          </div>
+        </div>
+      </div>
+      <div id="trends" class="tab-content">
+        <div class="card">
+          <div class="card-title">📊 Score Comparison: September vs October</div>
+          <div class="chart-wrapper" style="height:500px"><canvas id="trendsChart"></canvas></div>
+          <div class="legend-inline">
+            <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> September</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#facc15"></div> October</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Month-over-Month Changes</div>
+          <div style="display:grid;grid-template-columns:1fr 80px 80px 80px 80px;padding:0.5rem 1rem;font-weight:700;color:var(--slate-400);font-size:0.8rem;border-bottom:1px solid var(--white-10);margin-bottom:0.5rem;">
+            <div>Building</div>
+            <div style="text-align:center">Sept</div>
+            <div style="text-align:center">Oct</div>
+            <div style="text-align:center">Change</div>
+            <div style="text-align:center">Rank Δ</div>
+          </div>
+          <div id="trendsList"></div>
+        </div>
+      </div>
+      
+      <!-- Methodology Tab -->
+      <div id="methodology" class="tab-content">
+        <div class="card">
+          <div class="method-section">
+            <div class="method-title">📐 Scoring Formula</div>
+            <p class="method-text">Each building's total score is calculated using a weighted formula across 7 categories and 21 metrics. The formula ensures fair comparison by normalizing each metric across all 17 buildings.</p>
+            <div class="formula-box">Total Score = Σ (Normalized Score × Metric Weight × Category Weight)</div>
+          </div>
+          
+          <div class="method-section">
+            <div class="method-title">🔢 How It Works</div>
+            <div class="step-list">
+              <div class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                  <div class="step-title">Collect Raw Scores</div>
+                  <div class="step-desc">Each metric's raw value is collected for all 17 buildings (e.g., Occupancy %, QM Rating, DSO)</div>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                  <div class="step-title">Normalize (0-100 Scale)</div>
+                  <div class="step-desc">Each metric is normalized across all buildings. Best performer = 100, worst = 0. For "lower is better" metrics (like DSO), the scale is inverted.</div>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                  <div class="step-title">Apply Weights</div>
+                  <div class="step-desc">Normalized score is multiplied by the metric weight (within category) and category weight (overall importance).</div>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                  <div class="step-title">Sum All Contributions</div>
+                  <div class="step-desc">All weighted metric scores are summed to get the building's total score. Maximum possible is 100 points (if all data is available).</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="method-title">📊 Categories & Weights</div>
+          <p class="method-text" style="margin-bottom:1.5rem">Buildings are evaluated across 7 categories, each with specific metrics. The category weight determines its impact on the total score.</p>
+          
+          <div class="category-grid">
+            <div class="category-card">
+              <div class="category-header">
+                <span class="category-name">🏥 Care</span>
+                <span class="category-weight">26%</span>
+              </div>
+              <div class="metric-row"><span class="metric-name">Health Inspections (1-5)</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+              <div class="metric-row"><span class="metric-name">QM Rating (1-5)</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+              <div class="metric-row"><span class="metric-name">Rehospitalization %</span><span><span class="metric-weight">25%</span><span class="metric-direction lower-better">↓ Lower</span></span></div>
+              <div class="metric-row"><span class="metric-name">Discharge Functional %</span><span><span class="metric-weight">25%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+            </div>
+            
+            <div class="category-card">
+              <div class="category-header">
+                <span class="category-name">📈 Census</span>
+                <span class="category-weight">20%</span>
+              </div>
+              <div class="metric-row"><span class="metric-name">Occupancy %</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+              <div class="metric-row"><span class="metric-name">Medicare Census %</span><span><span class="metric-weight">40%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+              <div class="metric-row"><span class="metric-name">Skilled Mix #</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+            </div>
+            
+            <div class="category-card">
+              <div class="category-header">
+                <span class="category-name">💰 Collections</span>
+                <span class="category-weight">10%</span>
+              </div>
+              <div class="metric-row"><span class="metric-name">Bad Debt %</span><span><span class="metric-weight">70%</span><span class="metric-direction lower-better">↓ Lower</span></span></div>
+              <div class="metric-row"><span class="metric-name">DSO (Days Sales Outstanding)</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓ Lower</span></span></div>
+            </div>
+            
+            <div class="category-card">
+              <div class="category-header">
+                <span class="category-name">⚙️ Controls</span>
+                <span class="category-weight">14%</span>
+              </div>
+              <div class="metric-row"><span class="metric-name">NOI %</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+              <div class="metric-row"><span class="metric-name">Labor %</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓ Lower</span></span></div>
+              <div class="metric-row"><span class="metric-name">OT/DT %</span><span><span class="metric-weight">25%</span><span class="metric-direction lower-better">↓ Lower</span></span></div>
+              <div class="metric-row"><span class="metric-name">Rehab Productivity %</span><span><span class="metric-weight">15%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+            </div>
+            
+            <div class="category-card">
+              <div class="category-header">
+                <span class="category-name">👥 Culture</span>
+                <span class="category-weight">12%</span>
+              </div>
+              <div class="metric-row"><span class="metric-name">Turnover %</span><span><span class="metric-weight">50%</span><span class="metric-direction lower-better">↓ Lower</span></span></div>
+              <div class="metric-row"><span class="metric-name">Worker Safety Score (0-100)</span><span><span class="metric-weight">50%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+            </div>
+            
+            <div class="category-card">
+              <div class="category-header">
+                <span class="category-name">✅ Compliance</span>
+                <span class="category-weight">10%</span>
+              </div>
+              <div class="metric-row"><span class="metric-name">Admission Packet %</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+              <div class="metric-row"><span class="metric-name">Arbitration %</span><span><span class="metric-weight">40%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+              <div class="metric-row"><span class="metric-name">Substandard QoC (count)</span><span><span class="metric-weight">40%</span><span class="metric-direction lower-better">↓ Lower</span></span></div>
+            </div>
+            
+            <div class="category-card">
+              <div class="category-header">
+                <span class="category-name">⭐ Credibility</span>
+                <span class="category-weight">8%</span>
+              </div>
+              <div class="metric-row"><span class="metric-name">Google Rating (1-5)</span><span><span class="metric-weight">10%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+              <div class="metric-row"><span class="metric-name">Yelp Rating (1-5)</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑ Higher</span></span></div>
+              <div class="metric-row"><span class="metric-name">Legal Claims (#)</span><span><span class="metric-weight">70%</span><span class="metric-direction lower-better">↓ Lower</span></span></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="method-section">
+            <div class="method-title">⚠️ Missing Data</div>
+            <p class="method-text">When a metric has no data (e.g., Labor %, Worker Safety Score), that metric's potential points are not available. The weights are <strong>not redistributed</strong> — missing data simply reduces the maximum possible score. This ensures buildings aren't unfairly advantaged when data is unavailable.</p>
+            <p class="method-text" style="margin-bottom:0"><strong>Current missing metrics:</strong> Labor % (4.2 pts), Worker Safety Score (6.0 pts) → Max possible: 89.8 pts</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="container">
-    <div class="tabs">
-      <button class="tab active" data-tab="podium">⛵ The Fleet</button>
-      <button class="tab" data-tab="radar">🎯 Radar</button>
-      <button class="tab" data-tab="heatmap">🔥 Heat Map</button>
-      <button class="tab" data-tab="building">🏢 Building Detail</button>
-      <button class="tab" data-tab="regional">🗺️ Regional</button>
-      <button class="tab" data-tab="trends">📈 Trends</button>
-    </div>
-    <div id="podium" class="tab-content active">
-      <div class="card"><div class="card-title">🏆 Top Performers</div><div id="podiumContent"><div class="loading">Loading data...</div></div></div>
-      <div class="card"><div class="card-title">Complete Rankings</div><div id="quickRankings"></div></div>
-    </div>
-    <div id="radar" class="tab-content">
-      <div class="filter-row">
-        <select id="radarSelect1"><option value="">Select Building 1</option></select>
-        <select id="radarSelect2"><option value="">Select Building 2 (optional)</option></select>
-        <select id="radarSelect3"><option value="">Select Building 3 (optional)</option></select>
-      </div>
-      <div class="card"><div class="card-title">🎯 Category Comparison</div><div class="chart-wrapper"><canvas id="radarChart"></canvas></div></div>
-    </div>
-    <div id="heatmap" class="tab-content">
-      <div class="card">
-        <div class="card-title">🔥 Performance Heat Map</div>
-        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Normalized scores by category (green = strong, red = needs improvement)</p>
-        <div class="heatmap-container"><table class="heatmap" id="heatmapTable"></table></div>
-      </div>
-    </div>
-    <div id="building" class="tab-content">
-      <div class="filter-row"><select id="buildingSelect"><option value="">Select a Building</option></select></div>
-      <div id="buildingContent"></div>
-    </div>
-    <div id="regional" class="tab-content">
-      <div class="filter-row">
-        <select id="regionalMonthSelect"></select>
-      </div>
-      <div class="grid-2">
-        <div class="region-card">
-          <div class="region-header"><span class="region-badge region-gc">Golden Coast</span><span style="font-weight:600;color:var(--slate-300)">9 Buildings</span></div>
-          <div class="region-stats" id="gcStats"></div><div id="gcTopBuildings"></div>
-        </div>
-        <div class="region-card">
-          <div class="region-header"><span class="region-badge region-ol">Overland</span><span style="font-weight:600;color:var(--slate-300)">8 Buildings</span></div>
-          <div class="region-stats" id="olStats"></div><div id="olTopBuildings"></div>
-        </div>
-      </div>
-      <div class="card" style="margin-top:1.5rem">
-        <div class="card-title">Category Comparison: Golden Coast vs Overland</div>
-        <div class="chart-wrapper" style="height:300px"><canvas id="regionalChart"></canvas></div>
-        <div class="legend-inline">
-          <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Golden Coast</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div> Overland</div>
-        </div>
-      </div>
-    </div>
-    <div id="trends" class="tab-content">
-      <div class="card">
-        <div class="card-title">📊 Score Comparison: September vs October</div>
-        <div class="chart-wrapper" style="height:500px"><canvas id="trendsChart"></canvas></div>
-        <div class="legend-inline">
-          <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> September</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#facc15"></div> October</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Month-over-Month Changes</div>
-        <div style="display:grid;grid-template-columns:1fr 80px 80px 80px 80px;padding:0.5rem 1rem;font-weight:700;color:var(--slate-400);font-size:0.8rem;border-bottom:1px solid var(--white-10);margin-bottom:0.5rem;">
-          <div>Building</div>
-          <div style="text-align:center">Sept</div>
-          <div style="text-align:center">Oct</div>
-          <div style="text-align:center">Change</div>
-          <div style="text-align:center">Rank Δ</div>
-        </div>
-        <div id="trendsList"></div>
-      </div>
-    </div>
-  </div>
+
   <script>
+    // Password protection
+    const CORRECT_PASSWORD = 'SetSail&Rank';
+    
+    function checkPassword() {
+      const input = document.getElementById('passwordInput').value;
+      if (input === CORRECT_PASSWORD) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('mainContent').classList.add('visible');
+        sessionStorage.setItem('regattaAuth', 'true');
+        initDashboard();
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('passwordInput').value = '';
+      }
+    }
+    
+    // Check if already authenticated this session
+    if (sessionStorage.getItem('regattaAuth') === 'true') {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('mainContent').classList.add('visible');
+      document.addEventListener('DOMContentLoaded', initDashboard);
+    }
+
     const BUILDINGS = [
       { name: "Gilroy Healthcare Center", region: "Golden Coast", dataKey: "Gilroy HC" },
       { name: "Camino Ridge Post Acute", region: "Golden Coast", dataKey: "Camino Ridge Post Acute" },
@@ -302,14 +521,14 @@
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    async function initDashboard() {
       await loadDataFromJSON();
       initTabs();
       initSelects();
       initMonthSelect();
       initRegionalMonthSelect();
       updateAllDisplays();
-    });
+    }
 
     async function loadDataFromJSON() {
       try {
@@ -505,14 +724,12 @@
         return;
       }
       
-      // Horizontal bar chart comparing Sept vs Oct
       const ctx = document.getElementById('trendsChart').getContext('2d');
       if (charts.trends) charts.trends.destroy();
       
       const prevMonth = allData[allData.length - 2];
       const currMonth = allData[allData.length - 1];
       
-      // Sort by Oct score
       const sortedBuildings = [...BUILDINGS].sort((a, b) => 
         currMonth.buildingData[b.dataKey]._score - currMonth.buildingData[a.dataKey]._score
       );
@@ -542,7 +759,6 @@
         }
       });
       
-      // Month-over-month list
       const changes = BUILDINGS.map(b => {
         const prevScore = prevMonth.buildingData[b.dataKey]._score;
         const currScore = currMonth.buildingData[b.dataKey]._score;
