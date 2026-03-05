@@ -99,6 +99,7 @@
     .filter-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
     .no-data { text-align: center; padding: 4rem 2rem; color: var(--slate-400); }
     .chart-wrapper { position: relative; height: 400px; }
+    .radar-wrapper { position: relative; width: 100%; height: 600px; }
     .legend-inline { display: flex; gap: 1.5rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--slate-300); }
     .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
@@ -162,6 +163,7 @@
       .rank-item { grid-template-columns: 35px 1fr 50px; }
       .rank-bar { display: none; }
       .trend-item { grid-template-columns: 1fr 60px 60px 60px; font-size: 0.85rem; }
+      .radar-wrapper { height: 450px; }
     }
   </style>
 </head>
@@ -215,7 +217,10 @@
         <select id="radarSelect2"><option value="">Select Building 2 (optional)</option></select>
         <select id="radarSelect3"><option value="">Select Building 3 (optional)</option></select>
       </div>
-      <div class="card"><div class="card-title">🎯 Category Comparison <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Lower = Better)</span></div><div class="chart-wrapper"><canvas id="radarChart"></canvas></div></div>
+      <div class="card">
+        <div class="card-title">🎯 Category Comparison <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Higher = Better Performance)</span></div>
+        <div class="radar-wrapper"><canvas id="radarChart"></canvas></div>
+      </div>
     </div>
     
     <div id="heatmap" class="tab-content">
@@ -613,17 +618,101 @@
       if (!currentData) return; 
       const ctx = document.getElementById('radarChart').getContext('2d'); 
       if (charts.radar) charts.radar.destroy(); 
+      
       let selected = ['radarSelect1','radarSelect2','radarSelect3'].map(id => document.getElementById(id).value).filter(Boolean); 
-      if (selected.length === 0) { const ranked = getRanked(); selected = [ranked[0].dataKey, ranked[1].dataKey, ranked[2].dataKey]; } 
+      if (selected.length === 0) { 
+        const ranked = getRanked(); 
+        selected = [ranked[0].dataKey, ranked[1].dataKey, ranked[2].dataKey]; 
+      } 
+      
       const labels = Object.values(CATEGORIES).map(c => c.name); 
       const ranked = getRanked();
+      
+      // Convert to performance score (100 = best, 0 = worst) for visual display
+      // Since lower weighted score = better, we invert for the chart
+      const catKeys = Object.keys(CATEGORIES);
+      const catMaxScores = {};
+      catKeys.forEach(k => {
+        const scores = ranked.map(r => r.categoryScores[k]);
+        catMaxScores[k] = Math.max(...scores);
+      });
+      
       const datasets = selected.map((dataKey, i) => { 
         const building = ranked.find(r => r.dataKey === dataKey);
-        const data = Object.keys(CATEGORIES).map(k => building ? building.categoryScores[k] : 0);
-        return { label: getFullName(dataKey), data, borderColor: COLORS[i], backgroundColor: COLORS[i] + '30', pointBackgroundColor: COLORS[i], pointRadius: 4 }; 
+        // Convert to 0-100 scale where 100 = best performance (lowest score)
+        const data = catKeys.map(k => {
+          const score = building ? building.categoryScores[k] : 0;
+          const maxScore = catMaxScores[k];
+          // Invert: if score is 0 (best), performance is 100. If score is max (worst), performance is 0
+          return maxScore > 0 ? Math.round((1 - score / maxScore) * 100) : 100;
+        });
+        return { 
+          label: getFullName(dataKey), 
+          data, 
+          borderColor: COLORS[i], 
+          backgroundColor: COLORS[i] + '35', 
+          pointBackgroundColor: COLORS[i], 
+          pointBorderColor: '#fff',
+          pointRadius: 6,
+          pointHoverRadius: 9,
+          borderWidth: 3,
+          fill: true
+        }; 
       }); 
-      const maxCatScore = Math.max(...ranked.flatMap(r => Object.values(r.categoryScores)));
-      charts.radar = new Chart(ctx, { type: 'radar', data: { labels, datasets }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { beginAtZero: true, max: Math.ceil(maxCatScore * 1.2 * 100) / 100, reverse: false }}, plugins: { legend: { position: 'bottom' }}} }); 
+      
+      charts.radar = new Chart(ctx, { 
+        type: 'radar', 
+        data: { labels, datasets }, 
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false,
+          scales: { 
+            r: { 
+              beginAtZero: true,
+              min: 0,
+              max: 100,
+              ticks: { 
+                stepSize: 20,
+                color: '#94a3b8',
+                backdropColor: 'transparent',
+                font: { size: 11 }
+              },
+              grid: {
+                color: 'rgba(255,255,255,0.2)',
+                lineWidth: 1,
+                circular: true
+              },
+              angleLines: {
+                color: 'rgba(255,255,255,0.2)',
+                lineWidth: 1
+              },
+              pointLabels: {
+                color: '#e2e8f0',
+                font: { size: 14, weight: '600' }
+              }
+            }
+          }, 
+          plugins: { 
+            legend: { 
+              position: 'bottom',
+              labels: {
+                color: '#e2e8f0',
+                padding: 25,
+                font: { size: 13, weight: '500' },
+                usePointStyle: true,
+                pointStyle: 'circle'
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.dataset.label}: ${context.raw}% performance`;
+                }
+              }
+            }
+          }
+        } 
+      }); 
     }
     
     function renderRegionalStats() { 
