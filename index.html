@@ -261,17 +261,12 @@
     <div id="trends" class="tab-content">
       <div class="card">
         <div class="card-title">📊 Score Comparison <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Lower = Better)</span></div>
-        <div class="chart-wrapper" style="height:500px"><canvas id="trendsChart"></canvas></div>
-        <div class="legend-inline">
-          <div class="legend-item"><div class="legend-dot" style="background:var(--navy)"></div> September</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> October</div>
-        </div>
+        <div class="chart-wrapper" style="height:550px"><canvas id="trendsChart"></canvas></div>
+        <div class="legend-inline" id="trendsLegend"></div>
       </div>
       <div class="card">
-        <div class="card-title">Month-over-Month Changes</div>
-        <div style="display:grid;grid-template-columns:1fr 80px 80px 80px 80px;padding:0.5rem 1rem;font-weight:700;color:var(--slate-400);font-size:0.8rem;border-bottom:1px solid var(--white-10);margin-bottom:0.5rem;">
-          <div>Building</div><div style="text-align:center">Sept</div><div style="text-align:center">Oct</div><div style="text-align:center">Change</div><div style="text-align:center">Rank Δ</div>
-        </div>
+        <div class="card-title">All Months Comparison</div>
+        <div id="trendsTableHeader"></div>
         <div id="trendsList"></div>
       </div>
     </div>
@@ -584,33 +579,90 @@
       if (allData.length < 2) { document.getElementById('trendsList').innerHTML = '<div class="no-data">Need at least 2 months</div>'; return; } 
       const ctx = document.getElementById('trendsChart').getContext('2d'); 
       if (charts.trends) charts.trends.destroy(); 
-      const prevMonth = allData[allData.length - 2], currMonth = allData[allData.length - 1]; 
-      const prevRanked = getRanked(prevMonth), currRanked = getRanked(currMonth);
-      const sortedBuildings = [...currRanked].sort((a, b) => a.score - b.score);
-      const labels = sortedBuildings.map(b => b.name); 
-      const prevScores = sortedBuildings.map(b => { const found = prevRanked.find(r => r.dataKey === b.dataKey); return found ? found.score : 0; });
-      const currScores = sortedBuildings.map(b => b.score);
-      const maxVal = Math.max(...prevScores, ...currScores) * 1.1;
       
-      charts.trends = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: prevMonth.month, data: prevScores, backgroundColor: '#1e3a5f', borderRadius: 4 },{ label: currMonth.month, data: currScores, backgroundColor: '#d4a84b', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, max: maxVal }, y: { ticks: { font: { size: 11 } } } } } }); 
+      // Colors for each month
+      const monthColors = ['#1e3a5f', '#d4a84b', '#10b981', '#8b5cf6'];
+      
+      // Get all months' ranked data
+      const allRanked = allData.map(d => ({ month: d.month, ranked: getRanked(d) }));
+      
+      // Sort buildings by latest month's score
+      const latestRanked = allRanked[allRanked.length - 1].ranked;
+      const sortedBuildings = [...latestRanked].sort((a, b) => a.score - b.score);
+      const labels = sortedBuildings.map(b => b.name);
+      
+      // Create datasets for each month
+      const datasets = allRanked.map((monthData, idx) => ({
+        label: monthData.month,
+        data: sortedBuildings.map(b => {
+          const found = monthData.ranked.find(r => r.dataKey === b.dataKey);
+          return found ? found.score : 0;
+        }),
+        backgroundColor: monthColors[idx % monthColors.length],
+        borderRadius: 4
+      }));
+      
+      const allScores = datasets.flatMap(d => d.data);
+      const maxVal = Math.max(...allScores) * 1.1;
+      
+      charts.trends = new Chart(ctx, { 
+        type: 'bar', 
+        data: { labels, datasets }, 
+        options: { 
+          indexAxis: 'y', 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { legend: { display: false } }, 
+          scales: { 
+            x: { beginAtZero: true, max: maxVal }, 
+            y: { ticks: { font: { size: 11 } } } 
+          } 
+        } 
+      });
+      
+      // Build dynamic legend
+      document.getElementById('trendsLegend').innerHTML = allRanked.map((m, idx) => 
+        `<div class="legend-item"><div class="legend-dot" style="background:${monthColors[idx]}"></div> ${m.month}</div>`
+      ).join('');
+      
+      // Build dynamic table header
+      const shortMonths = allRanked.map(m => m.month.replace(' 2025', '').substring(0,3));
+      const colWidth = Math.floor(320 / allRanked.length);
+      document.getElementById('trendsTableHeader').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr ${shortMonths.map(() => colWidth + 'px').join(' ')} 70px 70px;padding:0.5rem 1rem;font-weight:700;color:var(--slate-400);font-size:0.8rem;border-bottom:1px solid var(--white-10);margin-bottom:0.5rem;">
+          <div>Building</div>${shortMonths.map(m => `<div style="text-align:center">${m}</div>`).join('')}<div style="text-align:center">Change</div><div style="text-align:center">Rank Δ</div>
+        </div>`;
+      
+      // Build table rows comparing first to last month
+      const firstRanked = allRanked[0].ranked;
+      const lastRanked = allRanked[allRanked.length - 1].ranked;
       
       const changes = BUILDINGS.map(b => { 
-        const prev = prevRanked.find(r => r.dataKey === b.dataKey);
-        const curr = currRanked.find(r => r.dataKey === b.dataKey);
+        const first = firstRanked.find(r => r.dataKey === b.dataKey);
+        const last = lastRanked.find(r => r.dataKey === b.dataKey);
+        const allScores = allRanked.map(m => {
+          const found = m.ranked.find(r => r.dataKey === b.dataKey);
+          return found ? found.score : 0;
+        });
         return { 
           name: b.name, region: b.region, 
-          prevScore: prev ? prev.score : 0, currScore: curr ? curr.score : 0, 
-          change: (curr ? curr.score : 0) - (prev ? prev.score : 0), 
-          rankChange: (prev ? prev.rank : 0) - (curr ? curr.rank : 0)
+          scores: allScores,
+          change: (last ? last.score : 0) - (first ? first.score : 0), 
+          rankChange: (first ? first.rank : 0) - (last ? last.rank : 0)
         }; 
-      }).sort((a, b) => a.change - b.change);
+      }).sort((a, b) => a.scores[a.scores.length - 1] - b.scores[b.scores.length - 1]);
       
       document.getElementById('trendsList').innerHTML = changes.map(c => { 
         const changeClass = c.change < 0 ? 'trend-up' : c.change > 0 ? 'trend-down' : 'trend-same'; 
         const rankClass = c.rankChange > 0 ? 'trend-up' : c.rankChange < 0 ? 'trend-down' : 'trend-same'; 
         const changeIcon = c.change < 0 ? '↓' : c.change > 0 ? '↑' : '→'; 
         const rankIcon = c.rankChange > 0 ? '↑' : c.rankChange < 0 ? '↓' : '→'; 
-        return `<div class="trend-item"><div><div class="trend-name">${c.name}</div><div class="trend-region">${c.region}</div></div><div class="trend-value">${c.prevScore.toFixed(2)}</div><div class="trend-value">${c.currScore.toFixed(2)}</div><div class="trend-change ${changeClass}">${changeIcon} ${Math.abs(c.change).toFixed(2)}</div><div class="trend-change ${rankClass}">${rankIcon} ${Math.abs(c.rankChange)}</div></div>`; 
+        return `<div style="display:grid;grid-template-columns:1fr ${c.scores.map(() => colWidth + 'px').join(' ')} 70px 70px;align-items:center;padding:0.875rem 1rem;background:var(--white-05);border:1px solid var(--white-10);border-radius:12px;gap:0.5rem;margin-bottom:0.5rem;">
+          <div><div class="trend-name">${c.name}</div><div class="trend-region">${c.region}</div></div>
+          ${c.scores.map(s => `<div style="text-align:center;font-weight:600">${s.toFixed(2)}</div>`).join('')}
+          <div class="trend-change ${changeClass}" style="text-align:center">${changeIcon} ${Math.abs(c.change).toFixed(2)}</div>
+          <div class="trend-change ${rankClass}" style="text-align:center">${rankIcon} ${Math.abs(c.rankChange)}</div>
+        </div>`; 
       }).join(''); 
     }
     
