@@ -260,7 +260,7 @@
         <div class="card-title">Category Comparison: Golden Coast vs Overland <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Lower = Better)</span></div>
         <div class="chart-wrapper" style="height:300px"><canvas id="regionalChart"></canvas></div>
         <div class="legend-inline">
-          <div class="legend-item"><div class="legend-dot" style="background:var(--navy)"></div> Golden Coast</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Golden Coast</div>
           <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div> Overland</div>
         </div>
       </div>
@@ -389,7 +389,7 @@
       ]}
     };
     
-    const COLORS = ['#d4a84b','#10b981','#f59e0b','#ec4899','#22d3ee','#a855f7','#ef4444','#84cc16','#fb7185','#14b8a6','#6366f1','#f97316','#4ade80','#e879f9','#8b5cf6','#06b6d4','#fbbf24'];
+    const COLORS = ['#f59e0b','#10b981','#3b82f6','#14b8a6','#8b5cf6','#ef4444','#84cc16','#06b6d4','#fbbf24','#6366f1','#4ade80','#22d3ee','#a855f7','#f97316','#2dd4bf','#eab308','#0ea5e9'];
     let allData = [], currentData = null, regionalMonthData = null, charts = {};
     Chart.defaults.color = '#94a3b8'; Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
 
@@ -589,7 +589,7 @@
       if (charts.trends) charts.trends.destroy(); 
       
       // Colors for each month
-      const monthColors = ['#1e3a5f', '#d4a84b', '#10b981', '#8b5cf6'];
+      const monthColors = ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
       
       // Get all months' ranked data
       const allRanked = allData.map(d => ({ month: d.month, ranked: getRanked(d) }));
@@ -935,7 +935,7 @@
       const gcAvg = catKeys.map(k => gc.reduce((s, r) => s + r.categoryScores[k], 0) / gc.length);
       const olAvg = catKeys.map(k => ol.reduce((s, r) => s + r.categoryScores[k], 0) / ol.length);
       const maxVal = Math.max(...gcAvg, ...olAvg) * 1.2;
-      charts.regional = new Chart(ctx, { type: 'bar', data: { labels: catKeys.map(k => CATEGORIES[k].name), datasets: [{ label: 'Golden Coast', data: gcAvg, backgroundColor: '#1e3a5f', borderRadius: 6 },{ label: 'Overland', data: olAvg, backgroundColor: '#a855f7', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { y: { beginAtZero: true, max: maxVal }}} }); 
+      charts.regional = new Chart(ctx, { type: 'bar', data: { labels: catKeys.map(k => CATEGORIES[k].name), datasets: [{ label: 'Golden Coast', data: gcAvg, backgroundColor: '#f59e0b', borderRadius: 6 },{ label: 'Overland', data: olAvg, backgroundColor: '#a855f7', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { y: { beginAtZero: true, max: maxVal }}} }); 
     }
     
     function renderBuildingDetail(dataKey) { 
