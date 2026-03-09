@@ -221,6 +221,15 @@
         <div class="card-title">🎯 Category Comparison <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Higher = Better Performance)</span></div>
         <div class="radar-wrapper"><canvas id="radarChart"></canvas></div>
       </div>
+      <div class="card">
+        <div class="card-title">🤖 AI Performance Coach</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select a building above and get AI-powered recommendations on what to improve.</p>
+        <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;">
+          <button id="getAnalysisBtn" onclick="getAIAnalysis()" style="background:linear-gradient(135deg,var(--navy),var(--navy-light));color:var(--gold-light);border:none;padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">✨ Get Recommendations</button>
+          <span id="analysisLoading" style="display:none;color:var(--slate-400);">Analyzing performance...</span>
+        </div>
+        <div id="aiAnalysisResult" style="display:none;background:var(--white-05);border:1px solid var(--white-10);border-radius:12px;padding:1.25rem;line-height:1.7;color:var(--slate-200);"></div>
+      </div>
     </div>
     
     <div id="heatmap" class="tab-content">
@@ -765,6 +774,84 @@
           }
         } 
       }); 
+    }
+    
+    async function getAIAnalysis() {
+      const selected = document.getElementById('radarSelect1').value;
+      if (!selected) {
+        alert('Please select a building first');
+        return;
+      }
+      
+      const btn = document.getElementById('getAnalysisBtn');
+      const loading = document.getElementById('analysisLoading');
+      const result = document.getElementById('aiAnalysisResult');
+      
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      loading.style.display = 'inline';
+      result.style.display = 'none';
+      
+      const ranked = getRanked();
+      const building = ranked.find(r => r.dataKey === selected);
+      const catRanks = getCategoryRanksByCategory();
+      const buildingCatRanks = catRanks[selected];
+      
+      // Build performance summary
+      const perfSummary = Object.entries(CATEGORIES).map(([key, cat]) => {
+        const rank = buildingCatRanks[key];
+        const score = building.categoryScores[key];
+        const metrics = cat.metrics.map(m => `${m.label}: ${building.metrics[m.key] ?? 'N/A'} (Rank #${building.metricRanks[m.key] || 'N/A'})`).join(', ');
+        return `${cat.name} (${(cat.weight*100)}% weight): Rank #${rank}/17, Score: ${score.toFixed(2)}. Metrics: ${metrics}`;
+      }).join('\n');
+      
+      const prompt = `You are a healthcare facility performance consultant analyzing "${getFullName(selected)}" which is ranked #${building.rank} out of 17 facilities.
+
+Here is their performance across the 7 C's categories (lower score = better, rank #1 = best):
+
+${perfSummary}
+
+Based on this data, provide:
+1. A brief overall assessment (2-3 sentences)
+2. Their TOP 3 PRIORITY areas to improve (focus on categories where they rank #10 or worse, or specific weak metrics)
+3. For each priority, give ONE specific, actionable recommendation
+
+Keep it concise and actionable. Use bullet points. Focus on what they can actually DO to improve.`;
+
+      try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        
+        const data = await response.json();
+        const text = data.content?.[0]?.text || 'Unable to generate analysis. Please try again.';
+        
+        // Format the response with better styling
+        const formatted = text
+          .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--gold)">$1</strong>')
+          .replace(/^### (.*$)/gm, '<h4 style="color:var(--gold-light);margin:1rem 0 0.5rem;font-size:1rem">$1</h4>')
+          .replace(/^## (.*$)/gm, '<h3 style="color:var(--gold-light);margin:1rem 0 0.5rem;font-size:1.1rem">$1</h3>')
+          .replace(/^- (.*$)/gm, '<div style="padding:0.25rem 0;padding-left:1rem;border-left:2px solid var(--navy)">• $1</div>')
+          .replace(/^\d\. (.*$)/gm, '<div style="padding:0.5rem 0;padding-left:1rem;border-left:3px solid var(--gold);margin:0.5rem 0;background:var(--white-05);border-radius:0 8px 8px 0"><strong>$1</strong></div>')
+          .replace(/\n\n/g, '<br><br>')
+          .replace(/\n/g, '<br>');
+        
+        result.innerHTML = `<div style="margin-bottom:0.5rem;font-weight:700;color:var(--gold)">📊 Analysis for ${getFullName(selected)}</div>${formatted}`;
+        result.style.display = 'block';
+      } catch (err) {
+        result.innerHTML = `<div style="color:#f87171">Error: ${err.message}. Please try again.</div>`;
+        result.style.display = 'block';
+      }
+      
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      loading.style.display = 'none';
     }
     
     function renderRegionalStats() { 
