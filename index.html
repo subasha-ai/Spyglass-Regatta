@@ -222,11 +222,10 @@
         <div class="radar-wrapper"><canvas id="radarChart"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">🤖 AI Performance Coach</div>
-        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select a building above and get AI-powered recommendations on what to improve.</p>
-        <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;">
-          <button id="getAnalysisBtn" onclick="getAIAnalysis()" style="background:linear-gradient(135deg,var(--navy),var(--navy-light));color:var(--gold-light);border:none;padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">✨ Get Recommendations</button>
-          <span id="analysisLoading" style="display:none;color:var(--slate-400);">Analyzing performance...</span>
+        <div class="card-title">🤖 Performance Coach</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select a building above and get recommendations on what to improve.</p>
+        <div style="margin-bottom:1rem;">
+          <button id="getAnalysisBtn" onclick="getAIAnalysis()" style="background:linear-gradient(135deg,var(--navy),var(--navy-light));color:var(--gold-light);border:none;padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">📊 Analyze Performance</button>
         </div>
         <div id="aiAnalysisResult" style="display:none;background:var(--white-05);border:1px solid var(--white-10);border-radius:12px;padding:1.25rem;line-height:1.7;color:var(--slate-200);"></div>
       </div>
@@ -776,82 +775,143 @@
       }); 
     }
     
-    async function getAIAnalysis() {
+    function getAIAnalysis() {
       const selected = document.getElementById('radarSelect1').value;
       if (!selected) {
         alert('Please select a building first');
         return;
       }
       
-      const btn = document.getElementById('getAnalysisBtn');
-      const loading = document.getElementById('analysisLoading');
       const result = document.getElementById('aiAnalysisResult');
-      
-      btn.disabled = true;
-      btn.style.opacity = '0.5';
-      loading.style.display = 'inline';
-      result.style.display = 'none';
-      
       const ranked = getRanked();
       const building = ranked.find(r => r.dataKey === selected);
       const catRanks = getCategoryRanksByCategory();
       const buildingCatRanks = catRanks[selected];
       
-      // Build performance summary
-      const perfSummary = Object.entries(CATEGORIES).map(([key, cat]) => {
-        const rank = buildingCatRanks[key];
-        const score = building.categoryScores[key];
-        const metrics = cat.metrics.map(m => `${m.label}: ${building.metrics[m.key] ?? 'N/A'} (Rank #${building.metricRanks[m.key] || 'N/A'})`).join(', ');
-        return `${cat.name} (${(cat.weight*100)}% weight): Rank #${rank}/17, Score: ${score.toFixed(2)}. Metrics: ${metrics}`;
-      }).join('\n');
+      // Analyze performance
+      const analysis = [];
+      const priorities = [];
       
-      const prompt = `You are a healthcare facility performance consultant analyzing "${getFullName(selected)}" which is ranked #${building.rank} out of 17 facilities.
-
-Here is their performance across the 7 C's categories (lower score = better, rank #1 = best):
-
-${perfSummary}
-
-Based on this data, provide:
-1. A brief overall assessment (2-3 sentences)
-2. Their TOP 3 PRIORITY areas to improve (focus on categories where they rank #10 or worse, or specific weak metrics)
-3. For each priority, give ONE specific, actionable recommendation
-
-Keep it concise and actionable. Use bullet points. Focus on what they can actually DO to improve.`;
-
-      try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
-            messages: [{ role: 'user', content: prompt }]
-          })
-        });
-        
-        const data = await response.json();
-        const text = data.content?.[0]?.text || 'Unable to generate analysis. Please try again.';
-        
-        // Format the response with better styling
-        const formatted = text
-          .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--gold)">$1</strong>')
-          .replace(/^### (.*$)/gm, '<h4 style="color:var(--gold-light);margin:1rem 0 0.5rem;font-size:1rem">$1</h4>')
-          .replace(/^## (.*$)/gm, '<h3 style="color:var(--gold-light);margin:1rem 0 0.5rem;font-size:1.1rem">$1</h3>')
-          .replace(/^- (.*$)/gm, '<div style="padding:0.25rem 0;padding-left:1rem;border-left:2px solid var(--navy)">• $1</div>')
-          .replace(/^\d\. (.*$)/gm, '<div style="padding:0.5rem 0;padding-left:1rem;border-left:3px solid var(--gold);margin:0.5rem 0;background:var(--white-05);border-radius:0 8px 8px 0"><strong>$1</strong></div>')
-          .replace(/\n\n/g, '<br><br>')
-          .replace(/\n/g, '<br>');
-        
-        result.innerHTML = `<div style="margin-bottom:0.5rem;font-weight:700;color:var(--gold)">📊 Analysis for ${getFullName(selected)}</div>${formatted}`;
-        result.style.display = 'block';
-      } catch (err) {
-        result.innerHTML = `<div style="color:#f87171">Error: ${err.message}. Please try again.</div>`;
-        result.style.display = 'block';
+      // Overall assessment
+      let overallStatus = '';
+      if (building.rank <= 3) {
+        overallStatus = `<strong style="color:#10b981">Top Performer!</strong> Ranked #${building.rank} of 17 facilities with a score of ${building.score.toFixed(2)}.`;
+      } else if (building.rank <= 8) {
+        overallStatus = `<strong style="color:var(--gold)">Above Average.</strong> Ranked #${building.rank} of 17 facilities with a score of ${building.score.toFixed(2)}.`;
+      } else if (building.rank <= 12) {
+        overallStatus = `<strong style="color:#f59e0b">Room for Improvement.</strong> Ranked #${building.rank} of 17 facilities with a score of ${building.score.toFixed(2)}.`;
+      } else {
+        overallStatus = `<strong style="color:#ef4444">Needs Attention.</strong> Ranked #${building.rank} of 17 facilities with a score of ${building.score.toFixed(2)}.`;
       }
       
-      btn.disabled = false;
-      btn.style.opacity = '1';
-      loading.style.display = 'none';
+      // Find weak categories and metrics
+      const recommendations = {
+        care: {
+          healthInspections: "Schedule mock surveys and address deficiency trends. Focus on documentation compliance.",
+          qmRating: "Review quality measures monthly. Target high-impact measures like falls and pressure ulcers.",
+          rehospitalization: "Implement care transitions program. Ensure 48-hour follow-up calls post-discharge.",
+          dischargeFunctional: "Set aggressive but realistic therapy goals. Track functional outcomes weekly."
+        },
+        census: {
+          occupancy: "Strengthen referral relationships. Reduce hospital notification-to-admission time.",
+          medicareCensus: "Target hospital discharge planners. Highlight specialized programs and outcomes.",
+          skilledMix: "Develop clinical programs that attract higher-acuity patients. Market rehab capabilities."
+        },
+        collections: {
+          badDebt: "Verify insurance earlier in admission process. Implement payment plans proactively.",
+          dso: "Bill within 24 hours of discharge. Follow up on aged receivables weekly."
+        },
+        controls: {
+          noi: "Review expense categories monthly. Benchmark against top performers.",
+          labor: "Optimize scheduling to census. Cross-train staff for flexibility.",
+          otdt: "Monitor OT approvals daily. Address staffing gaps before they require overtime.",
+          rehabProductivity: "Review therapist schedules. Minimize non-productive time between treatments."
+        },
+        culture: {
+          turnover: "Conduct stay interviews. Address top turnover reasons within 30 days.",
+          workerSafety: "Review incident trends. Implement targeted training for high-risk areas."
+        },
+        compliance: {
+          admissionPacket: "Create admission packet checklist. Train admissions staff monthly.",
+          arbitration: "Review arbitration process with legal. Ensure consistent execution.",
+          substandardQoc: "Implement QoC prevention protocols. Review all incidents within 24 hours."
+        },
+        credibility: {
+          googleRating: "Respond to all reviews within 48 hours. Ask satisfied families to leave reviews.",
+          yelpRating: "Monitor Yelp weekly. Address negative feedback patterns operationally.",
+          legalClaims: "Review risk management protocols. Ensure incident documentation is thorough."
+        }
+      };
+      
+      // Find weak areas
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        const catRank = buildingCatRanks[catKey];
+        if (catRank >= 10) {
+          const weakMetrics = [];
+          cat.metrics.forEach(m => {
+            const metricRank = building.metricRanks[m.key];
+            if (metricRank >= 10) {
+              weakMetrics.push({
+                label: m.label,
+                rank: metricRank,
+                recommendation: recommendations[catKey]?.[m.key] || "Review current processes and benchmark against top performers."
+              });
+            }
+          });
+          
+          if (weakMetrics.length > 0) {
+            priorities.push({
+              category: cat.name,
+              catRank: catRank,
+              weight: cat.weight,
+              metrics: weakMetrics
+            });
+          }
+        }
+      });
+      
+      // Sort priorities by category weight (highest impact first)
+      priorities.sort((a, b) => b.weight - a.weight);
+      
+      // Build HTML output
+      let html = `<div style="margin-bottom:1rem">${overallStatus}</div>`;
+      
+      if (priorities.length === 0) {
+        html += `<div style="color:#10b981;padding:1rem;background:rgba(16,185,129,0.1);border-radius:8px;margin-top:1rem">
+          <strong>✓ No Critical Areas!</strong><br>
+          All categories rank in the top half. Focus on maintaining current performance and targeting #1 positions.
+        </div>`;
+      } else {
+        html += `<div style="font-weight:700;color:var(--gold);margin:1rem 0 0.75rem">🎯 Priority Improvement Areas:</div>`;
+        
+        priorities.slice(0, 3).forEach((p, idx) => {
+          html += `<div style="background:var(--white-05);border-left:3px solid var(--gold);padding:1rem;margin-bottom:0.75rem;border-radius:0 8px 8px 0">
+            <div style="font-weight:700;color:var(--slate-100);margin-bottom:0.5rem">${idx + 1}. ${p.category} <span style="color:var(--slate-400);font-weight:normal">(Rank #${p.catRank}/17)</span></div>`;
+          
+          p.metrics.slice(0, 2).forEach(m => {
+            html += `<div style="margin-left:1rem;margin-bottom:0.5rem">
+              <span style="color:#f87171">▸ ${m.label}</span> <span style="color:var(--slate-500)">(Rank #${m.rank})</span><br>
+              <span style="color:var(--slate-300);font-size:0.9rem">${m.recommendation}</span>
+            </div>`;
+          });
+          
+          html += `</div>`;
+        });
+      }
+      
+      // Add strengths
+      const strengths = Object.entries(buildingCatRanks)
+        .filter(([k, rank]) => rank <= 5)
+        .map(([k, rank]) => ({ name: CATEGORIES[k].name, rank }))
+        .sort((a, b) => a.rank - b.rank);
+      
+      if (strengths.length > 0) {
+        html += `<div style="font-weight:700;color:#10b981;margin:1rem 0 0.5rem">💪 Strengths to Maintain:</div>
+          <div style="color:var(--slate-300)">${strengths.map(s => `${s.name} (#${s.rank})`).join(', ')}</div>`;
+      }
+      
+      result.innerHTML = `<div style="margin-bottom:0.5rem;font-weight:700;color:var(--gold)">📊 Analysis for ${getFullName(selected)}</div>${html}`;
+      result.style.display = 'block';
     }
     
     function renderRegionalStats() { 
