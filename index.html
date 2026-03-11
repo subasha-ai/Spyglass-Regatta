@@ -207,22 +207,9 @@
     
     <div id="catrankings" class="tab-content">
       <div class="card">
-        <div class="card-title">🔍 Metric Drill-Down</div>
-        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select a category and metric to see all 17 buildings ranked for that specific metric.</p>
-        <div class="filter-row">
-          <select id="drillCategory" onchange="updateDrillMetrics()">
-            <option value="">Select Category</option>
-          </select>
-          <select id="drillMetric" onchange="renderMetricDrillDown()">
-            <option value="">Select Metric</option>
-          </select>
-        </div>
-        <div id="metricDrillDown"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">🏅 Category Rankings — Rank & Score in Each Category</div>
-        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Shows rank (#1-17) and weighted score for each category. Lower score = better. Gold/Silver/Bronze = Top 3. Click any cell to see metric breakdown.</p>
-        <div class="heatmap-container"><table class="cat-rank-table" id="catRankTable"></table></div>
+        <div class="card-title">🏅 Category Rankings — Drill Down by Metric</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Click any category to expand. Click column headers to sort buildings by that metric.</p>
+        <div id="categoryBands"></div>
       </div>
     </div>
     
@@ -456,7 +443,7 @@
     document.addEventListener('DOMContentLoaded', initDashboard);
 
     async function initDashboard() {
-      await loadDataFromJSON(); initTabs(); initSelects(); initMonthSelect(); initRegionalMonthSelect(); initDrillDown(); updateAllDisplays();
+      await loadDataFromJSON(); initTabs(); initSelects(); initMonthSelect(); initRegionalMonthSelect(); updateAllDisplays();
     }
     
     async function loadDataFromJSON() {
@@ -589,135 +576,101 @@
       `).join('')}</div>`; 
     }
     
+    let catSortState = {}; // track sort state per category
+    
     function renderCategoryRankings() { 
       if (!currentData) return; 
       const ranked = getRanked(); 
-      const catRanks = getCategoryRanksByCategory(); 
-      const catKeys = Object.keys(CATEGORIES); 
-      let html = `<thead><tr><th>Building</th><th>Overall</th>${catKeys.map(k => `<th>${CATEGORIES[k].name}<br><span style="font-size:0.65rem;font-weight:normal;opacity:0.7">(${(CATEGORIES[k].weight*100).toFixed(0)}%)</span></th>`).join('')}</tr></thead><tbody>`; 
-      ranked.forEach((r, rowIdx) => { 
-        const ranks = catRanks[r.dataKey]; 
-        html += `<tr><td>${r.name}</td><td><div class="cat-cell"><span class="rank-badge ${getRankBadgeClass(r.rank)}">#${r.rank}</span><span class="cat-score">${r.score.toFixed(2)}</span></div></td>`; 
-        catKeys.forEach((k, colIdx) => { 
-          const rank = ranks[k]; 
-          const score = r.categoryScores[k];
-          const cellId = `cat_${rowIdx}_${colIdx}`;
-          const metricsHtml = CATEGORIES[k].metrics.map(m => {
-            const metricRank = r.metricRanks[m.key] || 17;
-            const metricVal = r.metrics[m.key];
-            const displayVal = metricVal !== null && metricVal !== undefined ? metricVal : 'N/A';
-            return `<div style="display:flex;justify-content:space-between;padding:0.25rem 0;border-bottom:1px solid var(--white-05)">
-              <span style="color:var(--slate-300);font-size:0.75rem">${m.label}</span>
-              <span><span class="rank-badge ${getRankBadgeClass(metricRank)}" style="font-size:0.6rem;padding:0.1rem 0.25rem">#${metricRank}</span> <span style="color:var(--slate-400);font-size:0.7rem">${displayVal}</span></span>
-            </div>`;
-          }).join('');
-          html += `<td style="position:relative">
-            <div class="cat-cell cat-clickable" onclick="toggleMetricDetail('${cellId}')" style="cursor:pointer">
-              <span class="rank-badge ${getRankBadgeClass(rank)}">#${rank}</span>
-              <span class="cat-score">${score.toFixed(2)} ▼</span>
-            </div>
-            <div id="${cellId}" class="metric-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--slate-800);border:1px solid var(--white-20);border-radius:8px;padding:0.5rem;min-width:180px;box-shadow:0 4px 12px rgba(0,0,0,0.3)">
-              <div style="font-weight:600;color:var(--gold);margin-bottom:0.5rem;font-size:0.8rem">${CATEGORIES[k].name} Breakdown</div>
-              ${metricsHtml}
-            </div>
-          </td>`; 
-        }); 
-        html += '</tr>'; 
-      }); 
-      html += '</tbody>'; 
-      document.getElementById('catRankTable').innerHTML = html; 
-    }
-    
-    function toggleMetricDetail(cellId) {
-      const el = document.getElementById(cellId);
-      const allDropdowns = document.querySelectorAll('.metric-dropdown');
-      allDropdowns.forEach(d => {
-        if (d.id !== cellId) d.style.display = 'none';
-      });
-      el.style.display = el.style.display === 'none' ? 'block' : 'none';
-    }
-    
-    function initDrillDown() {
-      const catSelect = document.getElementById('drillCategory');
-      catSelect.innerHTML = '<option value="">Select Category</option>';
-      Object.entries(CATEGORIES).forEach(([key, cat]) => {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = `${cat.name} (${(cat.weight*100).toFixed(0)}%)`;
-        catSelect.appendChild(opt);
-      });
-    }
-    
-    function updateDrillMetrics() {
-      const catKey = document.getElementById('drillCategory').value;
-      const metricSelect = document.getElementById('drillMetric');
-      metricSelect.innerHTML = '<option value="">Select Metric</option>';
-      document.getElementById('metricDrillDown').innerHTML = '';
       
-      if (!catKey) return;
-      
-      CATEGORIES[catKey].metrics.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.key;
-        opt.textContent = `${m.label} (${(m.weight*100).toFixed(0)}%)`;
-        metricSelect.appendChild(opt);
-      });
-    }
-    
-    function renderMetricDrillDown() {
-      const catKey = document.getElementById('drillCategory').value;
-      const metricKey = document.getElementById('drillMetric').value;
-      const container = document.getElementById('metricDrillDown');
-      
-      if (!catKey || !metricKey || !currentData) {
-        container.innerHTML = '';
-        return;
-      }
-      
-      const cat = CATEGORIES[catKey];
-      const metric = cat.metrics.find(m => m.key === metricKey);
-      const ranked = getRanked();
-      
-      // Get all buildings with their values and ranks for this metric
-      const metricData = ranked.map(r => ({
-        name: r.name,
-        region: r.region,
-        value: r.metrics[metricKey],
-        rank: r.metricRanks[metricKey] || 17
-      }));
-      
-      // Sort by rank
-      metricData.sort((a, b) => a.rank - b.rank);
-      
-      const direction = metric.higher ? '↑ Higher = Better' : '↓ Lower = Better';
-      const dirColor = metric.higher ? '#10b981' : '#f59e0b';
-      
-      let html = `
-        <div style="margin-top:1rem;padding:1rem;background:var(--white-05);border-radius:12px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-            <div>
-              <span style="font-weight:700;font-size:1.1rem;color:var(--slate-200)">${metric.label}</span>
-              <span style="color:var(--slate-500);margin-left:0.5rem">(${(metric.weight*100).toFixed(0)}% of ${cat.name})</span>
-            </div>
-            <span style="color:${dirColor};font-size:0.85rem;font-weight:600">${direction}</span>
-          </div>
-          <div class="rankings-list">`;
-      
-      metricData.forEach(b => {
-        const displayVal = b.value !== null && b.value !== undefined ? b.value : 'N/A';
+      let html = '';
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        const sortKey = catSortState[catKey]?.sortKey || null;
+        const sortDir = catSortState[catKey]?.sortDir || 'asc';
+        
+        // Sort buildings by the selected metric or by category rank
+        let sortedBuildings = [...ranked];
+        if (sortKey) {
+          sortedBuildings.sort((a, b) => {
+            const aRank = a.metricRanks[sortKey] || 17;
+            const bRank = b.metricRanks[sortKey] || 17;
+            return sortDir === 'asc' ? aRank - bRank : bRank - aRank;
+          });
+        } else {
+          // Sort by category rank
+          sortedBuildings.sort((a, b) => {
+            const aRank = getCatRankForBuilding(a.dataKey, catKey);
+            const bRank = getCatRankForBuilding(b.dataKey, catKey);
+            return aRank - bRank;
+          });
+        }
+        
         html += `
-          <div class="rank-item" style="padding:0.75rem 1rem">
-            <span class="rank-badge ${getRankBadgeClass(b.rank)}" style="min-width:45px;text-align:center">#${b.rank}</span>
-            <div style="flex:1;margin-left:0.75rem">
-              <span class="rank-name">${b.name}</span>
-              <div class="rank-region">${b.region}</div>
+          <div class="category-band" style="margin-bottom:1.5rem;border:1px solid var(--white-10);border-radius:12px;overflow:hidden">
+            <div style="background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:0.75rem 1.25rem;display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <span style="font-weight:700;font-size:1.1rem;color:var(--gold)">${cat.name}</span>
+                <span style="color:var(--slate-400);margin-left:0.75rem">(${(cat.weight*100).toFixed(0)}% weight)</span>
+              </div>
             </div>
-            <span style="font-weight:700;font-size:1.1rem;color:var(--slate-200)">${displayVal}</span>
+            <div class="heatmap-container" style="padding:0.5rem">
+              <table class="cat-rank-table" style="font-size:0.85rem">
+                <thead><tr>
+                  <th style="text-align:left;min-width:180px">Building</th>
+                  <th style="cursor:pointer;min-width:70px" onclick="sortCategoryByMetric('${catKey}', null)">
+                    Cat Rank ${!sortKey ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  ${cat.metrics.map(m => `
+                    <th style="cursor:pointer;min-width:90px" onclick="sortCategoryByMetric('${catKey}', '${m.key}')">
+                      ${m.label}<br>
+                      <span style="font-size:0.6rem;font-weight:normal;opacity:0.7">(${(m.weight*100).toFixed(0)}%) ${m.higher ? '↑' : '↓'}</span>
+                      ${sortKey === m.key ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                  `).join('')}
+                </tr></thead>
+                <tbody>
+                  ${sortedBuildings.map(r => {
+                    const catRank = getCatRankForBuilding(r.dataKey, catKey);
+                    return `<tr>
+                      <td>${r.name}</td>
+                      <td><span class="rank-badge ${getRankBadgeClass(catRank)}">#${catRank}</span></td>
+                      ${cat.metrics.map(m => {
+                        const mRank = r.metricRanks[m.key] || 17;
+                        const mVal = r.metrics[m.key];
+                        const displayVal = mVal !== null && mVal !== undefined ? mVal : 'N/A';
+                        return `<td>
+                          <div style="display:flex;align-items:center;gap:0.5rem">
+                            <span class="rank-badge ${getRankBadgeClass(mRank)}" style="font-size:0.7rem;padding:0.15rem 0.35rem">#${mRank}</span>
+                            <span style="color:var(--slate-300)">${displayVal}</span>
+                          </div>
+                        </td>`;
+                      }).join('')}
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>`;
       });
       
-      html += '</div></div>';
-      container.innerHTML = html;
+      document.getElementById('categoryBands').innerHTML = html;
+    }
+    
+    function getCatRankForBuilding(dataKey, catKey) {
+      const catRanks = getCategoryRanksByCategory();
+      return catRanks[dataKey]?.[catKey] || 17;
+    }
+    
+    function sortCategoryByMetric(catKey, metricKey) {
+      if (!catSortState[catKey]) catSortState[catKey] = { sortKey: null, sortDir: 'asc' };
+      
+      if (catSortState[catKey].sortKey === metricKey) {
+        // Toggle direction
+        catSortState[catKey].sortDir = catSortState[catKey].sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        catSortState[catKey].sortKey = metricKey;
+        catSortState[catKey].sortDir = 'asc';
+      }
+      renderCategoryRankings();
     }
     
     function getHeatColor(score, min, max) { 
