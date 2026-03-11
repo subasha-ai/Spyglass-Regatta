@@ -582,18 +582,46 @@
       const catRanks = getCategoryRanksByCategory(); 
       const catKeys = Object.keys(CATEGORIES); 
       let html = `<thead><tr><th>Building</th><th>Overall</th>${catKeys.map(k => `<th>${CATEGORIES[k].name}<br><span style="font-size:0.65rem;font-weight:normal;opacity:0.7">(${(CATEGORIES[k].weight*100).toFixed(0)}%)</span></th>`).join('')}</tr></thead><tbody>`; 
-      ranked.forEach(r => { 
+      ranked.forEach((r, rowIdx) => { 
         const ranks = catRanks[r.dataKey]; 
         html += `<tr><td>${r.name}</td><td><div class="cat-cell"><span class="rank-badge ${getRankBadgeClass(r.rank)}">#${r.rank}</span><span class="cat-score">${r.score.toFixed(2)}</span></div></td>`; 
-        catKeys.forEach(k => { 
+        catKeys.forEach((k, colIdx) => { 
           const rank = ranks[k]; 
           const score = r.categoryScores[k];
-          html += `<td><div class="cat-cell"><span class="rank-badge ${getRankBadgeClass(rank)}">#${rank}</span><span class="cat-score">${score.toFixed(2)}</span></div></td>`; 
+          const cellId = `cat_${rowIdx}_${colIdx}`;
+          const metricsHtml = CATEGORIES[k].metrics.map(m => {
+            const metricRank = r.metricRanks[m.key] || 17;
+            const metricVal = r.metrics[m.key];
+            const displayVal = metricVal !== null && metricVal !== undefined ? metricVal : 'N/A';
+            return `<div style="display:flex;justify-content:space-between;padding:0.25rem 0;border-bottom:1px solid var(--white-05)">
+              <span style="color:var(--slate-300);font-size:0.75rem">${m.label}</span>
+              <span><span class="rank-badge ${getRankBadgeClass(metricRank)}" style="font-size:0.6rem;padding:0.1rem 0.25rem">#${metricRank}</span> <span style="color:var(--slate-400);font-size:0.7rem">${displayVal}</span></span>
+            </div>`;
+          }).join('');
+          html += `<td style="position:relative">
+            <div class="cat-cell cat-clickable" onclick="toggleMetricDetail('${cellId}')" style="cursor:pointer">
+              <span class="rank-badge ${getRankBadgeClass(rank)}">#${rank}</span>
+              <span class="cat-score">${score.toFixed(2)} ▼</span>
+            </div>
+            <div id="${cellId}" class="metric-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100;background:var(--slate-800);border:1px solid var(--white-20);border-radius:8px;padding:0.5rem;min-width:180px;box-shadow:0 4px 12px rgba(0,0,0,0.3)">
+              <div style="font-weight:600;color:var(--gold);margin-bottom:0.5rem;font-size:0.8rem">${CATEGORIES[k].name} Breakdown</div>
+              ${metricsHtml}
+            </div>
+          </td>`; 
         }); 
         html += '</tr>'; 
       }); 
       html += '</tbody>'; 
       document.getElementById('catRankTable').innerHTML = html; 
+    }
+    
+    function toggleMetricDetail(cellId) {
+      const el = document.getElementById(cellId);
+      const allDropdowns = document.querySelectorAll('.metric-dropdown');
+      allDropdowns.forEach(d => {
+        if (d.id !== cellId) d.style.display = 'none';
+      });
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
     
     function getHeatColor(score, min, max) { 
