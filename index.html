@@ -196,7 +196,7 @@
       <button class="tab" data-tab="regional">🗺️ Regional</button>
       <button class="tab" data-tab="trends">📈 Trends</button>
       <button class="tab" data-tab="season">🏆 Season Standings</button>
-      <button class="tab" data-tab="simulator">🔬 Simulator</button>
+      <button class="tab" data-tab="simulator">🧭 The Compass</button>
       <button class="tab" data-tab="methodology">📋 Methodology</button>
     </div>
     
@@ -300,27 +300,27 @@
     
     <div id="simulator" class="tab-content">
       <div class="card">
-        <div class="card-title">🔬 What-If Simulator</div>
-        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Adjust metric values to see how changes would affect your building's ranking. Find out which improvements give the biggest impact!</p>
+        <div class="card-title">🧭 The Compass</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Chart your course to better rankings. Adjust metric values to see how changes would affect your building's position in the regatta!</p>
         <div class="filter-row">
           <select id="simBuildingSelect" onchange="initSimulator()"><option value="">Select a Building</option></select>
-          <button onclick="resetSimulator()" style="background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">↺ Reset Values</button>
+          <button onclick="resetSimulator()" style="background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">↺ Reset Course</button>
         </div>
       </div>
       <div id="simResults" style="display:none;">
         <div class="grid-2">
           <div class="card">
-            <div class="card-title">📊 Current vs Simulated</div>
+            <div class="card-title">📍 Current vs New Bearing</div>
             <div id="simComparison"></div>
           </div>
           <div class="card">
-            <div class="card-title">🎯 Impact Analysis</div>
+            <div class="card-title">🌊 Course Changes</div>
             <div id="simImpact"></div>
           </div>
         </div>
         <div class="card">
-          <div class="card-title">✏️ Adjust Metrics</div>
-          <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Change values below to simulate improvements. Results update automatically.</p>
+          <div class="card-title">⚓ Adjust Your Heading</div>
+          <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Change values below to chart a new course. Results update automatically.</p>
           <div id="simMetricInputs"></div>
         </div>
       </div>
@@ -990,8 +990,8 @@
       if (changes.length === 0) {
         document.getElementById('simImpact').innerHTML = `
           <div style="text-align:center;padding:2rem;color:var(--slate-400)">
-            <div style="font-size:2rem;margin-bottom:0.5rem">✏️</div>
-            Adjust metric values to see the impact
+            <div style="font-size:2rem;margin-bottom:0.5rem">🧭</div>
+            Adjust your heading to see the impact
           </div>`;
       } else {
         document.getElementById('simImpact').innerHTML = `
