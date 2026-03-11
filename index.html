@@ -195,6 +195,8 @@
       <button class="tab" data-tab="building">🏢 Building Detail</button>
       <button class="tab" data-tab="regional">🗺️ Regional</button>
       <button class="tab" data-tab="trends">📈 Trends</button>
+      <button class="tab" data-tab="season">🏆 Season Standings</button>
+      <button class="tab" data-tab="simulator">🔬 Simulator</button>
       <button class="tab" data-tab="methodology">📋 Methodology</button>
     </div>
     
@@ -276,6 +278,51 @@
         <div class="card-title">All Months Comparison</div>
         <div id="trendsTableHeader"></div>
         <div id="trendsList"></div>
+      </div>
+    </div>
+    
+    <div id="season" class="tab-content">
+      <div class="card">
+        <div class="card-title">🏆 Season Champion</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Overall standings based on total score across all months. Lowest total wins the regatta!</p>
+        <div id="seasonPodium"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Full Season Standings</div>
+        <div id="seasonStandings"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Month-by-Month Ranks</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">How each building ranked in each month's race</p>
+        <div class="heatmap-container"><table class="cat-rank-table" id="seasonRanksTable"></table></div>
+      </div>
+    </div>
+    
+    <div id="simulator" class="tab-content">
+      <div class="card">
+        <div class="card-title">🔬 What-If Simulator</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Adjust metric values to see how changes would affect your building's ranking. Find out which improvements give the biggest impact!</p>
+        <div class="filter-row">
+          <select id="simBuildingSelect" onchange="initSimulator()"><option value="">Select a Building</option></select>
+          <button onclick="resetSimulator()" style="background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">↺ Reset Values</button>
+        </div>
+      </div>
+      <div id="simResults" style="display:none;">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">📊 Current vs Simulated</div>
+            <div id="simComparison"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">🎯 Impact Analysis</div>
+            <div id="simImpact"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">✏️ Adjust Metrics</div>
+          <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Change values below to simulate improvements. Results update automatically.</p>
+          <div id="simMetricInputs"></div>
+        </div>
       </div>
     </div>
     
@@ -495,14 +542,14 @@
 
     function initMonthSelect() { const select = document.getElementById('monthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { currentData = allData[parseInt(e.target.value)]; updateAllDisplays(); }); }
     function initRegionalMonthSelect() { const select = document.getElementById('regionalMonthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { regionalMonthData = allData[parseInt(e.target.value)]; renderRegionalStats(); renderRegionalChart(); }); }
-    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'catrankings') renderCategoryRankings(); } }); }); }
-    function initSelects() { ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3'].forEach(id => { const select = document.getElementById(id); BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.dataKey; opt.textContent = b.name; select.appendChild(opt); }); }); document.getElementById('buildingSelect').addEventListener('change', e => renderBuildingDetail(e.target.value)); ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); }); }
+    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'catrankings') renderCategoryRankings(); if (tab.dataset.tab === 'season') renderSeasonStandings(); if (tab.dataset.tab === 'simulator') initSimulator(); } }); }); }
+    function initSelects() { ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3', 'simBuildingSelect'].forEach(id => { const select = document.getElementById(id); BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.dataKey; opt.textContent = b.name; select.appendChild(opt); }); }); document.getElementById('buildingSelect').addEventListener('change', e => renderBuildingDetail(e.target.value)); ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); }); }
     function getFullName(dataKey) { const b = BUILDINGS.find(b => b.dataKey === dataKey); return b ? b.name : dataKey; }
     function getRankBadgeClass(rank) { if (rank === 1) return 'rank-1'; if (rank === 2) return 'rank-2'; if (rank === 3) return 'rank-3'; if (rank <= 5) return 'rank-top5'; if (rank >= 13) return 'rank-bottom'; return 'rank-mid'; }
     
     function updateAllDisplays() { 
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
-      renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats(); renderCategoryRankings(); 
+      renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats(); renderCategoryRankings(); renderSeasonStandings();
       const bs = document.getElementById('buildingSelect'); 
       if (bs.value) renderBuildingDetail(bs.value); 
     }
@@ -672,6 +719,294 @@
           <div class="trend-change ${rankClass}" style="text-align:center">${rankIcon} ${Math.abs(c.rankChange)}</div>
         </div>`; 
       }).join(''); 
+    }
+    
+    function renderSeasonStandings() {
+      if (allData.length < 1) return;
+      
+      // Sum scores across all months for each building (same logic - lowest wins)
+      const seasonData = BUILDINGS.map(b => {
+        const monthScores = allData.map(monthData => {
+          const ranked = getRanked(monthData);
+          const building = ranked.find(r => r.dataKey === b.dataKey);
+          return { month: monthData.month, score: building ? building.score : 0, rank: building ? building.rank : 17 };
+        });
+        const totalScore = monthScores.reduce((sum, m) => sum + m.score, 0);
+        return {
+          name: b.name,
+          dataKey: b.dataKey,
+          region: b.region,
+          totalScore,
+          monthScores
+        };
+      });
+      
+      // Sort by total score (lowest wins)
+      seasonData.sort((a, b) => a.totalScore - b.totalScore);
+      
+      // Assign overall ranks
+      seasonData.forEach((b, idx) => { b.overallRank = idx + 1; });
+      
+      // Render podium
+      const top3 = seasonData.slice(0, 3);
+      document.getElementById('seasonPodium').innerHTML = `
+        <div class="podium-container">
+          <div class="podium-place place-2">
+            <div class="podium-avatar">2</div>
+            <div class="podium-name">${top3[1].name}</div>
+            <div class="podium-score">${top3[1].totalScore.toFixed(2)} pts</div>
+            <div class="podium-block">🥈</div>
+          </div>
+          <div class="podium-place place-1">
+            <div class="podium-avatar">1</div>
+            <div class="podium-name">${top3[0].name}</div>
+            <div class="podium-score">${top3[0].totalScore.toFixed(2)} pts</div>
+            <div class="podium-block">🏆</div>
+          </div>
+          <div class="podium-place place-3">
+            <div class="podium-avatar">3</div>
+            <div class="podium-name">${top3[2].name}</div>
+            <div class="podium-score">${top3[2].totalScore.toFixed(2)} pts</div>
+            <div class="podium-block">🥉</div>
+          </div>
+        </div>`;
+      
+      // Render full standings
+      const maxScore = seasonData[seasonData.length - 1].totalScore;
+      const minScore = seasonData[0].totalScore;
+      document.getElementById('seasonStandings').innerHTML = `
+        <div class="rankings-list">${seasonData.map(b => `
+          <div class="rank-item">
+            <span class="rank-num">${b.overallRank}</span>
+            <div><span class="rank-name">${b.name}</span><div class="rank-region">${b.region}</div></div>
+            <div class="rank-bar"><div class="rank-bar-fill" style="width:${100 - ((b.totalScore - minScore) / (maxScore - minScore)) * 100}%"></div></div>
+            <span class="rank-score">${b.totalScore.toFixed(2)}</span>
+          </div>
+        `).join('')}</div>`;
+      
+      // Render month-by-month ranks table
+      const months = allData.map(d => d.month.replace(' 2025', ''));
+      let tableHtml = `<thead><tr><th style="text-align:left">Building</th><th>Overall</th>${months.map(m => `<th>${m}</th>`).join('')}<th>Best</th><th>Worst</th></tr></thead><tbody>`;
+      
+      seasonData.forEach(b => {
+        const ranks = b.monthScores.map(m => m.rank);
+        const best = Math.min(...ranks);
+        const worst = Math.max(...ranks);
+        
+        tableHtml += `<tr>
+          <td>${b.name}</td>
+          <td><span class="rank-badge ${getRankBadgeClass(b.overallRank)}">#${b.overallRank}</span></td>
+          ${b.monthScores.map(m => `<td><span class="rank-badge ${getRankBadgeClass(m.rank)}">#${m.rank}</span></td>`).join('')}
+          <td style="color:#10b981;font-weight:600">#${best}</td>
+          <td style="color:#ef4444;font-weight:600">#${worst}</td>
+        </tr>`;
+      });
+      
+      tableHtml += '</tbody>';
+      document.getElementById('seasonRanksTable').innerHTML = tableHtml;
+    }
+    
+    let simOriginalValues = {};
+    let simCurrentValues = {};
+    
+    function initSimulator() {
+      const dataKey = document.getElementById('simBuildingSelect').value;
+      if (!dataKey || !currentData) {
+        document.getElementById('simResults').style.display = 'none';
+        return;
+      }
+      
+      document.getElementById('simResults').style.display = 'block';
+      
+      const buildingData = currentData.buildingData[dataKey];
+      simOriginalValues = { ...buildingData };
+      simCurrentValues = { ...buildingData };
+      
+      // Build metric inputs by category
+      let html = '';
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        html += `<div style="margin-bottom:1.5rem">
+          <div style="font-weight:700;color:var(--gold);margin-bottom:0.75rem;font-size:1rem">${cat.name} <span style="color:var(--slate-500);font-weight:normal">(${(cat.weight*100).toFixed(0)}% weight)</span></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem">`;
+        
+        cat.metrics.forEach(m => {
+          const val = buildingData[m.key];
+          const displayVal = val !== null && val !== undefined ? val : '';
+          const direction = m.higher ? '↑ Higher=Better' : '↓ Lower=Better';
+          const dirColor = m.higher ? '#10b981' : '#f59e0b';
+          
+          html += `<div style="background:var(--white-05);padding:0.75rem;border-radius:8px">
+            <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.25rem">${m.label} <span style="color:${dirColor};font-size:0.7rem">${direction}</span></div>
+            <div style="display:flex;gap:0.5rem;align-items:center">
+              <input type="number" step="any" id="sim_${m.key}" value="${displayVal}" 
+                onchange="updateSimulation()" 
+                style="flex:1;padding:0.5rem;border:1px solid var(--white-20);border-radius:6px;background:var(--white-10);color:var(--slate-200);font-family:'Inter',sans-serif;font-size:0.9rem;width:80px">
+              <span style="color:var(--slate-500);font-size:0.75rem">was: ${displayVal}</span>
+            </div>
+          </div>`;
+        });
+        
+        html += '</div></div>';
+      });
+      
+      document.getElementById('simMetricInputs').innerHTML = html;
+      updateSimulation();
+    }
+    
+    function resetSimulator() {
+      const dataKey = document.getElementById('simBuildingSelect').value;
+      if (!dataKey) return;
+      
+      simCurrentValues = { ...simOriginalValues };
+      
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        cat.metrics.forEach(m => {
+          const input = document.getElementById('sim_' + m.key);
+          if (input) {
+            const val = simOriginalValues[m.key];
+            input.value = val !== null && val !== undefined ? val : '';
+          }
+        });
+      });
+      
+      updateSimulation();
+    }
+    
+    function updateSimulation() {
+      const dataKey = document.getElementById('simBuildingSelect').value;
+      if (!dataKey || !currentData) return;
+      
+      // Get current values from inputs
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        cat.metrics.forEach(m => {
+          const input = document.getElementById('sim_' + m.key);
+          if (input) {
+            const val = parseFloat(input.value);
+            simCurrentValues[m.key] = isNaN(val) ? null : val;
+          }
+        });
+      });
+      
+      // Calculate original ranking
+      const originalRanked = getRanked();
+      const originalBuilding = originalRanked.find(r => r.dataKey === dataKey);
+      
+      // Create simulated data with modified values
+      const simData = JSON.parse(JSON.stringify(currentData));
+      simData.buildingData[dataKey] = { ...simData.buildingData[dataKey], ...simCurrentValues };
+      
+      // Recalculate with simulated values
+      const simScores = {};
+      BUILDINGS.forEach(b => { simScores[b.dataKey] = { total: 0, categoryScores: {} }; });
+      
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        BUILDINGS.forEach(b => { simScores[b.dataKey].categoryScores[catKey] = 0; });
+        
+        cat.metrics.forEach(metric => {
+          const values = BUILDINGS.map(b => ({
+            dataKey: b.dataKey,
+            value: simData.buildingData[b.dataKey][metric.key]
+          })).filter(v => v.value !== null && v.value !== undefined);
+          
+          if (values.length === 0) return;
+          
+          values.sort((a, b) => metric.higher ? b.value - a.value : a.value - b.value);
+          
+          const ranks = {};
+          let currentRank = 1;
+          let i = 0;
+          while (i < values.length) {
+            const currentValue = values[i].value;
+            const tiedItems = values.filter(v => v.value === currentValue);
+            tiedItems.forEach(item => { ranks[item.dataKey] = currentRank; });
+            i += tiedItems.length;
+            currentRank = i + 1;
+          }
+          
+          BUILDINGS.forEach(b => {
+            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = BUILDINGS.length;
+            const rank = ranks[b.dataKey];
+            const contribution = rank * metric.weight * cat.weight;
+            simScores[b.dataKey].total += contribution;
+            simScores[b.dataKey].categoryScores[catKey] += contribution;
+          });
+        });
+      });
+      
+      // Calculate simulated ranks
+      const simSorted = BUILDINGS.map(b => ({ dataKey: b.dataKey, score: simScores[b.dataKey].total }))
+        .sort((a, b) => a.score - b.score);
+      simSorted.forEach((b, idx) => { simScores[b.dataKey].rank = idx + 1; });
+      
+      const simBuilding = { 
+        score: simScores[dataKey].total, 
+        rank: simScores[dataKey].rank,
+        categoryScores: simScores[dataKey].categoryScores
+      };
+      
+      // Render comparison
+      const rankChange = originalBuilding.rank - simBuilding.rank;
+      const scoreChange = originalBuilding.score - simBuilding.score;
+      const rankClass = rankChange > 0 ? 'trend-up' : rankChange < 0 ? 'trend-down' : 'trend-same';
+      const rankIcon = rankChange > 0 ? '↑' : rankChange < 0 ? '↓' : '→';
+      
+      document.getElementById('simComparison').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;text-align:center">
+          <div style="background:var(--white-05);padding:1.5rem;border-radius:12px">
+            <div style="color:var(--slate-400);font-size:0.85rem;margin-bottom:0.5rem">Current Rank</div>
+            <div style="font-size:2.5rem;font-weight:800;color:var(--slate-300)">#${originalBuilding.rank}</div>
+            <div style="color:var(--slate-500);font-size:0.9rem">${originalBuilding.score.toFixed(2)} pts</div>
+          </div>
+          <div style="background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:1.5rem;border-radius:12px">
+            <div style="color:var(--gold-light);font-size:0.85rem;margin-bottom:0.5rem">Simulated Rank</div>
+            <div style="font-size:2.5rem;font-weight:800;color:var(--gold)">#${simBuilding.rank}</div>
+            <div style="color:var(--gold-light);font-size:0.9rem">${simBuilding.score.toFixed(2)} pts</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:1rem;padding:1rem;background:var(--white-05);border-radius:8px">
+          <span class="${rankClass}" style="font-size:1.5rem;font-weight:700">${rankIcon} ${Math.abs(rankChange)} rank${Math.abs(rankChange) !== 1 ? 's' : ''}</span>
+          <span style="color:var(--slate-400);margin-left:1rem">(${scoreChange > 0 ? '-' : '+'}${Math.abs(scoreChange).toFixed(2)} pts)</span>
+        </div>`;
+      
+      // Find which metrics changed the most
+      const changes = [];
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        cat.metrics.forEach(m => {
+          const orig = simOriginalValues[m.key];
+          const curr = simCurrentValues[m.key];
+          if (orig !== curr && orig !== null && curr !== null) {
+            changes.push({
+              label: m.label,
+              category: cat.name,
+              original: orig,
+              current: curr,
+              change: curr - orig,
+              higher: m.higher
+            });
+          }
+        });
+      });
+      
+      if (changes.length === 0) {
+        document.getElementById('simImpact').innerHTML = `
+          <div style="text-align:center;padding:2rem;color:var(--slate-400)">
+            <div style="font-size:2rem;margin-bottom:0.5rem">✏️</div>
+            Adjust metric values to see the impact
+          </div>`;
+      } else {
+        document.getElementById('simImpact').innerHTML = `
+          <div style="font-size:0.9rem">
+            ${changes.map(c => {
+              const improved = (c.higher && c.change > 0) || (!c.higher && c.change < 0);
+              const color = improved ? '#10b981' : '#ef4444';
+              const icon = improved ? '✓' : '✗';
+              return `<div style="padding:0.5rem 0;border-bottom:1px solid var(--white-10);display:flex;justify-content:space-between">
+                <span>${c.label}</span>
+                <span style="color:${color}"><strong>${c.original}</strong> → <strong>${c.current}</strong> ${icon}</span>
+              </div>`;
+            }).join('')}
+          </div>`;
+      }
     }
     
     function renderRadarChart() { 
