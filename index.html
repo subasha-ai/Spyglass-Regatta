@@ -475,13 +475,14 @@
     
     function calculateRankBasedScores(monthData) {
       const scores = {};
-      BUILDINGS.forEach(b => { scores[b.dataKey] = { total: 0, categoryScores: {}, metricRanks: {} }; });
+      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
+      BUILDINGS.forEach(b => { scores[b.dataKey] = { total: 0, categoryScores: {}, metricRanks: {}, exists: !!monthData.buildingData[b.dataKey] }; });
       
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
         BUILDINGS.forEach(b => { scores[b.dataKey].categoryScores[catKey] = 0; });
         
         cat.metrics.forEach(metric => {
-          const values = BUILDINGS.map(b => ({
+          const values = availableBuildings.map(b => ({
             dataKey: b.dataKey,
             value: monthData.buildingData[b.dataKey][metric.key]
           })).filter(v => v.value !== null && v.value !== undefined);
@@ -501,13 +502,13 @@
             currentRank = i + 1;
           }
           
-          BUILDINGS.forEach(b => {
+          availableBuildings.forEach(b => {
             if (ranks[b.dataKey] === undefined) {
-              ranks[b.dataKey] = BUILDINGS.length;
+              ranks[b.dataKey] = availableBuildings.length;
             }
           });
           
-          BUILDINGS.forEach(b => {
+          availableBuildings.forEach(b => {
             const rank = ranks[b.dataKey];
             const contribution = rank * metric.weight * cat.weight;
             scores[b.dataKey].total += contribution;
@@ -517,7 +518,7 @@
         });
       });
       
-      const sortedBuildings = BUILDINGS.map(b => ({ dataKey: b.dataKey, score: scores[b.dataKey].total }))
+      const sortedBuildings = availableBuildings.map(b => ({ dataKey: b.dataKey, score: scores[b.dataKey].total }))
         .sort((a, b) => a.score - b.score);
       
       sortedBuildings.forEach((b, idx) => { scores[b.dataKey].rank = idx + 1; });
@@ -528,7 +529,7 @@
     function getRanked(monthData = currentData) {
       if (!monthData) return [];
       const scores = calculateRankBasedScores(monthData);
-      return BUILDINGS.map(b => ({
+      return BUILDINGS.filter(b => monthData.buildingData[b.dataKey]).map(b => ({
         name: b.name,
         dataKey: b.dataKey,
         region: b.region,
@@ -543,11 +544,12 @@
     function getCategoryRanksByCategory(monthData = currentData) {
       if (!monthData) return {};
       const scores = calculateRankBasedScores(monthData);
+      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
       const catKeys = Object.keys(CATEGORIES);
       const catRanks = {};
       
       catKeys.forEach(catKey => {
-        const sorted = BUILDINGS.map(b => ({ dataKey: b.dataKey, score: scores[b.dataKey].categoryScores[catKey] }))
+        const sorted = availableBuildings.map(b => ({ dataKey: b.dataKey, score: scores[b.dataKey].categoryScores[catKey] }))
           .sort((a, b) => a.score - b.score);
         sorted.forEach((item, idx) => {
           if (!catRanks[item.dataKey]) catRanks[item.dataKey] = {};
@@ -786,18 +788,25 @@
       const firstRanked = allRanked[0].ranked;
       const lastRanked = allRanked[allRanked.length - 1].ranked;
       
-      const changes = BUILDINGS.map(b => { 
+      // Only show buildings that exist in at least the first and last month
+      const buildingsInRange = BUILDINGS.filter(b => {
+        const inFirst = firstRanked.find(r => r.dataKey === b.dataKey);
+        const inLast = lastRanked.find(r => r.dataKey === b.dataKey);
+        return inFirst && inLast;
+      });
+      
+      const changes = buildingsInRange.map(b => { 
         const first = firstRanked.find(r => r.dataKey === b.dataKey);
         const last = lastRanked.find(r => r.dataKey === b.dataKey);
         const allScores = allRanked.map(m => {
           const found = m.ranked.find(r => r.dataKey === b.dataKey);
-          return found ? found.score : 0;
+          return found ? found.score : null;
         });
         return { 
           name: b.name, region: b.region, 
           scores: allScores,
-          change: (last ? last.score : 0) - (first ? first.score : 0), 
-          rankChange: (first ? first.rank : 0) - (last ? last.rank : 0)
+          change: last.score - first.score, 
+          rankChange: first.rank - last.rank
         }; 
       }).sort((a, b) => a.scores[a.scores.length - 1] - b.scores[b.scores.length - 1]);
       
@@ -808,7 +817,7 @@
         const rankIcon = c.rankChange > 0 ? '↑' : c.rankChange < 0 ? '↓' : '→'; 
         return `<div style="display:grid;grid-template-columns:1fr ${c.scores.map(() => colWidth + 'px').join(' ')} 70px 70px;align-items:center;padding:0.875rem 1rem;background:var(--white-05);border:1px solid var(--white-10);border-radius:12px;gap:0.5rem;margin-bottom:0.5rem;">
           <div><div class="trend-name">${c.name}</div><div class="trend-region">${c.region}</div></div>
-          ${c.scores.map(s => `<div style="text-align:center;font-weight:600">${s.toFixed(2)}</div>`).join('')}
+          ${c.scores.map(s => s !== null ? `<div style="text-align:center;font-weight:600">${s.toFixed(2)}</div>` : `<div style="text-align:center;color:var(--slate-500)">—</div>`).join('')}
           <div class="trend-change ${changeClass}" style="text-align:center">${changeIcon} ${Math.abs(c.change).toFixed(2)}</div>
           <div class="trend-change ${rankClass}" style="text-align:center">${rankIcon} ${Math.abs(c.rankChange)}</div>
         </div>`; 
@@ -823,15 +832,17 @@
         const monthScores = allData.map(monthData => {
           const ranked = getRanked(monthData);
           const building = ranked.find(r => r.dataKey === b.dataKey);
-          return { month: monthData.month, score: building ? building.score : 0, rank: building ? building.rank : 17 };
+          return { month: monthData.month, score: building ? building.score : null, rank: building ? building.rank : null, exists: !!building };
         });
-        const totalScore = monthScores.reduce((sum, m) => sum + m.score, 0);
+        const validMonths = monthScores.filter(m => m.exists);
+        const totalScore = validMonths.reduce((sum, m) => sum + m.score, 0);
         return {
           name: b.name,
           dataKey: b.dataKey,
           region: b.region,
           totalScore,
-          monthScores
+          monthScores,
+          monthCount: validMonths.length
         };
       });
       
@@ -879,20 +890,20 @@
         `).join('')}</div>`;
       
       // Render month-by-month ranks table
-      const months = allData.map(d => d.month.replace(' 2025', ''));
+      const months = allData.map(d => d.month.replace(' 2025', '').replace(' 2026', ''));
       let tableHtml = `<thead><tr><th style="text-align:left">Building</th><th>Overall</th>${months.map(m => `<th>${m}</th>`).join('')}<th>Best</th><th>Worst</th></tr></thead><tbody>`;
       
       seasonData.forEach(b => {
-        const ranks = b.monthScores.map(m => m.rank);
-        const best = Math.min(...ranks);
-        const worst = Math.max(...ranks);
+        const validRanks = b.monthScores.filter(m => m.exists).map(m => m.rank);
+        const best = validRanks.length > 0 ? Math.min(...validRanks) : '-';
+        const worst = validRanks.length > 0 ? Math.max(...validRanks) : '-';
         
         tableHtml += `<tr>
           <td>${b.name}</td>
           <td><span class="rank-badge ${getRankBadgeClass(b.overallRank)}">#${b.overallRank}</span></td>
-          ${b.monthScores.map(m => `<td><span class="rank-badge ${getRankBadgeClass(m.rank)}">#${m.rank}</span></td>`).join('')}
-          <td style="color:#10b981;font-weight:600">#${best}</td>
-          <td style="color:#ef4444;font-weight:600">#${worst}</td>
+          ${b.monthScores.map(m => m.exists ? `<td><span class="rank-badge ${getRankBadgeClass(m.rank)}">#${m.rank}</span></td>` : `<td style="color:var(--slate-500)">—</td>`).join('')}
+          <td style="color:#10b981;font-weight:600">${best === '-' ? '-' : '#' + best}</td>
+          <td style="color:#ef4444;font-weight:600">${worst === '-' ? '-' : '#' + worst}</td>
         </tr>`;
       });
       
@@ -991,13 +1002,14 @@
       
       // Recalculate with simulated values
       const simScores = {};
-      BUILDINGS.forEach(b => { simScores[b.dataKey] = { total: 0, categoryScores: {} }; });
+      const availableBuildings = BUILDINGS.filter(b => simData.buildingData[b.dataKey]);
+      availableBuildings.forEach(b => { simScores[b.dataKey] = { total: 0, categoryScores: {} }; });
       
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
-        BUILDINGS.forEach(b => { simScores[b.dataKey].categoryScores[catKey] = 0; });
+        availableBuildings.forEach(b => { simScores[b.dataKey].categoryScores[catKey] = 0; });
         
         cat.metrics.forEach(metric => {
-          const values = BUILDINGS.map(b => ({
+          const values = availableBuildings.map(b => ({
             dataKey: b.dataKey,
             value: simData.buildingData[b.dataKey][metric.key]
           })).filter(v => v.value !== null && v.value !== undefined);
@@ -1017,8 +1029,8 @@
             currentRank = i + 1;
           }
           
-          BUILDINGS.forEach(b => {
-            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = BUILDINGS.length;
+          availableBuildings.forEach(b => {
+            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = availableBuildings.length;
             const rank = ranks[b.dataKey];
             const contribution = rank * metric.weight * cat.weight;
             simScores[b.dataKey].total += contribution;
@@ -1028,7 +1040,7 @@
       });
       
       // Calculate simulated ranks
-      const simSorted = BUILDINGS.map(b => ({ dataKey: b.dataKey, score: simScores[b.dataKey].total }))
+      const simSorted = availableBuildings.map(b => ({ dataKey: b.dataKey, score: simScores[b.dataKey].total }))
         .sort((a, b) => a.score - b.score);
       simSorted.forEach((b, idx) => { simScores[b.dataKey].rank = idx + 1; });
       
