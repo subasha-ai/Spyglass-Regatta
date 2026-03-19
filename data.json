@@ -1729,14 +1729,14 @@
       "substandardQoc": 0.0,
       "googleRating": 4.3,
       "yelpRating": 4.4,
-      "legalClaims": null,
-      "_score": 5.34,
+      "legalClaims": 0.0,
+      "_score": 5.63,
       "_rank": 5
     },
     "Camino Ridge Post Acute": {
       "healthInspections": 194.0,
       "qmRating": 5.0,
-      "rehospitalization": 24.39,
+      "rehospitalization": 23.26,
       "dischargeFunctional": 75.61,
       "occupancy": 96.0,
       "medicareCensus": 33.66,
@@ -1754,9 +1754,9 @@
       "substandardQoc": 0.0,
       "googleRating": 4.6,
       "yelpRating": 2.3,
-      "legalClaims": null,
-      "_score": 7.57,
-      "_rank": 14
+      "legalClaims": 1.0,
+      "_score": 8.58,
+      "_rank": 17
     },
     "Los Altos Post Acute": {
       "healthInspections": 64.0,
@@ -1779,14 +1779,14 @@
       "substandardQoc": 0.0,
       "googleRating": 3.5,
       "yelpRating": 4.4,
-      "legalClaims": null,
-      "_score": 7.6,
-      "_rank": 16
+      "legalClaims": 0.0,
+      "_score": 7.85,
+      "_rank": 13
     },
     "The Win Post Acute": {
       "healthInspections": 60.0,
       "qmRating": 5.0,
-      "rehospitalization": 15.0,
+      "rehospitalization": 14.75,
       "dischargeFunctional": 62.67,
       "occupancy": 99.3,
       "medicareCensus": 27.06,
@@ -1804,9 +1804,9 @@
       "substandardQoc": 0.0,
       "googleRating": 4.2,
       "yelpRating": 3.0,
-      "legalClaims": null,
-      "_score": 4.64,
-      "_rank": 3
+      "legalClaims": 0.0,
+      "_score": 4.89,
+      "_rank": 2
     },
     "Pac Coast PA": {
       "healthInspections": 33.0,
@@ -1829,14 +1829,14 @@
       "substandardQoc": 0.0,
       "googleRating": 4.2,
       "yelpRating": 3.5,
-      "legalClaims": null,
-      "_score": 4.64,
-      "_rank": 2
+      "legalClaims": 0.0,
+      "_score": 4.97,
+      "_rank": 3
     },
     "PAC Hills Post Acute": {
       "healthInspections": 45.0,
       "qmRating": 5.0,
-      "rehospitalization": 35.56,
+      "rehospitalization": 33.33,
       "dischargeFunctional": 50.93,
       "occupancy": 98.8,
       "medicareCensus": 24.92,
@@ -1854,14 +1854,14 @@
       "substandardQoc": 0.0,
       "googleRating": 4.8,
       "yelpRating": 3.7,
-      "legalClaims": null,
-      "_score": 5.07,
+      "legalClaims": 0.0,
+      "_score": 5.28,
       "_rank": 4
     },
     "Manresa HC": {
       "healthInspections": 66.0,
       "qmRating": 3.0,
-      "rehospitalization": 41.18,
+      "rehospitalization": 38.89,
       "dischargeFunctional": 76.56,
       "occupancy": 96.3,
       "medicareCensus": 31.86,
@@ -1879,14 +1879,14 @@
       "substandardQoc": 0.0,
       "googleRating": 4.3,
       "yelpRating": 5.0,
-      "legalClaims": null,
-      "_score": 6.33,
-      "_rank": 9
+      "legalClaims": 0.0,
+      "_score": 6.59,
+      "_rank": 8
     },
     "Morgan Hill HC": {
       "healthInspections": 71.0,
       "qmRating": 5.0,
-      "rehospitalization": 16.67,
+      "rehospitalization": 14.29,
       "dischargeFunctional": 75.76,
       "occupancy": 99.4,
       "medicareCensus": 19.14,
@@ -1904,14 +1904,14 @@
       "substandardQoc": 0.0,
       "googleRating": 4.9,
       "yelpRating": 4.6,
-      "legalClaims": null,
-      "_score": 5.6,
-      "_rank": 7
+      "legalClaims": 0.0,
+      "_score": 5.77,
+      "_rank": 6
     },
     "Mountain View HC": {
       "healthInspections": 130.8,
       "qmRating": 5.0,
-      "rehospitalization": 38.6,
+      "rehospitalization": 37.29,
       "dischargeFunctional": 92.81,
       "occupancy": 98.8,
       "medicareCensus": 35.08,
@@ -1929,14 +1929,14 @@
       "substandardQoc": 0.0,
       "googleRating": 4.6,
       "yelpRating": 4.0,
-      "legalClaims": null,
-      "_score": 5.74,
-      "_rank": 8
+      "legalClaims": 1.0,
+      "_score": 6.86,
+      "_rank": 9
     },
     "Eden HC": {
       "healthInspections": 144.8,
       "qmRating": 1.0,
-      "rehospitalization": 20.0,
+      "rehospitalization": 18.75,
       "dischargeFunctional": 82.46,
       "occupancy": 99.4,
       "medicareCensus": 15.63,
@@ -1954,14 +1954,14 @@
       "substandardQoc": 0.0,
       "googleRating": 4.6,
       "yelpRating": 4.0,
-      "legalClaims": null,
-      "_score": 7.4,
+      "legalClaims": 0.0,
+      "_score": 7.7,
       "_rank": 12
     },
     "West Shore PA": {
       "healthInspections": 178.0,
       "qmRating": 3.0,
-      "rehospitalization": 36.36,
+      "rehospitalization": 33.33,
       "dischargeFunctional": 59.38,
       "occupancy": 98.6,
       "medicareCensus": 19.42,
@@ -1979,14 +1979,14 @@
       "substandardQoc": 0.0,
       "googleRating": 4.6,
       "yelpRating": 4.6,
-      "legalClaims": null,
-      "_score": 7.97,
-      "_rank": 17
+      "legalClaims": 0.0,
+      "_score": 8.21,
+      "_rank": 15
     },
     "Golden Harbor HC": {
       "healthInspections": 147.8,
       "qmRating": 5.0,
-      "rehospitalization": 24.0,
+      "rehospitalization": 22.22,
       "dischargeFunctional": 89.39,
       "occupancy": 98.1,
       "medicareCensus": 26.47,
@@ -2004,8 +2004,8 @@
       "substandardQoc": 0.0,
       "googleRating": 4.6,
       "yelpRating": 3.2,
-      "legalClaims": null,
-      "_score": 7.29,
+      "legalClaims": 0.0,
+      "_score": 7.41,
       "_rank": 11
     },
     "Belmont HC": {
@@ -2029,8 +2029,8 @@
       "substandardQoc": 0.0,
       "googleRating": 4.9,
       "yelpRating": 4.4,
-      "legalClaims": null,
-      "_score": 4.52,
+      "legalClaims": 0.0,
+      "_score": 4.74,
       "_rank": 1
     },
     "Palo Alto Post Acute": {
@@ -2054,9 +2054,9 @@
       "substandardQoc": 0.0,
       "googleRating": 3.9,
       "yelpRating": 4.8,
-      "legalClaims": null,
-      "_score": 5.6,
-      "_rank": 6
+      "legalClaims": 0.0,
+      "_score": 5.82,
+      "_rank": 7
     },
     "Bridgewood PA": {
       "healthInspections": 99.0,
@@ -2079,14 +2079,14 @@
       "substandardQoc": 0.0,
       "googleRating": 4.8,
       "yelpRating": 4.0,
-      "legalClaims": null,
-      "_score": 7.59,
-      "_rank": 15
+      "legalClaims": 0.0,
+      "_score": 8.04,
+      "_rank": 14
     },
     "Cedarwood PA": {
       "healthInspections": 108.0,
       "qmRating": 5.0,
-      "rehospitalization": 25.0,
+      "rehospitalization": 25.93,
       "dischargeFunctional": 78.18,
       "occupancy": 97.4,
       "medicareCensus": 30.13,
@@ -2104,8 +2104,8 @@
       "substandardQoc": 0.0,
       "googleRating": 4.5,
       "yelpRating": 4.4,
-      "legalClaims": null,
-      "_score": 6.81,
+      "legalClaims": 0.0,
+      "_score": 6.97,
       "_rank": 10
     },
     "Capital PA": {
@@ -2129,9 +2129,34 @@
       "substandardQoc": 0.0,
       "googleRating": 4.7,
       "yelpRating": 4.0,
-      "legalClaims": null,
-      "_score": 7.42,
-      "_rank": 13
+      "legalClaims": 1.0,
+      "_score": 8.43,
+      "_rank": 16
+    },
+    "Blue Oak": {
+      "healthInspections": 161.0,
+      "qmRating": 4.0,
+      "rehospitalization": 31.56,
+      "dischargeFunctional": 40.35,
+      "occupancy": 87.3,
+      "medicareCensus": 5.6,
+      "skilledMix": 19.29,
+      "badDebt": 1.5,
+      "dso": 24.34,
+      "noi": null,
+      "labor": null,
+      "otdt": 5.9,
+      "rehabProductivity": 80.5,
+      "turnover": 21.5,
+      "workerSafety": null,
+      "admissionPacket": 87.2,
+      "arbitration": 59.0,
+      "substandardQoc": 0.0,
+      "googleRating": 4.2,
+      "yelpRating": null,
+      "legalClaims": 0.0,
+      "_score": 9.54,
+      "_rank": 18
     }
   }
 }
