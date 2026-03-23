@@ -180,6 +180,7 @@
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:1rem;">
+        <button onclick="exportPDF()" style="background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.5rem 1rem;border-radius:8px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.background='var(--white-20)'" onmouseout="this.style.background='var(--white-10)'">📄 Export PDF</button>
         <select id="monthSelect"></select>
         <div class="month-badge" id="currentMonth">Loading...</div>
       </div>
@@ -194,12 +195,15 @@
       <button class="tab" data-tab="building">🏢 Building Detail</button>
       <button class="tab" data-tab="regional">🗺️ Regional</button>
       <button class="tab" data-tab="trends">📈 Trends</button>
-      <button class="tab" data-tab="season">🏆 Season Standings</button>
       <button class="tab" data-tab="simulator">🧭 The Compass</button>
       <button class="tab" data-tab="methodology">📋 Methodology</button>
     </div>
     
     <div id="podium" class="tab-content active">
+      <div id="monthlyHighlights" class="card" style="display:none;background:linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(245,158,11,0.05) 100%);border:1px solid rgba(251,191,36,0.3);">
+        <div class="card-title">📊 Monthly Highlights</div>
+        <div id="highlightsContent"></div>
+      </div>
       <div class="card"><div class="card-title">🏆 Top Performers <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Lowest Score Wins)</span></div><div id="podiumContent"><div class="loading">Loading data...</div></div></div>
       <div class="card"><div class="card-title">Complete Rankings</div><div id="quickRankings"></div></div>
     </div>
@@ -280,30 +284,24 @@
       </div>
     </div>
     
-    <div id="season" class="tab-content">
-      <div class="card">
-        <div class="card-title">🏆 Season Champion</div>
-        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Overall standings based on total score across all months. Lowest total wins the regatta!</p>
-        <div id="seasonPodium"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Full Season Standings</div>
-        <div id="seasonStandings"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Month-by-Month Ranks</div>
-        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">How each building ranked in each month's race</p>
-        <div class="heatmap-container"><table class="cat-rank-table" id="seasonRanksTable"></table></div>
-      </div>
-    </div>
-    
     <div id="simulator" class="tab-content">
       <div class="card">
         <div class="card-title">🧭 The Compass</div>
         <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Chart your course to better rankings. Adjust metric values to see how changes would affect your building's position in the regatta!</p>
-        <div class="filter-row">
-          <select id="simBuildingSelect" onchange="initSimulator()"><option value="">Select a Building</option></select>
-          <button onclick="resetSimulator()" style="background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">↺ Reset Course</button>
+        <div style="display:flex;gap:1rem;margin-bottom:1rem;">
+          <button id="simModeMetrics" onclick="setSimMode('metrics')" class="sim-mode-btn active" style="flex:1;padding:0.75rem;border-radius:8px;font-weight:600;cursor:pointer;border:1px solid var(--gold);background:rgba(251,191,36,0.2);color:var(--gold);">📊 Adjust Metrics</button>
+          <button id="simModeWeights" onclick="setSimMode('weights')" class="sim-mode-btn" style="flex:1;padding:0.75rem;border-radius:8px;font-weight:600;cursor:pointer;border:1px solid var(--white-20);background:var(--white-05);color:var(--slate-300);">⚖️ Adjust Weights</button>
+        </div>
+        <div id="simMetricsMode">
+          <div class="filter-row">
+            <select id="simBuildingSelect" onchange="initSimulator()"><option value="">Select a Building</option></select>
+            <button onclick="resetSimulator()" style="background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">↺ Reset Course</button>
+          </div>
+        </div>
+        <div id="simWeightsMode" style="display:none;">
+          <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.85rem">Drag sliders to see how different category weights would change rankings. Total must equal 100%.</p>
+          <div id="weightSliders"></div>
+          <button onclick="resetWeights()" style="margin-top:1rem;background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;">↺ Reset to Default Weights</button>
         </div>
       </div>
       <div id="simResults" style="display:none;">
@@ -321,6 +319,12 @@
           <div class="card-title">⚓ Adjust Your Heading</div>
           <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Change values below to chart a new course. Results update automatically.</p>
           <div id="simMetricInputs"></div>
+        </div>
+      </div>
+      <div id="weightResults" style="display:none;">
+        <div class="card">
+          <div class="card-title">📊 Rankings with Adjusted Weights</div>
+          <div id="weightRankingsComparison"></div>
         </div>
       </div>
     </div>
@@ -390,6 +394,17 @@
           <p class="method-text" style="margin-bottom:0">If a metric is missing for all buildings, that metric is excluded from scoring. If a building has missing data for a metric that others have, it receives the worst rank (17) for that metric to avoid rewarding incomplete data.</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Metric Deep Dive Modal -->
+  <div id="metricModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;overflow-y:auto;">
+    <div style="max-width:800px;margin:2rem auto;background:var(--slate-800);border-radius:16px;border:1px solid var(--white-10);padding:1.5rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h3 id="metricModalTitle" style="color:var(--slate-100);margin:0;font-size:1.25rem;"></h3>
+        <button onclick="closeMetricModal()" style="background:none;border:none;color:var(--slate-400);font-size:1.5rem;cursor:pointer;">&times;</button>
+      </div>
+      <div id="metricModalContent"></div>
     </div>
   </div>
 
@@ -561,14 +576,14 @@
 
     function initMonthSelect() { const select = document.getElementById('monthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { currentData = allData[parseInt(e.target.value)]; updateAllDisplays(); }); }
     function initRegionalMonthSelect() { const select = document.getElementById('regionalMonthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { regionalMonthData = allData[parseInt(e.target.value)]; renderRegionalStats(); renderRegionalChart(); }); }
-    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'catrankings') renderCategoryRankings(); if (tab.dataset.tab === 'season') renderSeasonStandings(); if (tab.dataset.tab === 'simulator') initSimulator(); } }); }); }
+    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'catrankings') renderCategoryRankings(); if (tab.dataset.tab === 'simulator') initSimulator(); } }); }); }
     function initSelects() { ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3', 'simBuildingSelect'].forEach(id => { const select = document.getElementById(id); BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.dataKey; opt.textContent = b.name; select.appendChild(opt); }); }); document.getElementById('buildingSelect').addEventListener('change', e => renderBuildingDetail(e.target.value)); ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); }); }
     function getFullName(dataKey) { const b = BUILDINGS.find(b => b.dataKey === dataKey); return b ? b.name : dataKey; }
     function getRankBadgeClass(rank) { if (rank === 1) return 'rank-1'; if (rank === 2) return 'rank-2'; if (rank === 3) return 'rank-3'; if (rank <= 5) return 'rank-top5'; if (rank >= 13) return 'rank-bottom'; return 'rank-mid'; }
     
     function updateAllDisplays() { 
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
-      renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats(); renderCategoryRankings(); renderSeasonStandings();
+      renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats(); renderCategoryRankings();
       const bs = document.getElementById('buildingSelect'); 
       if (bs.value) renderBuildingDetail(bs.value); 
     }
@@ -822,93 +837,6 @@
           <div class="trend-change ${rankClass}" style="text-align:center">${rankIcon} ${Math.abs(c.rankChange)}</div>
         </div>`; 
       }).join(''); 
-    }
-    
-    function renderSeasonStandings() {
-      if (allData.length < 1) return;
-      
-      // Sum scores across all months for each building (same logic - lowest wins)
-      const seasonData = BUILDINGS.map(b => {
-        const monthScores = allData.map(monthData => {
-          const ranked = getRanked(monthData);
-          const building = ranked.find(r => r.dataKey === b.dataKey);
-          return { month: monthData.month, score: building ? building.score : null, rank: building ? building.rank : null, exists: !!building };
-        });
-        const validMonths = monthScores.filter(m => m.exists);
-        const totalScore = validMonths.reduce((sum, m) => sum + m.score, 0);
-        return {
-          name: b.name,
-          dataKey: b.dataKey,
-          region: b.region,
-          totalScore,
-          monthScores,
-          monthCount: validMonths.length
-        };
-      });
-      
-      // Sort by total score (lowest wins)
-      seasonData.sort((a, b) => a.totalScore - b.totalScore);
-      
-      // Assign overall ranks
-      seasonData.forEach((b, idx) => { b.overallRank = idx + 1; });
-      
-      // Render podium
-      const top3 = seasonData.slice(0, 3);
-      document.getElementById('seasonPodium').innerHTML = `
-        <div class="podium-container">
-          <div class="podium-place place-2">
-            <div class="podium-avatar">2</div>
-            <div class="podium-name">${top3[1].name}</div>
-            <div class="podium-score">${top3[1].totalScore.toFixed(2)} pts</div>
-            <div class="podium-block">🥈</div>
-          </div>
-          <div class="podium-place place-1">
-            <div class="podium-avatar">1</div>
-            <div class="podium-name">${top3[0].name}</div>
-            <div class="podium-score">${top3[0].totalScore.toFixed(2)} pts</div>
-            <div class="podium-block">🏆</div>
-          </div>
-          <div class="podium-place place-3">
-            <div class="podium-avatar">3</div>
-            <div class="podium-name">${top3[2].name}</div>
-            <div class="podium-score">${top3[2].totalScore.toFixed(2)} pts</div>
-            <div class="podium-block">🥉</div>
-          </div>
-        </div>`;
-      
-      // Render full standings
-      const maxScore = seasonData[seasonData.length - 1].totalScore;
-      const minScore = seasonData[0].totalScore;
-      document.getElementById('seasonStandings').innerHTML = `
-        <div class="rankings-list">${seasonData.map(b => `
-          <div class="rank-item">
-            <span class="rank-num">${b.overallRank}</span>
-            <div><span class="rank-name">${b.name}</span><div class="rank-region">${b.region}</div></div>
-            <div class="rank-bar"><div class="rank-bar-fill" style="width:${100 - ((b.totalScore - minScore) / (maxScore - minScore)) * 100}%"></div></div>
-            <span class="rank-score">${b.totalScore.toFixed(2)}</span>
-          </div>
-        `).join('')}</div>`;
-      
-      // Render month-by-month ranks table
-      const months = allData.map(d => d.month.replace(' 2025', '').replace(' 2026', ''));
-      let tableHtml = `<thead><tr><th style="text-align:left">Building</th><th>Overall</th>${months.map(m => `<th>${m}</th>`).join('')}<th>Best</th><th>Worst</th></tr></thead><tbody>`;
-      
-      seasonData.forEach(b => {
-        const validRanks = b.monthScores.filter(m => m.exists).map(m => m.rank);
-        const best = validRanks.length > 0 ? Math.min(...validRanks) : '-';
-        const worst = validRanks.length > 0 ? Math.max(...validRanks) : '-';
-        
-        tableHtml += `<tr>
-          <td>${b.name}</td>
-          <td><span class="rank-badge ${getRankBadgeClass(b.overallRank)}">#${b.overallRank}</span></td>
-          ${b.monthScores.map(m => m.exists ? `<td><span class="rank-badge ${getRankBadgeClass(m.rank)}">#${m.rank}</span></td>` : `<td style="color:var(--slate-500)">—</td>`).join('')}
-          <td style="color:#10b981;font-weight:600">${best === '-' ? '-' : '#' + best}</td>
-          <td style="color:#ef4444;font-weight:600">${worst === '-' ? '-' : '#' + worst}</td>
-        </tr>`;
-      });
-      
-      tableHtml += '</tbody>';
-      document.getElementById('seasonRanksTable').innerHTML = tableHtml;
     }
     
     let simOriginalValues = {};
@@ -1406,12 +1334,326 @@
               </span>
             </div>
             <div class="metrics-grid">
-              ${cat.metrics.map(m => `<div class="metric-item"><div class="metric-label">${m.label} <span style="color:var(--gold)">(Rank #${buildingData.metricRanks[m.key] || 'N/A'})</span></div><div class="metric-value">${buildingData.metrics[m.key] !== null && buildingData.metrics[m.key] !== undefined ? buildingData.metrics[m.key] : 'N/A'}</div></div>`).join('')}
+              ${cat.metrics.map(m => `<div class="metric-item" style="cursor:pointer" onclick="openMetricModal('${m.key}', '${m.label}', ${m.higher})"><div class="metric-label">${m.label} <span style="color:var(--gold)">(Rank #${buildingData.metricRanks[m.key] || 'N/A'})</span></div><div class="metric-value">${buildingData.metrics[m.key] !== null && buildingData.metrics[m.key] !== undefined ? buildingData.metrics[m.key] : 'N/A'}</div></div>`).join('')}
             </div>
           </div>`; 
         }).join('')}
       </div>`; 
     }
+
+    // =====================
+    // PDF EXPORT
+    // =====================
+    function exportPDF() {
+      const ranked = getRanked();
+      const month = currentData.month;
+      
+      let html = `
+        <html><head><title>Spyglass Regatta - ${month}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
+          h1 { color: #1e3a5f; border-bottom: 3px solid #f59e0b; padding-bottom: 10px; }
+          h2 { color: #475569; margin-top: 30px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+          th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
+          th { background: #f8fafc; font-weight: 600; }
+          .rank-1 { background: #fef3c7; font-weight: bold; }
+          .rank-2 { background: #f3f4f6; }
+          .rank-3 { background: #fff7ed; }
+          .top-3 { font-weight: bold; }
+          .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 12px; }
+        </style></head><body>
+        <h1>🚢 The Spyglass Regatta</h1>
+        <p><strong>Month:</strong> ${month} | <strong>Buildings:</strong> ${ranked.length} | <strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
+        
+        <h2>🏆 Overall Rankings</h2>
+        <table>
+          <tr><th>#</th><th>Building</th><th>Region</th><th>Score</th></tr>
+          ${ranked.map((b, i) => `<tr class="${i < 3 ? 'rank-' + (i+1) : ''}"><td>${b.rank}</td><td>${b.name}</td><td>${b.region}</td><td>${b.score.toFixed(2)}</td></tr>`).join('')}
+        </table>
+        
+        <h2>📊 Category Leaders</h2>
+        <table>
+          <tr><th>Category</th><th>Leader</th><th>Score</th></tr>
+          ${Object.entries(CATEGORIES).map(([key, cat]) => {
+            const sorted = [...ranked].sort((a, b) => a.categoryScores[key] - b.categoryScores[key]);
+            return `<tr><td>${cat.name}</td><td>${sorted[0].name}</td><td>${sorted[0].categoryScores[key].toFixed(2)}</td></tr>`;
+          }).join('')}
+        </table>
+        
+        <div class="footer">Generated by The Spyglass Regatta Dashboard</div>
+        </body></html>
+      `;
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.print();
+    }
+
+    // =====================
+    // MONTHLY HIGHLIGHTS
+    // =====================
+    function renderMonthlyHighlights() {
+      if (allData.length < 2) {
+        document.getElementById('monthlyHighlights').style.display = 'none';
+        return;
+      }
+      
+      document.getElementById('monthlyHighlights').style.display = 'block';
+      
+      const currentIdx = allData.findIndex(d => d.month === currentData.month);
+      if (currentIdx < 1) {
+        document.getElementById('monthlyHighlights').style.display = 'none';
+        return;
+      }
+      
+      const prevData = allData[currentIdx - 1];
+      const currRanked = getRanked(currentData);
+      const prevRanked = getRanked(prevData);
+      
+      // Find buildings in both months
+      const comparableBuildings = currRanked.filter(c => prevRanked.find(p => p.dataKey === c.dataKey));
+      
+      // Biggest movers
+      const movers = comparableBuildings.map(c => {
+        const prev = prevRanked.find(p => p.dataKey === c.dataKey);
+        return { name: c.name, currRank: c.rank, prevRank: prev.rank, change: prev.rank - c.rank };
+      }).filter(m => m.change !== 0).sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+      
+      const risers = movers.filter(m => m.change > 0).slice(0, 3);
+      const fallers = movers.filter(m => m.change < 0).slice(0, 3);
+      
+      // New leader?
+      const currLeader = currRanked[0];
+      const prevLeader = prevRanked[0];
+      const newLeader = currLeader.dataKey !== prevLeader?.dataKey;
+      
+      let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;">';
+      
+      // Leader box
+      html += `<div style="background:var(--white-05);border-radius:10px;padding:1rem;">
+        <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.5rem;">${newLeader ? '🆕 New Leader!' : '👑 Still #1'}</div>
+        <div style="font-weight:700;color:var(--gold);font-size:1.1rem;">${currLeader.name}</div>
+        <div style="font-size:0.85rem;color:var(--slate-300);">Score: ${currLeader.score.toFixed(2)}</div>
+      </div>`;
+      
+      // Risers
+      if (risers.length > 0) {
+        html += `<div style="background:var(--white-05);border-radius:10px;padding:1rem;">
+          <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.5rem;">📈 Biggest Climbers</div>
+          ${risers.map(r => `<div style="display:flex;justify-content:space-between;padding:0.25rem 0;"><span style="color:var(--slate-200)">${r.name}</span><span style="color:#10b981;font-weight:600">↑${r.change}</span></div>`).join('')}
+        </div>`;
+      }
+      
+      // Fallers
+      if (fallers.length > 0) {
+        html += `<div style="background:var(--white-05);border-radius:10px;padding:1rem;">
+          <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.5rem;">📉 Biggest Drops</div>
+          ${fallers.map(f => `<div style="display:flex;justify-content:space-between;padding:0.25rem 0;"><span style="color:var(--slate-200)">${f.name}</span><span style="color:#ef4444;font-weight:600">↓${Math.abs(f.change)}</span></div>`).join('')}
+        </div>`;
+      }
+      
+      // Watch list (bottom 3)
+      const bottom3 = currRanked.slice(-3).reverse();
+      html += `<div style="background:var(--white-05);border-radius:10px;padding:1rem;">
+        <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.5rem;">⚠️ Watch List</div>
+        ${bottom3.map(b => `<div style="display:flex;justify-content:space-between;padding:0.25rem 0;"><span style="color:var(--slate-200)">${b.name}</span><span style="color:var(--slate-400)">#${b.rank}</span></div>`).join('')}
+      </div>`;
+      
+      html += '</div>';
+      document.getElementById('highlightsContent').innerHTML = html;
+    }
+
+    // =====================
+    // WEIGHT SIMULATOR
+    // =====================
+    let currentSimMode = 'metrics';
+    let customWeights = null;
+    const DEFAULT_WEIGHTS = { care: 0.26, census: 0.20, collections: 0.10, controls: 0.14, culture: 0.12, compliance: 0.10, credibility: 0.08 };
+    
+    function setSimMode(mode) {
+      currentSimMode = mode;
+      document.getElementById('simModeMetrics').className = mode === 'metrics' ? 'sim-mode-btn active' : 'sim-mode-btn';
+      document.getElementById('simModeMetrics').style.background = mode === 'metrics' ? 'rgba(251,191,36,0.2)' : 'var(--white-05)';
+      document.getElementById('simModeMetrics').style.borderColor = mode === 'metrics' ? 'var(--gold)' : 'var(--white-20)';
+      document.getElementById('simModeMetrics').style.color = mode === 'metrics' ? 'var(--gold)' : 'var(--slate-300)';
+      
+      document.getElementById('simModeWeights').className = mode === 'weights' ? 'sim-mode-btn active' : 'sim-mode-btn';
+      document.getElementById('simModeWeights').style.background = mode === 'weights' ? 'rgba(251,191,36,0.2)' : 'var(--white-05)';
+      document.getElementById('simModeWeights').style.borderColor = mode === 'weights' ? 'var(--gold)' : 'var(--white-20)';
+      document.getElementById('simModeWeights').style.color = mode === 'weights' ? 'var(--gold)' : 'var(--slate-300)';
+      
+      document.getElementById('simMetricsMode').style.display = mode === 'metrics' ? 'block' : 'none';
+      document.getElementById('simWeightsMode').style.display = mode === 'weights' ? 'block' : 'none';
+      document.getElementById('simResults').style.display = mode === 'metrics' && document.getElementById('simBuildingSelect').value ? 'block' : 'none';
+      document.getElementById('weightResults').style.display = mode === 'weights' ? 'block' : 'none';
+      
+      if (mode === 'weights') {
+        initWeightSliders();
+        updateWeightRankings();
+      }
+    }
+    
+    function initWeightSliders() {
+      if (!customWeights) customWeights = { ...DEFAULT_WEIGHTS };
+      
+      const catNames = { care: '🏥 Care', census: '📊 Census', collections: '💰 Collections', controls: '⚙️ Controls', culture: '👥 Culture', compliance: '📋 Compliance', credibility: '⭐ Credibility' };
+      
+      let html = '<div style="display:grid;gap:1rem;">';
+      Object.entries(customWeights).forEach(([key, val]) => {
+        html += `<div style="display:grid;grid-template-columns:140px 1fr 60px;align-items:center;gap:1rem;">
+          <span style="color:var(--slate-300);font-weight:500;">${catNames[key]}</span>
+          <input type="range" id="weight_${key}" min="0" max="50" value="${val * 100}" oninput="updateWeight('${key}', this.value)" style="width:100%;">
+          <span id="weightVal_${key}" style="color:var(--gold);font-weight:600;text-align:right;">${Math.round(val * 100)}%</span>
+        </div>`;
+      });
+      html += '</div>';
+      html += `<div style="margin-top:1rem;padding:0.75rem;background:var(--white-05);border-radius:8px;display:flex;justify-content:space-between;"><span style="color:var(--slate-400);">Total:</span><span id="weightTotal" style="font-weight:700;color:${Math.abs(Object.values(customWeights).reduce((a,b)=>a+b,0) - 1) < 0.01 ? '#10b981' : '#ef4444'};">${Math.round(Object.values(customWeights).reduce((a,b)=>a+b,0) * 100)}%</span></div>`;
+      document.getElementById('weightSliders').innerHTML = html;
+    }
+    
+    function updateWeight(key, val) {
+      customWeights[key] = parseInt(val) / 100;
+      document.getElementById('weightVal_' + key).textContent = val + '%';
+      const total = Object.values(customWeights).reduce((a, b) => a + b, 0);
+      document.getElementById('weightTotal').textContent = Math.round(total * 100) + '%';
+      document.getElementById('weightTotal').style.color = Math.abs(total - 1) < 0.01 ? '#10b981' : '#ef4444';
+      updateWeightRankings();
+    }
+    
+    function resetWeights() {
+      customWeights = { ...DEFAULT_WEIGHTS };
+      initWeightSliders();
+      updateWeightRankings();
+    }
+    
+    function updateWeightRankings() {
+      if (!currentData) return;
+      
+      const originalRanked = getRanked();
+      
+      // Calculate with custom weights
+      const scores = {};
+      const availableBuildings = BUILDINGS.filter(b => currentData.buildingData[b.dataKey]);
+      availableBuildings.forEach(b => { scores[b.dataKey] = { total: 0 }; });
+      
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        cat.metrics.forEach(metric => {
+          const values = availableBuildings.map(b => ({
+            dataKey: b.dataKey,
+            value: currentData.buildingData[b.dataKey][metric.key]
+          })).filter(v => v.value !== null && v.value !== undefined);
+          
+          if (values.length === 0) return;
+          
+          values.sort((a, b) => metric.higher ? b.value - a.value : a.value - b.value);
+          
+          const ranks = {};
+          let currentRank = 1, i = 0;
+          while (i < values.length) {
+            const currentValue = values[i].value;
+            const tied = values.filter(v => v.value === currentValue);
+            tied.forEach(item => { ranks[item.dataKey] = currentRank; });
+            i += tied.length;
+            currentRank = i + 1;
+          }
+          
+          availableBuildings.forEach(b => {
+            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = availableBuildings.length;
+            const contribution = ranks[b.dataKey] * metric.weight * (customWeights[catKey] || cat.weight);
+            scores[b.dataKey].total += contribution;
+          });
+        });
+      });
+      
+      const newRanked = availableBuildings.map(b => ({
+        ...BUILDINGS.find(bl => bl.dataKey === b.dataKey),
+        score: scores[b.dataKey].total
+      })).sort((a, b) => a.score - b.score);
+      
+      newRanked.forEach((b, i) => { b.rank = i + 1; });
+      
+      // Compare
+      let html = '<table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--white-10);"><th style="text-align:left;padding:0.75rem;color:var(--slate-400);">Building</th><th style="text-align:center;padding:0.75rem;color:var(--slate-400);">Original</th><th style="text-align:center;padding:0.75rem;color:var(--slate-400);">New</th><th style="text-align:center;padding:0.75rem;color:var(--slate-400);">Change</th></tr></thead><tbody>';
+      
+      newRanked.forEach(b => {
+        const orig = originalRanked.find(o => o.dataKey === b.dataKey);
+        const change = orig ? orig.rank - b.rank : 0;
+        const changeColor = change > 0 ? '#10b981' : change < 0 ? '#ef4444' : 'var(--slate-500)';
+        const changeIcon = change > 0 ? '↑' : change < 0 ? '↓' : '→';
+        
+        html += `<tr style="border-bottom:1px solid var(--white-05);">
+          <td style="padding:0.75rem;color:var(--slate-200);">${b.name}</td>
+          <td style="text-align:center;padding:0.75rem;"><span class="rank-badge ${getRankBadgeClass(orig?.rank || 0)}">#${orig?.rank || '?'}</span></td>
+          <td style="text-align:center;padding:0.75rem;"><span class="rank-badge ${getRankBadgeClass(b.rank)}">#${b.rank}</span></td>
+          <td style="text-align:center;padding:0.75rem;color:${changeColor};font-weight:600;">${changeIcon} ${Math.abs(change)}</td>
+        </tr>`;
+      });
+      
+      html += '</tbody></table>';
+      document.getElementById('weightRankingsComparison').innerHTML = html;
+    }
+
+    // =====================
+    // METRIC DEEP DIVE
+    // =====================
+    function openMetricModal(metricKey, metricLabel, higher) {
+      const ranked = getRanked();
+      
+      // Get all values for this metric
+      const values = ranked.map(b => ({
+        name: b.name,
+        region: b.region,
+        value: b.metrics[metricKey],
+        rank: b.metricRanks[metricKey]
+      })).filter(v => v.value !== null && v.value !== undefined)
+        .sort((a, b) => a.rank - b.rank);
+      
+      const direction = higher ? '(Higher is Better ↑)' : '(Lower is Better ↓)';
+      document.getElementById('metricModalTitle').innerHTML = `📊 ${metricLabel} <span style="font-size:0.85rem;color:var(--slate-400);font-weight:normal">${direction}</span>`;
+      
+      const maxVal = Math.max(...values.map(v => v.value));
+      const minVal = Math.min(...values.map(v => v.value));
+      const range = maxVal - minVal || 1;
+      
+      let html = '<div style="display:flex;flex-direction:column;gap:0.5rem;">';
+      values.forEach((v, i) => {
+        const barWidth = higher 
+          ? ((v.value - minVal) / range) * 100 
+          : ((maxVal - v.value) / range) * 100;
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+        
+        html += `<div style="display:grid;grid-template-columns:30px 180px 1fr 80px;align-items:center;gap:0.75rem;padding:0.5rem;background:var(--white-05);border-radius:8px;">
+          <span style="font-size:1.1rem;text-align:center;">${medal || '#' + (i+1)}</span>
+          <span style="color:var(--slate-200);font-weight:500;">${v.name}</span>
+          <div style="background:var(--white-10);border-radius:4px;height:20px;overflow:hidden;">
+            <div style="background:${i < 3 ? 'var(--gold)' : 'var(--slate-500)'};height:100%;width:${Math.max(5, barWidth)}%;border-radius:4px;"></div>
+          </div>
+          <span style="color:var(--slate-300);font-weight:600;text-align:right;">${typeof v.value === 'number' ? v.value.toFixed(2) : v.value}</span>
+        </div>`;
+      });
+      html += '</div>';
+      
+      document.getElementById('metricModalContent').innerHTML = html;
+      document.getElementById('metricModal').style.display = 'block';
+    }
+    
+    function closeMetricModal() {
+      document.getElementById('metricModal').style.display = 'none';
+    }
+    
+    // Close modal on outside click
+    document.getElementById('metricModal')?.addEventListener('click', function(e) {
+      if (e.target === this) closeMetricModal();
+    });
+
+    // Update displays to include highlights
+    const originalUpdateAllDisplays = updateAllDisplays;
+    updateAllDisplays = function() {
+      originalUpdateAllDisplays();
+      renderMonthlyHighlights();
+    };
   </script>
 </body>
 </html>
