@@ -592,9 +592,9 @@
       if (!currentData) return; 
       const ranked = getRanked(); 
       document.getElementById('podiumContent').innerHTML = `<div class="podium-container">
-        <div class="podium-place place-2"><div class="podium-avatar">2</div><div class="podium-name">${ranked[1].name}</div><div class="podium-score">${ranked[1].score.toFixed(2)} pts</div><div class="podium-block">🥈</div></div>
-        <div class="podium-place place-1"><div class="podium-avatar">1</div><div class="podium-name">${ranked[0].name}</div><div class="podium-score">${ranked[0].score.toFixed(2)} pts</div><div class="podium-block">🥇</div></div>
-        <div class="podium-place place-3"><div class="podium-avatar">3</div><div class="podium-name">${ranked[2].name}</div><div class="podium-score">${ranked[2].score.toFixed(2)} pts</div><div class="podium-block">🥉</div></div>
+        <div class="podium-place place-2" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[1].dataKey}')"><div class="podium-avatar">2</div><div class="podium-name">${ranked[1].name}</div><div class="podium-score">${ranked[1].score.toFixed(2)} pts</div><div class="podium-block">🥈</div></div>
+        <div class="podium-place place-1" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[0].dataKey}')"><div class="podium-avatar">1</div><div class="podium-name">${ranked[0].name}</div><div class="podium-score">${ranked[0].score.toFixed(2)} pts</div><div class="podium-block">🥇</div></div>
+        <div class="podium-place place-3" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[2].dataKey}')"><div class="podium-avatar">3</div><div class="podium-name">${ranked[2].name}</div><div class="podium-score">${ranked[2].score.toFixed(2)} pts</div><div class="podium-block">🥉</div></div>
       </div>`; 
     }
     
@@ -604,10 +604,21 @@
       const maxScore = ranked[ranked.length - 1].score;
       const minScore = ranked[0].score;
       document.getElementById('quickRankings').innerHTML = `<div class="rankings-list">${ranked.map((r) => `
-        <div class="rank-item"><span class="rank-num">${r.rank}</span><div><span class="rank-name">${r.name}</span><div class="rank-region">${r.region}</div></div>
+        <div class="rank-item" style="cursor:pointer" onclick="goToBuildingDetail('${r.dataKey}')" onmouseover="this.style.background='var(--white-10)'" onmouseout="this.style.background=''"><span class="rank-num">${r.rank}</span><div><span class="rank-name">${r.name}</span><div class="rank-region">${r.region}</div></div>
         <div class="rank-bar"><div class="rank-bar-fill" style="width:${100 - ((r.score - minScore) / (maxScore - minScore)) * 100}%"></div></div>
         <span class="rank-score">${r.score.toFixed(2)}</span></div>
       `).join('')}</div>`; 
+    }
+    
+    function goToBuildingDetail(dataKey) {
+      // Switch to Building Detail tab
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelector('[data-tab="building"]').classList.add('active');
+      document.getElementById('building').classList.add('active');
+      // Select the building and render
+      document.getElementById('buildingSelect').value = dataKey;
+      renderBuildingDetail(dataKey);
     }
     
     let catSortState = {}; // track sort state per category
