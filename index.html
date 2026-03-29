@@ -301,7 +301,6 @@
   <div class="container">
     <div class="tabs">
       <button class="tab active" data-tab="podium">⛵ The Fleet</button>
-      <button class="tab" data-tab="catrankings">🏅 Category Rankings</button>
       <button class="tab" data-tab="radar">🎯 Radar</button>
       <button class="tab" data-tab="heatmap">🔥 Heat Map</button>
       <button class="tab" data-tab="building">🏢 Building Detail</button>
@@ -319,14 +318,6 @@
       </div>
       <div class="card"><div class="card-title">🏆 Top Performers <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Lowest Score Wins)</span></div><div id="podiumContent"><div class="loading">Loading data...</div></div></div>
       <div class="card"><div class="card-title">Complete Rankings</div><div id="quickRankings"></div></div>
-    </div>
-    
-    <div id="catrankings" class="tab-content">
-      <div class="card">
-        <div class="card-title">🏅 Category Rankings — Drill Down by Metric</div>
-        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Click any category to expand. Click column headers to sort buildings by that metric.</p>
-        <div id="categoryBands"></div>
-      </div>
     </div>
     
     <div id="radar" class="tab-content">
@@ -470,66 +461,28 @@
     <div id="methodology" class="tab-content">
       <div class="card">
         <div class="method-section">
-          <div class="method-title">📐 Scoring Formula — Rank-Based System</div>
-          <p class="method-text">Each building is <strong>ranked #1-17</strong> for every metric. These ranks are then weighted and summed. <strong>Lowest total score wins</strong> (like golf!).</p>
-          <div class="formula-box">Total Score = Σ (Metric Rank × Metric Weight × Category Weight)</div>
-        </div>
-        <div class="method-section">
-          <div class="method-title">🔢 How It Works</div>
-          <div class="step-list">
-            <div class="step-item"><div class="step-num">1</div><div class="step-content"><div class="step-title">Rank Each Metric</div><div class="step-desc">For each metric, rank all 17 buildings based on performance. Best performer = Rank 1. Ties share the same rank (e.g., 5 buildings with 5-star rating all get rank 1). The next building starts at rank 6.</div></div></div>
-            <div class="step-item"><div class="step-num">2</div><div class="step-content"><div class="step-title">Apply Weights</div><div class="step-desc">Multiply each rank by: Metric Weight (within category) × Category Weight (overall importance). Example: Rank 6 × 0.20 (QM weight) × 0.26 (Care weight) = 0.312 points</div></div></div>
-            <div class="step-item"><div class="step-num">3</div><div class="step-content"><div class="step-title">Sum All Metrics</div><div class="step-desc">Add up all weighted ranks across all 21 metrics in all 7 categories to get the building's total score.</div></div></div>
-            <div class="step-item"><div class="step-num">4</div><div class="step-content"><div class="step-title">Lowest Score Wins</div><div class="step-desc">Buildings are ranked by total score — the building with the <strong>lowest</strong> weighted rank total is #1 (like golf scoring).</div></div></div>
-          </div>
-        </div>
-        <div class="method-section">
-          <div class="method-title">📝 Example: QM Rating (Care Category)</div>
-          <p class="method-text">QM Rating has a metric weight of 20% within the Care category, which has a category weight of 26%.</p>
-          <table class="example-table">
-            <tr><th>Buildings</th><th>Stars</th><th>Rank</th><th>Calculation</th><th>Points</th></tr>
-            <tr><td>5 buildings tied</td><td>5⭐</td><td>1</td><td>1 × 0.20 × 0.26</td><td>0.052</td></tr>
-            <tr><td>3 buildings tied</td><td>4⭐</td><td>6</td><td>6 × 0.20 × 0.26</td><td>0.312</td></tr>
-            <tr><td>4 buildings tied</td><td>3⭐</td><td>9</td><td>9 × 0.20 × 0.26</td><td>0.468</td></tr>
-            <tr><td>5 buildings tied</td><td>2⭐</td><td>13</td><td>13 × 0.20 × 0.26</td><td>0.676</td></tr>
-          </table>
-          <p class="method-text" style="margin-top:1rem;font-size:0.9rem">The 5-star buildings each get only 0.052 points for this metric (best). The 2-star buildings get 0.676 points (worst). Lower is better!</p>
-        </div>
-        <div class="method-section">
-          <div class="method-title">🏆 Perfect Score Calculation (All Rank #1)</div>
-          <p class="method-text">If a building ranked #1 in every metric, their total score would be <strong>1.00</strong> — the lowest possible.</p>
-          <p class="method-text" style="margin-bottom:1rem"><strong>Formula: Rank × Metric Weight × Category Weight</strong></p>
-          <table class="example-table">
-            <tr><th>Category</th><th>Metrics</th><th>Calculation (all rank #1)</th><th>Score</th></tr>
-            <tr><td>Care (26%)</td><td>4 metrics</td><td>1×0.30×0.26 + 1×0.20×0.26 + 1×0.25×0.26 + 1×0.25×0.26</td><td>0.26</td></tr>
-            <tr><td>Census (20%)</td><td>3 metrics</td><td>1×0.30×0.20 + 1×0.40×0.20 + 1×0.30×0.20</td><td>0.20</td></tr>
-            <tr><td>Collections (10%)</td><td>2 metrics</td><td>1×0.70×0.10 + 1×0.30×0.10</td><td>0.10</td></tr>
-            <tr><td>Controls (14%)</td><td>4 metrics</td><td>1×0.30×0.14 + 1×0.30×0.14 + 1×0.25×0.14 + 1×0.15×0.14</td><td>0.14</td></tr>
-            <tr><td>Culture (12%)</td><td>2 metrics</td><td>1×0.50×0.12 + 1×0.50×0.12</td><td>0.12</td></tr>
-            <tr><td>Compliance (10%)</td><td>3 metrics</td><td>1×0.20×0.10 + 1×0.40×0.10 + 1×0.40×0.10</td><td>0.10</td></tr>
-            <tr><td>Credibility (8%)</td><td>3 metrics</td><td>1×0.10×0.08 + 1×0.20×0.08 + 1×0.70×0.08</td><td>0.08</td></tr>
-            <tr style="font-weight:700;background:var(--white-10)"><td>TOTAL</td><td></td><td></td><td>1.00</td></tr>
-          </table>
-          <p class="method-text" style="margin-top:1rem;font-size:0.9rem">Best possible score: <strong>1.00</strong> | Worst possible score: <strong>17.00</strong> (rank #17 in everything)</p>
+          <div class="method-title">📐 How Scoring Works</div>
+          <p class="method-text">Each building is ranked #1–18 for every metric. Ranks are weighted and summed. <strong>Lowest total score wins</strong> (like golf).</p>
+          <div class="formula-box">Score = Σ (Rank × Metric Weight × Category Weight)</div>
+          <p class="method-text" style="margin-top:1rem;font-size:0.85rem;color:var(--slate-400);">Best possible: 1.00 (rank #1 in everything) · Worst possible: 18.00</p>
         </div>
       </div>
       <div class="card">
-        <div class="method-title">📊 Categories & Weights</div>
-        <p class="method-text">There are 7 categories containing 21 total metrics. Each category has a weight that determines its overall impact on the total score.</p>
-        <div class="category-grid">
-          <div class="category-card"><div class="category-header"><span class="category-name">🏥 Care</span><span class="category-weight">26%</span></div><div class="metric-row"><span class="metric-name">Health Inspections</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">QM Rating</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Rehospitalization %</span><span><span class="metric-weight">25%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Discharge Functional %</span><span><span class="metric-weight">25%</span><span class="metric-direction higher-better">↑</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">📈 Census</span><span class="category-weight">20%</span></div><div class="metric-row"><span class="metric-name">Occupancy %</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Medicare Census %</span><span><span class="metric-weight">40%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Skilled Mix #</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">💰 Collections</span><span class="category-weight">10%</span></div><div class="metric-row"><span class="metric-name">Bad Debt %</span><span><span class="metric-weight">70%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">DSO</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">⚙️ Controls</span><span class="category-weight">14%</span></div><div class="metric-row"><span class="metric-name">NOI %</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Labor %</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">OT/DT %</span><span><span class="metric-weight">25%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Rehab Productivity %</span><span><span class="metric-weight">15%</span><span class="metric-direction higher-better">↑</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">👥 Culture</span><span class="category-weight">12%</span></div><div class="metric-row"><span class="metric-name">Turnover %</span><span><span class="metric-weight">50%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Worker Safety</span><span><span class="metric-weight">50%</span><span class="metric-direction higher-better">↑</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">✅ Compliance</span><span class="category-weight">10%</span></div><div class="metric-row"><span class="metric-name">Admission Packet %</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Arbitration %</span><span><span class="metric-weight">40%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Substandard QoC</span><span><span class="metric-weight">40%</span><span class="metric-direction lower-better">↓</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">⭐ Credibility</span><span class="category-weight">8%</span></div><div class="metric-row"><span class="metric-name">Google Rating</span><span><span class="metric-weight">10%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Yelp Rating</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Legal Claims</span><span><span class="metric-weight">70%</span><span class="metric-direction lower-better">↓</span></span></div></div>
+        <div class="method-title">📊 Category Weights</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:0.75rem;margin-top:1rem;">
+          <div style="background:var(--white-05);padding:1rem;border-radius:10px;text-align:center;"><div style="font-size:1.5rem;margin-bottom:0.25rem;">🏥</div><div style="font-weight:600;color:var(--slate-200);">Care</div><div style="color:var(--gold);font-weight:700;font-size:1.25rem;">26%</div></div>
+          <div style="background:var(--white-05);padding:1rem;border-radius:10px;text-align:center;"><div style="font-size:1.5rem;margin-bottom:0.25rem;">📈</div><div style="font-weight:600;color:var(--slate-200);">Census</div><div style="color:var(--gold);font-weight:700;font-size:1.25rem;">20%</div></div>
+          <div style="background:var(--white-05);padding:1rem;border-radius:10px;text-align:center;"><div style="font-size:1.5rem;margin-bottom:0.25rem;">⚙️</div><div style="font-weight:600;color:var(--slate-200);">Controls</div><div style="color:var(--gold);font-weight:700;font-size:1.25rem;">14%</div></div>
+          <div style="background:var(--white-05);padding:1rem;border-radius:10px;text-align:center;"><div style="font-size:1.5rem;margin-bottom:0.25rem;">👥</div><div style="font-weight:600;color:var(--slate-200);">Culture</div><div style="color:var(--gold);font-weight:700;font-size:1.25rem;">12%</div></div>
+          <div style="background:var(--white-05);padding:1rem;border-radius:10px;text-align:center;"><div style="font-size:1.5rem;margin-bottom:0.25rem;">💰</div><div style="font-weight:600;color:var(--slate-200);">Collections</div><div style="color:var(--gold);font-weight:700;font-size:1.25rem;">10%</div></div>
+          <div style="background:var(--white-05);padding:1rem;border-radius:10px;text-align:center;"><div style="font-size:1.5rem;margin-bottom:0.25rem;">✅</div><div style="font-weight:600;color:var(--slate-200);">Compliance</div><div style="color:var(--gold);font-weight:700;font-size:1.25rem;">10%</div></div>
+          <div style="background:var(--white-05);padding:1rem;border-radius:10px;text-align:center;"><div style="font-size:1.5rem;margin-bottom:0.25rem;">⭐</div><div style="font-weight:600;color:var(--slate-200);">Credibility</div><div style="color:var(--gold);font-weight:700;font-size:1.25rem;">8%</div></div>
         </div>
       </div>
       <div class="card">
         <div class="method-section" style="margin-bottom:0">
           <div class="method-title">⚠️ Missing Data</div>
-          <p class="method-text" style="margin-bottom:0">If a metric is missing for all buildings, that metric is excluded from scoring. If a building has missing data for a metric that others have, it receives the worst rank (17) for that metric to avoid rewarding incomplete data.</p>
+          <p class="method-text" style="margin-bottom:0">If all buildings are missing a metric, it's excluded. If only some are missing, they get worst rank (18) for that metric.</p>
         </div>
       </div>
     </div>
@@ -714,14 +667,14 @@
 
     function initMonthSelect() { const select = document.getElementById('monthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { currentData = allData[parseInt(e.target.value)]; updateAllDisplays(); }); }
     function initRegionalMonthSelect() { const select = document.getElementById('regionalMonthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { regionalMonthData = allData[parseInt(e.target.value)]; renderRegionalStats(); renderRegionalChart(); }); }
-    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'catrankings') renderCategoryRankings(); if (tab.dataset.tab === 'simulator') initSimulator(); } }); }); }
+    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'simulator') initSimulator(); } }); }); }
     function initSelects() { ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3', 'simBuildingSelect'].forEach(id => { const select = document.getElementById(id); BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.dataKey; opt.textContent = b.name; select.appendChild(opt); }); }); document.getElementById('buildingSelect').addEventListener('change', e => renderBuildingDetail(e.target.value)); ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); }); }
     function getFullName(dataKey) { const b = BUILDINGS.find(b => b.dataKey === dataKey); return b ? b.name : dataKey; }
     function getRankBadgeClass(rank) { if (rank === 1) return 'rank-1'; if (rank === 2) return 'rank-2'; if (rank === 3) return 'rank-3'; if (rank <= 5) return 'rank-top5'; if (rank >= 13) return 'rank-bottom'; return 'rank-mid'; }
     
     function updateAllDisplays() { 
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
-      renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats(); renderCategoryRankings();
+      renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
       initCompareSelects();
       const bs = document.getElementById('buildingSelect'); 
       if (bs.value) renderBuildingDetail(bs.value); 
