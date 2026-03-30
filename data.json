@@ -18,12 +18,12 @@
       "workerSafety": 46,
       "admissionPacket": 94.1,
       "arbitration": 82.4,
-      "substandardQoC": 0,
       "googleRating": 4.3,
       "yelpRating": 4.4,
       "legalClaims": 0,
       "_score": 6.65,
-      "_rank": 7
+      "_rank": 7,
+      "substandardQoc": 0
     },
     "Camino Ridge Post Acute": {
       "healthInspections": 194,
@@ -43,12 +43,12 @@
       "workerSafety": 70,
       "admissionPacket": 73.9,
       "arbitration": 69.6,
-      "substandardQoC": 0,
       "googleRating": 4.6,
       "yelpRating": 2.3,
       "legalClaims": 1,
       "_score": 9.3,
-      "_rank": 17
+      "_rank": 17,
+      "substandardQoc": 0
     },
     "Los Altos Post Acute": {
       "healthInspections": 64,
@@ -68,12 +68,12 @@
       "workerSafety": 100,
       "admissionPacket": 90.4,
       "arbitration": 60.3,
-      "substandardQoC": 0,
       "googleRating": 3.5,
       "yelpRating": 4.4,
       "legalClaims": 0,
       "_score": 7.91,
-      "_rank": 11
+      "_rank": 11,
+      "substandardQoc": 0
     },
     "The Win Post Acute": {
       "healthInspections": 60,
@@ -93,12 +93,12 @@
       "workerSafety": 49,
       "admissionPacket": 96.8,
       "arbitration": 67.7,
-      "substandardQoC": 0,
       "googleRating": 4.2,
       "yelpRating": 3,
       "legalClaims": 0,
       "_score": 5.67,
-      "_rank": 3
+      "_rank": 3,
+      "substandardQoc": 0
     },
     "Pac Coast PA": {
       "healthInspections": 33,
@@ -118,12 +118,12 @@
       "workerSafety": 100,
       "admissionPacket": 82.7,
       "arbitration": 48,
-      "substandardQoC": 0,
       "googleRating": 4.2,
       "yelpRating": 3.5,
       "legalClaims": 0,
       "_score": 5.03,
-      "_rank": 2
+      "_rank": 2,
+      "substandardQoc": 0
     },
     "PAC Hills Post Acute": {
       "healthInspections": 45,
@@ -143,12 +143,12 @@
       "workerSafety": 73,
       "admissionPacket": 98.5,
       "arbitration": 92.4,
-      "substandardQoC": 0,
       "googleRating": 4.8,
       "yelpRating": 3.7,
       "legalClaims": 0,
       "_score": 5.94,
-      "_rank": 4
+      "_rank": 4,
+      "substandardQoc": 0
     },
     "Manresa HC": {
       "healthInspections": 66,
@@ -168,12 +168,12 @@
       "workerSafety": 49,
       "admissionPacket": 100,
       "arbitration": 82.4,
-      "substandardQoC": 0,
       "googleRating": 4.3,
       "yelpRating": 5,
       "legalClaims": 0,
       "_score": 7.37,
-      "_rank": 8
+      "_rank": 8,
+      "substandardQoc": 0
     },
     "Morgan Hill HC": {
       "healthInspections": 71,
@@ -193,12 +193,12 @@
       "workerSafety": 95,
       "admissionPacket": 100,
       "arbitration": 100,
-      "substandardQoC": 0,
       "googleRating": 4.9,
       "yelpRating": 4.6,
       "legalClaims": 0,
       "_score": 6.19,
-      "_rank": 6
+      "_rank": 6,
+      "substandardQoc": 0
     },
     "Mountain View HC": {
       "healthInspections": 130.8,
@@ -218,12 +218,12 @@
       "workerSafety": 85,
       "admissionPacket": 95.8,
       "arbitration": 62.5,
-      "substandardQoC": 0,
       "googleRating": 4.6,
       "yelpRating": 4,
       "legalClaims": 1,
       "_score": 7.4,
-      "_rank": 10
+      "_rank": 10,
+      "substandardQoc": 0
     },
     "Eden HC": {
       "healthInspections": 144.8,
@@ -243,12 +243,12 @@
       "workerSafety": 6,
       "admissionPacket": 92.9,
       "arbitration": 85.7,
-      "substandardQoC": 0,
       "googleRating": 4.6,
       "yelpRating": 4,
       "legalClaims": 0,
       "_score": 8.78,
-      "_rank": 14
+      "_rank": 14,
+      "substandardQoc": 0
     },
     "West Shore PA": {
       "healthInspections": 178,
@@ -268,12 +268,12 @@
       "workerSafety": 49,
       "admissionPacket": 95.2,
       "arbitration": 90.5,
-      "substandardQoC": 0,
       "googleRating": 4.6,
       "yelpRating": 4.6,
       "legalClaims": 0,
       "_score": 8.99,
-      "_rank": 16
+      "_rank": 16,
+      "substandardQoc": 0
     },
     "Golden Harbor HC": {
       "healthInspections": 147.8,
@@ -293,12 +293,12 @@
       "workerSafety": 49,
       "admissionPacket": 91.7,
       "arbitration": 75,
-      "substandardQoC": 0,
       "googleRating": 4.6,
       "yelpRating": 3.2,
       "legalClaims": 0,
       "_score": 8.18,
-      "_rank": 13
+      "_rank": 13,
+      "substandardQoc": 0
     },
     "Belmont HC": {
       "healthInspections": 37,
@@ -318,12 +318,12 @@
       "workerSafety": 100,
       "admissionPacket": 100,
       "arbitration": 80,
-      "substandardQoC": 0,
       "googleRating": 4.9,
       "yelpRating": 4.4,
       "legalClaims": 0,
       "_score": 4.8,
-      "_rank": 1
+      "_rank": 1,
+      "substandardQoc": 0
     },
     "Palo Alto Post Acute": {
       "healthInspections": 92,
@@ -343,12 +343,12 @@
       "workerSafety": 99,
       "admissionPacket": 90.2,
       "arbitration": 82.4,
-      "substandardQoC": 0,
       "googleRating": 3.9,
       "yelpRating": 4.8,
       "legalClaims": 0,
       "_score": 6.18,
-      "_rank": 5
+      "_rank": 5,
+      "substandardQoc": 0
     },
     "Bridgewood PA": {
       "healthInspections": 99,
@@ -368,12 +368,12 @@
       "workerSafety": 100,
       "admissionPacket": 100,
       "arbitration": 57.1,
-      "substandardQoC": 0,
       "googleRating": 4.8,
       "yelpRating": 4,
       "legalClaims": 0,
       "_score": 8.1,
-      "_rank": 12
+      "_rank": 12,
+      "substandardQoc": 0
     },
     "Cedarwood PA": {
       "healthInspections": 108,
@@ -393,12 +393,12 @@
       "workerSafety": 95,
       "admissionPacket": 100,
       "arbitration": 77.8,
-      "substandardQoC": 0,
       "googleRating": 4.5,
       "yelpRating": 4.4,
       "legalClaims": 0,
       "_score": 7.39,
-      "_rank": 9
+      "_rank": 9,
+      "substandardQoc": 0
     },
     "Capital PA": {
       "healthInspections": 122,
@@ -418,12 +418,12 @@
       "workerSafety": 85,
       "admissionPacket": 97.7,
       "arbitration": 88.6,
-      "substandardQoC": 0,
       "googleRating": 4.7,
       "yelpRating": 4,
       "legalClaims": 1,
       "_score": 8.97,
-      "_rank": 15
+      "_rank": 15,
+      "substandardQoc": 0
     },
     "Blue Oak": {
       "healthInspections": 161,
@@ -443,12 +443,12 @@
       "workerSafety": 100,
       "admissionPacket": 87.2,
       "arbitration": 59,
-      "substandardQoC": 0,
       "googleRating": 4.2,
       "yelpRating": null,
       "legalClaims": 0,
       "_score": 9.6,
-      "_rank": 18
+      "_rank": 18,
+      "substandardQoc": 0
     }
   }
 }
