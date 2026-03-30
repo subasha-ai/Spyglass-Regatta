@@ -392,7 +392,10 @@
     </div>
     
     <div id="building" class="tab-content">
-      <div class="filter-row"><select id="buildingSelect"><option value="">Select a Building</option></select></div>
+      <div class="filter-row" style="display:flex;gap:1rem;align-items:center;">
+        <select id="buildingSelect" style="flex:1;"><option value="">Select a Building</option></select>
+        <button id="shareBtn" onclick="copyShareLink()" style="background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.6rem 1rem;border-radius:8px;cursor:pointer;font-size:0.85rem;white-space:nowrap;" onmouseover="this.style.background='var(--white-20)'" onmouseout="this.style.background='var(--white-10)'">🔗 Share</button>
+      </div>
       <div id="buildingContent"></div>
     </div>
     
@@ -619,7 +622,7 @@
     document.addEventListener('DOMContentLoaded', initDashboard);
 
     async function initDashboard() {
-      initTheme(); await loadDataFromJSON(); initTabs(); initSelects(); initMonthSelect(); initRegionalMonthSelect(); updateAllDisplays();
+      initTheme(); await loadDataFromJSON(); initTabs(); initSelects(); initMonthSelect(); initRegionalMonthSelect(); updateAllDisplays(); parseURLParams();
     }
     
     async function loadDataFromJSON() {
@@ -720,9 +723,10 @@
 
     function initMonthSelect() { const select = document.getElementById('monthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { currentData = allData[parseInt(e.target.value)]; updateAllDisplays(); }); }
     function initRegionalMonthSelect() { const select = document.getElementById('regionalMonthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { regionalMonthData = allData[parseInt(e.target.value)]; renderRegionalStats(); renderRegionalChart(); }); }
-    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); updateSearchBarVisibility(tab.dataset.tab); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'simulator') initSimulator(); } }); }); }
+    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); updateSearchBarVisibility(tab.dataset.tab); clearURLParams(); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'simulator') initSimulator(); } }); }); }
+    function clearURLParams() { window.history.replaceState({}, '', window.location.pathname); }
     function updateSearchBarVisibility(tabId) { const showOn = ['podium', 'heatmap']; document.getElementById('searchFilterBar').style.display = showOn.includes(tabId) ? 'flex' : 'none'; }
-    function initSelects() { ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3', 'simBuildingSelect'].forEach(id => { const select = document.getElementById(id); BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.dataKey; opt.textContent = b.name; select.appendChild(opt); }); }); document.getElementById('buildingSelect').addEventListener('change', e => renderBuildingDetail(e.target.value)); ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); }); }
+    function initSelects() { ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3', 'simBuildingSelect'].forEach(id => { const select = document.getElementById(id); BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.dataKey; opt.textContent = b.name; select.appendChild(opt); }); }); document.getElementById('buildingSelect').addEventListener('change', e => { renderBuildingDetail(e.target.value); if (e.target.value) updateURL('building', e.target.value); }); ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); }); }
     function getFullName(dataKey) { const b = BUILDINGS.find(b => b.dataKey === dataKey); return b ? b.name : dataKey; }
     function getRankBadgeClass(rank) { if (rank === 1) return 'rank-1'; if (rank === 2) return 'rank-2'; if (rank === 3) return 'rank-3'; if (rank <= 5) return 'rank-top5'; if (rank >= 13) return 'rank-bottom'; return 'rank-mid'; }
     
@@ -762,9 +766,52 @@
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       document.querySelector('[data-tab="building"]').classList.add('active');
       document.getElementById('building').classList.add('active');
+      updateSearchBarVisibility('building');
       // Select the building and render
       document.getElementById('buildingSelect').value = dataKey;
       renderBuildingDetail(dataKey);
+      // Update URL
+      updateURL('building', dataKey);
+    }
+    
+    function updateURL(tab, building) {
+      const url = new URL(window.location);
+      if (tab) url.searchParams.set('tab', tab);
+      if (building) url.searchParams.set('building', building);
+      else url.searchParams.delete('building');
+      window.history.replaceState({}, '', url);
+    }
+    
+    function parseURLParams() {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      const building = params.get('building');
+      
+      if (building) {
+        // Find matching building
+        const match = BUILDINGS.find(b => b.dataKey === building || b.name.toLowerCase().includes(building.toLowerCase()));
+        if (match) {
+          goToBuildingDetail(match.dataKey);
+          return;
+        }
+      }
+      
+      if (tab) {
+        const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
+        if (tabBtn) tabBtn.click();
+      }
+    }
+    
+    function copyShareLink() {
+      const dataKey = document.getElementById('buildingSelect').value;
+      if (!dataKey) return;
+      const url = `${window.location.origin}${window.location.pathname}?building=${encodeURIComponent(dataKey)}`;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('shareBtn');
+        const original = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        setTimeout(() => btn.innerHTML = original, 2000);
+      });
     }
     
     function initCompareSelects() {
