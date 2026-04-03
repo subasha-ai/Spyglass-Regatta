@@ -2022,13 +2022,13 @@
         const barWidth = higher 
           ? ((v.value - minVal) / range) * 100 
           : ((maxVal - v.value) / range) * 100;
-        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+        const medal = v.rank === 1 ? '🥇' : v.rank === 2 ? '🥈' : v.rank === 3 ? '🥉' : '';
         
         html += `<div style="display:grid;grid-template-columns:30px 180px 1fr 80px;align-items:center;gap:0.75rem;padding:0.5rem;background:var(--white-05);border-radius:8px;">
-          <span style="font-size:1.1rem;text-align:center;">${medal || '#' + (i+1)}</span>
+          <span style="font-size:1.1rem;text-align:center;">${medal || '#' + v.rank}</span>
           <span style="color:var(--slate-200);font-weight:500;">${v.name}</span>
           <div style="background:var(--white-10);border-radius:4px;height:20px;overflow:hidden;">
-            <div style="background:${i < 3 ? 'var(--gold)' : 'var(--slate-500)'};height:100%;width:${Math.max(5, barWidth)}%;border-radius:4px;"></div>
+            <div style="background:${v.rank <= 3 ? 'var(--gold)' : 'var(--slate-500)'};height:100%;width:${Math.max(5, barWidth)}%;border-radius:4px;"></div>
           </div>
           <span style="color:var(--slate-300);font-weight:600;text-align:right;">${typeof v.value === 'number' ? v.value.toFixed(2) : v.value}</span>
         </div>`;
