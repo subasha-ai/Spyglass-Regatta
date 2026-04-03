@@ -538,7 +538,7 @@
       <div class="card">
         <div class="method-section" style="margin-bottom:0">
           <div class="method-title">⚠️ Missing Data</div>
-          <p class="method-text" style="margin-bottom:0">If all buildings are missing a metric, it's excluded from scoring. If only some buildings are missing data, they receive the worst rank (18) for that metric.</p>
+          <p class="method-text" style="margin-bottom:0">If all buildings are missing a metric, it's excluded from scoring. If only some buildings are missing data, they receive rank 9 (middle) for that metric.</p>
         </div>
       </div>
     </div>
@@ -557,24 +557,24 @@
 
   <script>
     const BUILDINGS = [
-      { name: "Gilroy Healthcare Center", region: "Golden Coast", dataKey: "Gilroy HC" },
+      { name: "Belmont Healthcare Center", region: "Overland", dataKey: "Belmont HC" },
+      { name: "Blue Oak", region: "Overland", dataKey: "Blue Oak" },
+      { name: "Bridgewood Post Acute", region: "Overland", dataKey: "Bridgewood PA" },
       { name: "Camino Ridge Post Acute", region: "Golden Coast", dataKey: "Camino Ridge Post Acute" },
+      { name: "Capital Post Acute", region: "Overland", dataKey: "Capital PA" },
+      { name: "Cedarwood Post Acute", region: "Overland", dataKey: "Cedarwood PA" },
+      { name: "Eden Healthcare Center", region: "Overland", dataKey: "Eden HC" },
+      { name: "Gilroy Healthcare Center", region: "Golden Coast", dataKey: "Gilroy HC" },
+      { name: "Golden Harbor Healthcare Center", region: "Overland", dataKey: "Golden Harbor HC" },
       { name: "Los Altos Post Acute", region: "Golden Coast", dataKey: "Los Altos Post Acute" },
-      { name: "The Win Post Acute", region: "Golden Coast", dataKey: "The Win Post Acute" },
-      { name: "Pacific Coast Post Acute", region: "Golden Coast", dataKey: "Pac Coast PA" },
-      { name: "Pacific Hills Post Acute", region: "Golden Coast", dataKey: "PAC Hills Post Acute" },
       { name: "Manresa Healthcare Center", region: "Golden Coast", dataKey: "Manresa HC" },
       { name: "Morgan Hill Healthcare Center", region: "Golden Coast", dataKey: "Morgan Hill HC" },
       { name: "Mountain View Healthcare Center", region: "Golden Coast", dataKey: "Mountain View HC" },
-      { name: "Eden Healthcare Center", region: "Overland", dataKey: "Eden HC" },
-      { name: "West Shore Post Acute", region: "Overland", dataKey: "West Shore PA" },
-      { name: "Golden Harbor Healthcare Center", region: "Overland", dataKey: "Golden Harbor HC" },
-      { name: "Belmont Healthcare Center", region: "Overland", dataKey: "Belmont HC" },
+      { name: "Pacific Coast Manor", region: "Golden Coast", dataKey: "Pac Coast PA" },
+      { name: "Pacific Hills Post Acute", region: "Golden Coast", dataKey: "PAC Hills Post Acute" },
       { name: "Palo Alto Post Acute", region: "Overland", dataKey: "Palo Alto Post Acute" },
-      { name: "Bridgewood Post Acute", region: "Overland", dataKey: "Bridgewood PA" },
-      { name: "Cedarwood Post Acute", region: "Overland", dataKey: "Cedarwood PA" },
-      { name: "Capital Post Acute", region: "Overland", dataKey: "Capital PA" },
-      { name: "Blue Oak", region: "Overland", dataKey: "Blue Oak" }
+      { name: "The Win Post Acute", region: "Golden Coast", dataKey: "The Win Post Acute" },
+      { name: "West Shore Post Acute", region: "Overland", dataKey: "West Shore PA" }
     ];
     
     const CATEGORIES = {
@@ -666,7 +666,7 @@
           
           availableBuildings.forEach(b => {
             if (ranks[b.dataKey] === undefined) {
-              ranks[b.dataKey] = availableBuildings.length;
+              ranks[b.dataKey] = 9; // middle rank for missing
             }
           });
           
@@ -1292,7 +1292,7 @@
           }
           
           availableBuildings.forEach(b => {
-            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = availableBuildings.length;
+            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = 9; // middle rank for missing
             const rank = ranks[b.dataKey];
             const contribution = rank * metric.weight * cat.weight;
             simScores[b.dataKey].total += contribution;
@@ -1947,7 +1947,7 @@
           }
           
           availableBuildings.forEach(b => {
-            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = availableBuildings.length;
+            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = 9; // middle rank for missing
             const contribution = ranks[b.dataKey] * metric.weight * (customWeights[catKey] || cat.weight);
             scores[b.dataKey].total += contribution;
           });
