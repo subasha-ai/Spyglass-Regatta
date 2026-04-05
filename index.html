@@ -1661,11 +1661,15 @@
       const buildingData = ranked.find(r => r.dataKey === dataKey);
       const catRanks = getCategoryRanksByCategory();
       
+      // Get rank movement analysis
+      const movementHTML = getRankMovementAnalysis(dataKey, buildingData);
+      
       document.getElementById('buildingContent').innerHTML = `<div class="card">
         <div class="detail-header">
           <div><div class="detail-title">${building.name}</div><span style="color:var(--slate-400)">${building.region}</span></div>
           <div style="text-align:right"><div class="detail-rank">Rank #${buildingData.rank}</div><div style="font-size:1.5rem;font-weight:800;margin-top:0.5rem;background:linear-gradient(90deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${buildingData.score.toFixed(2)} pts</div></div>
         </div>
+        ${movementHTML}
         ${Object.entries(CATEGORIES).map(([k, cat]) => { 
           const catScore = buildingData.categoryScores[k]; 
           const catRank = catRanks[dataKey][k];
@@ -1686,6 +1690,88 @@
           </div>`; 
         }).join('')}
       </div>`; 
+    }
+    
+    function getRankMovementAnalysis(dataKey, currentBuildingData) {
+      const currentIdx = allData.findIndex(d => d.month === currentData.month);
+      if (currentIdx <= 0) return ''; // No previous month
+      
+      const prevMonthData = allData[currentIdx - 1];
+      const prevScores = calculateRankBasedScores(prevMonthData);
+      const prevRank = prevScores[dataKey]?.rank;
+      const currentRank = currentBuildingData.rank;
+      
+      if (!prevRank) return '';
+      
+      const rankDiff = prevRank - currentRank;
+      if (rankDiff === 0) return `<div style="background:var(--white-05);border-radius:12px;padding:1rem;margin-bottom:1.5rem;border-left:4px solid var(--slate-500)">
+        <div style="font-weight:700;color:var(--slate-300)">📊 Rank Movement: Held Steady</div>
+        <div style="color:var(--slate-400);font-size:0.9rem;margin-top:0.25rem">Same position as ${prevMonthData.month}</div>
+      </div>`;
+      
+      const improved = rankDiff > 0;
+      const icon = improved ? '📈' : '📉';
+      const color = improved ? '#22c55e' : '#ef4444';
+      const label = improved ? 'Improved' : 'Declined';
+      
+      // Calculate metric changes
+      const prevMetrics = prevMonthData.buildingData[dataKey];
+      const currMetrics = currentData.buildingData[dataKey];
+      
+      if (!prevMetrics || !currMetrics) return '';
+      
+      const changes = [];
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        cat.metrics.forEach(m => {
+          const prev = prevMetrics[m.key];
+          const curr = currMetrics[m.key];
+          if (prev !== null && prev !== undefined && curr !== null && curr !== undefined) {
+            const diff = curr - prev;
+            if (Math.abs(diff) > 0.01) {
+              const isWorse = (diff < 0 && m.higher) || (diff > 0 && !m.higher);
+              const impact = Math.abs(diff) * m.weight * cat.weight;
+              changes.push({
+                label: m.label,
+                prev: prev,
+                curr: curr,
+                diff: diff,
+                isWorse: isWorse,
+                impact: impact,
+                higher: m.higher
+              });
+            }
+          }
+        });
+      });
+      
+      // Sort by impact (biggest changes first)
+      changes.sort((a, b) => b.impact - a.impact);
+      const topChanges = changes.slice(0, 5);
+      
+      if (topChanges.length === 0) return '';
+      
+      const changesHTML = topChanges.map(c => {
+        const arrow = c.isWorse ? '↓' : '↑';
+        const changeColor = c.isWorse ? '#ef4444' : '#22c55e';
+        const diffStr = c.diff > 0 ? `+${c.diff.toFixed(2)}` : c.diff.toFixed(2);
+        const note = c.higher ? '(higher is better)' : '(lower is better)';
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--white-10)">
+          <span style="color:var(--slate-300)">${c.label} <span style="font-size:0.75rem;color:var(--slate-500)">${note}</span></span>
+          <span style="display:flex;align-items:center;gap:0.75rem">
+            <span style="color:var(--slate-400)">${c.prev.toFixed(2)} → ${c.curr.toFixed(2)}</span>
+            <span style="color:${changeColor};font-weight:600">${arrow} ${diffStr}</span>
+          </span>
+        </div>`;
+      }).join('');
+      
+      return `<div style="background:var(--white-05);border-radius:12px;padding:1rem;margin-bottom:1.5rem;border-left:4px solid ${color}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+          <div style="font-weight:700;color:var(--slate-200)">${icon} Rank Movement: ${label}</div>
+          <div style="font-size:1.25rem;font-weight:800;color:${color}">#${prevRank} → #${currentRank}</div>
+        </div>
+        <div style="color:var(--slate-400);font-size:0.85rem;margin-bottom:0.75rem">vs ${prevMonthData.month} — What changed:</div>
+        <div style="font-size:0.9rem">${changesHTML}</div>
+      </div>`;
     }
 
     // =====================
