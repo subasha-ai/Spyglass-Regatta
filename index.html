@@ -520,8 +520,14 @@
     </div>
     
     <div id="race" class="tab-content">
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div class="card-title" style="margin-bottom:1rem;">⛵ The Regatta — Who's Leading the Fleet?</div>
+      <div class="card" style="margin-bottom:1.5rem;position:relative;">
+        <div id="raceHeader" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:1rem;position:sticky;top:0;background:inherit;padding:0.75rem 0;z-index:10;border-bottom:1px solid var(--white-10);">
+          <div class="card-title" style="margin:0;">⛵ The Regatta</div>
+          <div id="raceControls" style="display:flex;gap:0.75rem;align-items:center;">
+            <span id="raceStatus" style="color:var(--slate-400);font-size:0.85rem;"></span>
+            <button id="raceBtn" onclick="animateRace()" style="background:linear-gradient(135deg,#1e3a5f,#2d4a6f);border:1px solid var(--gold);color:var(--gold);padding:0.5rem 1.25rem;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">▶️ Start Race</button>
+          </div>
+        </div>
         <div id="bumpChart" style="position:relative;min-height:500px;"></div>
       </div>
       
@@ -2255,17 +2261,10 @@
       
       svg += '</svg>';
       
-      // Add race button
-      const buttonHtml = `
-        <div style="text-align:center;margin-top:1rem;">
-          <button id="raceBtn" onclick="animateRace()" style="background:linear-gradient(135deg,#1e3a5f,#2d4a6f);border:1px solid var(--gold);color:var(--gold);padding:0.75rem 2rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            ▶️ Race from ${prevMonth.month}
-          </button>
-          <div style="color:var(--slate-500);font-size:0.8rem;margin-top:0.5rem;">Click to animate from previous positions</div>
-        </div>
-      `;
-      
-      document.getElementById('bumpChart').innerHTML = svg + buttonHtml;
+      document.getElementById('bumpChart').innerHTML = svg;
+      document.getElementById('raceBtn').innerHTML = `▶️ Race from ${prevMonth.month}`;
+      document.getElementById('raceStatus').textContent = `Showing: ${currMonth.month}`;
+      window.raceAnimated = false;
     }
     
     function animateRace() {
@@ -2315,8 +2314,9 @@
       
       window.raceAnimated = true;
       
-      // Update button
-      document.getElementById('raceBtn').innerHTML = '🔄 Reset Race';
+      // Update button and status
+      document.getElementById('raceBtn').innerHTML = '🔄 Reset';
+      document.getElementById('raceStatus').textContent = `${prevMonth.month} → ${currentData.month}`;
     }
     
     function renderSpotlightCards() {
