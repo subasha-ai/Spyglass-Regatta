@@ -2157,7 +2157,7 @@
       const prevScores = calculateRankBasedScores(prevMonth);
       const currScores = calculateRankBasedScores(currMonth);
       
-      // Build ranking data
+      // Build ranking data - SORT BY PREVIOUS RANK for initial display
       const rankData = BUILDINGS.map(b => {
         const prevRank = prevScores[b.dataKey]?.rank || 18;
         const currRank = currScores[b.dataKey]?.rank || 18;
@@ -2169,7 +2169,7 @@
           currRank: currRank,
           change: prevRank - currRank
         };
-      }).sort((a, b) => a.currRank - b.currRank);
+      }).sort((a, b) => a.prevRank - b.prevRank); // Sort by PREVIOUS rank
       
       // Store for animation
       window.raceData = rankData;
@@ -2226,44 +2226,43 @@
       // Start area label
       svg += `<text x="${startX - 10}" y="${trackTop - 12}" fill="var(--slate-400)" font-size="11" font-weight="600" text-anchor="end">START</text>`;
       
-      // Draw boats
+      // Draw boats at PREVIOUS positions
       rankData.forEach((b, i) => {
         const y = getY(i);
-        const currX = getX(b.currRank);
+        const prevX = getX(b.prevRank); // Use PREVIOUS rank position
         
-        // Determine sail color
+        // Determine sail color based on PREVIOUS rank
         let sailFill = 'var(--slate-400)';
-        if (b.currRank === 1) sailFill = 'url(#goldSail)';
-        else if (b.currRank === 2) sailFill = 'url(#silverSail)';
-        else if (b.currRank === 3) sailFill = 'url(#bronzeSail)';
+        if (b.prevRank === 1) sailFill = 'url(#goldSail)';
+        else if (b.prevRank === 2) sailFill = 'url(#silverSail)';
+        else if (b.prevRank === 3) sailFill = 'url(#bronzeSail)';
         else if (b.region === 'Golden Coast') sailFill = '#3b82f6';
         else sailFill = '#8b5cf6';
         
-        // Boat group with animation
-        svg += `<g id="boat-${i}" class="boat" style="cursor:pointer;" onclick="goToBuildingDetail('${b.dataKey}')">
-          <title>${b.name} — #${b.currRank}</title>
+        // Boat group with animation support
+        svg += `<g id="boat-${i}" class="boat" data-prev-rank="${b.prevRank}" data-curr-rank="${b.currRank}" style="cursor:pointer;" onclick="goToBuildingDetail('${b.dataKey}')">
+          <title>${b.name} — #${b.prevRank}</title>
           <!-- Hull -->
-          <path d="M ${currX - 18} ${y + 2} L ${currX + 12} ${y + 2} L ${currX + 8} ${y + 8} L ${currX - 14} ${y + 8} Z" fill="#1e293b" stroke="var(--slate-600)" stroke-width="1"/>
+          <path d="M ${prevX - 18} ${y + 2} L ${prevX + 12} ${y + 2} L ${prevX + 8} ${y + 8} L ${prevX - 14} ${y + 8} Z" fill="#1e293b" stroke="var(--slate-600)" stroke-width="1"/>
           <!-- Mast -->
-          <line x1="${currX - 2}" y1="${y - 14}" x2="${currX - 2}" y2="${y + 2}" stroke="var(--slate-500)" stroke-width="1.5"/>
+          <line x1="${prevX - 2}" y1="${y - 14}" x2="${prevX - 2}" y2="${y + 2}" stroke="var(--slate-500)" stroke-width="1.5"/>
           <!-- Sail -->
-          <path d="M ${currX - 1} ${y - 12} L ${currX + 10} ${y - 2} L ${currX - 1} ${y} Z" fill="${sailFill}" opacity="0.9"/>
+          <path d="M ${prevX - 1} ${y - 12} L ${prevX + 10} ${y - 2} L ${prevX - 1} ${y} Z" fill="${sailFill}" opacity="0.9"/>
           <!-- Flag for top 3 -->
-          ${b.currRank <= 3 ? `<rect x="${currX - 4}" y="${y - 18}" width="8" height="5" fill="${b.currRank === 1 ? '#fbbf24' : b.currRank === 2 ? '#e2e8f0' : '#fdba74'}" rx="1"/>` : ''}
+          ${b.prevRank <= 3 ? `<rect x="${prevX - 4}" y="${y - 18}" width="8" height="5" fill="${b.prevRank === 1 ? '#fbbf24' : b.prevRank === 2 ? '#e2e8f0' : '#fdba74'}" rx="1"/>` : ''}
         </g>`;
         
-        // Rank + name label on right
-        const medal = b.currRank === 1 ? '🥇' : b.currRank === 2 ? '🥈' : b.currRank === 3 ? '🥉' : `#${b.currRank}`;
-        const labelColor = b.change > 0 ? '#22c55e' : b.change < 0 ? 'var(--slate-500)' : 'var(--slate-300)';
+        // Label shows PREVIOUS rank
+        const medal = b.prevRank === 1 ? '🥇' : b.prevRank === 2 ? '🥈' : b.prevRank === 3 ? '🥉' : `#${b.prevRank}`;
         const shortName = b.name.length > 15 ? b.name.substring(0, 13) + '...' : b.name;
-        svg += `<text x="${chartWidth - 5}" y="${y + 4}" text-anchor="end" fill="${labelColor}" font-size="10" font-weight="500" style="cursor:pointer" onclick="goToBuildingDetail('${b.dataKey}')">${medal} ${shortName}</text>`;
+        svg += `<text x="${chartWidth - 5}" y="${y + 4}" text-anchor="end" fill="var(--slate-300)" font-size="10" font-weight="500" style="cursor:pointer" onclick="goToBuildingDetail('${b.dataKey}')">${medal} ${shortName}</text>`;
       });
       
       svg += '</svg>';
       
       document.getElementById('bumpChart').innerHTML = svg;
-      document.getElementById('raceBtn').innerHTML = `▶️ Race from ${prevMonth.month}`;
-      document.getElementById('raceStatus').textContent = `Showing: ${currMonth.month}`;
+      document.getElementById('raceBtn').innerHTML = `▶️ Race to ${currMonth.month.split(' ')[0]}`;
+      document.getElementById('raceStatus').textContent = `Showing: ${prevMonth.month}`;
       window.raceAnimated = false;
     }
     
@@ -2276,47 +2275,32 @@
       
       const currentIdx = allData.findIndex(d => d.month === currentData.month);
       const prevMonth = allData[currentIdx - 1];
+      const currMonth = allData[currentIdx];
       
       const chartWidth = 800;
-      const trackTop = 50;
-      const trackHeight = 440;
-      const laneHeight = trackHeight / 18;
       const startX = 120;
       const finishX = chartWidth - 180;
       const trackWidth = finishX - startX;
       
       const getX = (rank) => finishX - ((rank - 1) / 17) * trackWidth;
-      const getY = (index) => trackTop + index * laneHeight + laneHeight / 2;
       
-      // First move boats to starting (previous) positions instantly
+      // Boats are at prevRank positions, animate to currRank positions
       window.raceData.forEach((b, i) => {
         const boat = document.getElementById(`boat-${i}`);
         if (boat) {
           const prevX = getX(b.prevRank);
           const currX = getX(b.currRank);
-          const y = getY(i);
-          const deltaX = prevX - currX;
-          boat.style.transition = 'none';
+          const deltaX = currX - prevX; // Distance to move from prev to curr
+          boat.style.transition = 'transform 1.5s ease-out';
           boat.style.transform = `translateX(${deltaX}px)`;
         }
       });
-      
-      // Then animate to current positions
-      setTimeout(() => {
-        window.raceData.forEach((b, i) => {
-          const boat = document.getElementById(`boat-${i}`);
-          if (boat) {
-            boat.style.transition = 'transform 1.5s ease-out';
-            boat.style.transform = 'translateX(0)';
-          }
-        });
-      }, 100);
       
       window.raceAnimated = true;
       
       // Update button and status
       document.getElementById('raceBtn').innerHTML = '🔄 Reset';
-      document.getElementById('raceStatus').textContent = `${prevMonth.month} → ${currentData.month}`;
+      document.getElementById('raceStatus').textContent = `${prevMonth.month.split(' ')[0]} → ${currMonth.month.split(' ')[0]}`;
     }
     
     function renderSpotlightCards() {
