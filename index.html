@@ -521,7 +521,7 @@
     
     <div id="race" class="tab-content">
       <div class="card" style="margin-bottom:1.5rem;">
-        <div class="card-title" style="margin-bottom:1rem;">📊 Rank Movement: January → February</div>
+        <div class="card-title" style="margin-bottom:1rem;">⛵ The Regatta — Who's Leading the Fleet?</div>
         <div id="bumpChart" style="position:relative;min-height:500px;"></div>
       </div>
       
@@ -2165,69 +2165,158 @@
         };
       }).sort((a, b) => a.currRank - b.currRank);
       
-      const chartHeight = 500;
-      const leftMargin = 180;
-      const rightMargin = 180;
-      const topPadding = 30;
-      const bottomPadding = 30;
-      const usableHeight = chartHeight - topPadding - bottomPadding;
-      const rowHeight = usableHeight / 17;
+      // Store for animation
+      window.raceData = rankData;
+      window.raceAnimated = false;
       
-      const getY = (rank) => topPadding + (rank - 1) * rowHeight;
+      const chartWidth = 800;
+      const chartHeight = 520;
+      const trackTop = 50;
+      const trackHeight = 440;
+      const laneHeight = trackHeight / 18;
+      const startX = 120;
+      const finishX = chartWidth - 180;
+      const trackWidth = finishX - startX;
       
-      let svg = `<svg viewBox="0 0 700 ${chartHeight}" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">`;
+      // Convert rank to X position (rank 1 = far right/finish, rank 18 = far left/start)
+      const getX = (rank) => finishX - ((rank - 1) / 17) * trackWidth;
+      const getY = (index) => trackTop + index * laneHeight + laneHeight / 2;
       
-      // Background
-      svg += `<rect x="0" y="0" width="700" height="${chartHeight}" fill="transparent"/>`;
+      let svg = `<svg id="raceSvg" viewBox="0 0 ${chartWidth} ${chartHeight}" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">`;
       
-      // Month labels
-      svg += `<text x="${leftMargin}" y="18" text-anchor="middle" fill="var(--slate-300)" font-weight="700" font-size="14">${prevMonth.month}</text>`;
-      svg += `<text x="${700 - rightMargin}" y="18" text-anchor="middle" fill="var(--slate-300)" font-weight="700" font-size="14">${currMonth.month}</text>`;
+      // Defs for gradients
+      svg += `<defs>
+        <linearGradient id="waterGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#0c4a6e;stop-opacity:0.3" />
+          <stop offset="100%" style="stop-color:#164e63;stop-opacity:0.5" />
+        </linearGradient>
+        <linearGradient id="goldSail" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#fbbf24" />
+          <stop offset="100%" style="stop-color:#d97706" />
+        </linearGradient>
+        <linearGradient id="silverSail" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#e2e8f0" />
+          <stop offset="100%" style="stop-color:#94a3b8" />
+        </linearGradient>
+        <linearGradient id="bronzeSail" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#fdba74" />
+          <stop offset="100%" style="stop-color:#c2410c" />
+        </linearGradient>
+      </defs>`;
       
-      // Draw lines for each building
+      // Water background
+      svg += `<rect x="0" y="${trackTop - 10}" width="${chartWidth}" height="${trackHeight + 20}" fill="url(#waterGradient)" rx="8"/>`;
+      
+      // Subtle wave lines
+      for (let i = 0; i < 6; i++) {
+        const waveY = trackTop + 30 + i * 75;
+        svg += `<path d="M 0 ${waveY} Q 100 ${waveY - 8} 200 ${waveY} T 400 ${waveY} T 600 ${waveY} T 800 ${waveY}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+      }
+      
+      // Finish line
+      svg += `<line x1="${finishX + 10}" y1="${trackTop - 5}" x2="${finishX + 10}" y2="${trackTop + trackHeight + 5}" stroke="var(--gold)" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>`;
+      svg += `<text x="${finishX + 15}" y="${trackTop - 12}" fill="var(--gold)" font-size="11" font-weight="600">FINISH</text>`;
+      
+      // Start area label
+      svg += `<text x="${startX - 10}" y="${trackTop - 12}" fill="var(--slate-400)" font-size="11" font-weight="600" text-anchor="end">START</text>`;
+      
+      // Draw boats
       rankData.forEach((b, i) => {
-        const y1 = getY(b.prevRank);
-        const y2 = getY(b.currRank);
-        const x1 = leftMargin;
-        const x2 = 700 - rightMargin;
+        const y = getY(i);
+        const currX = getX(b.currRank);
         
-        // Line color based on movement
-        let strokeColor = 'var(--slate-500)';
-        let strokeWidth = 2;
-        if (b.change > 0) {
-          strokeColor = '#22c55e'; // improved
-          strokeWidth = 2.5;
-        } else if (b.change < 0) {
-          strokeColor = '#94a3b8'; // declined (subtle)
-          strokeWidth = 1.5;
-        }
+        // Determine sail color
+        let sailFill = 'var(--slate-400)';
+        if (b.currRank === 1) sailFill = 'url(#goldSail)';
+        else if (b.currRank === 2) sailFill = 'url(#silverSail)';
+        else if (b.currRank === 3) sailFill = 'url(#bronzeSail)';
+        else if (b.region === 'Golden Coast') sailFill = '#3b82f6';
+        else sailFill = '#8b5cf6';
         
-        // Highlight top 3
-        if (b.currRank <= 3) {
-          strokeWidth = 3;
-          if (b.change >= 0) strokeColor = 'var(--gold)';
-        }
+        // Boat group with animation
+        svg += `<g id="boat-${i}" class="boat" style="cursor:pointer;" onclick="goToBuildingDetail('${b.dataKey}')">
+          <title>${b.name} — #${b.currRank}</title>
+          <!-- Hull -->
+          <path d="M ${currX - 18} ${y + 2} L ${currX + 12} ${y + 2} L ${currX + 8} ${y + 8} L ${currX - 14} ${y + 8} Z" fill="#1e293b" stroke="var(--slate-600)" stroke-width="1"/>
+          <!-- Mast -->
+          <line x1="${currX - 2}" y1="${y - 14}" x2="${currX - 2}" y2="${y + 2}" stroke="var(--slate-500)" stroke-width="1.5"/>
+          <!-- Sail -->
+          <path d="M ${currX - 1} ${y - 12} L ${currX + 10} ${y - 2} L ${currX - 1} ${y} Z" fill="${sailFill}" opacity="0.9"/>
+          <!-- Flag for top 3 -->
+          ${b.currRank <= 3 ? `<rect x="${currX - 4}" y="${y - 18}" width="8" height="5" fill="${b.currRank === 1 ? '#fbbf24' : b.currRank === 2 ? '#e2e8f0' : '#fdba74'}" rx="1"/>` : ''}
+        </g>`;
         
-        svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" opacity="0.8"/>`;
-        
-        // Left label (previous rank)
-        const medal1 = b.prevRank === 1 ? '🥇 ' : b.prevRank === 2 ? '🥈 ' : b.prevRank === 3 ? '🥉 ' : '';
-        svg += `<text x="${x1 - 10}" y="${y1 + 4}" text-anchor="end" fill="var(--slate-400)" font-size="11">${medal1}#${b.prevRank}</text>`;
-        
-        // Right label (current rank + name)
-        const medal2 = b.currRank === 1 ? '🥇 ' : b.currRank === 2 ? '🥈 ' : b.currRank === 3 ? '🥉 ' : '';
-        const nameColor = b.change > 0 ? '#22c55e' : b.change < 0 ? 'var(--slate-400)' : 'var(--slate-300)';
-        const arrow = b.change > 0 ? ' ↑' : b.change < 0 ? ' ↓' : '';
-        svg += `<text x="${x2 + 10}" y="${y2 + 4}" text-anchor="start" fill="${nameColor}" font-size="11" font-weight="500" style="cursor:pointer" onclick="goToBuildingDetail('${b.dataKey}')">${medal2}#${b.currRank} ${b.name.length > 18 ? b.name.substring(0,16) + '...' : b.name}${arrow}</text>`;
-        
-        // Circles at endpoints
-        svg += `<circle cx="${x1}" cy="${y1}" r="4" fill="${strokeColor}"/>`;
-        svg += `<circle cx="${x2}" cy="${y2}" r="5" fill="${strokeColor}"/>`;
+        // Rank + name label on right
+        const medal = b.currRank === 1 ? '🥇' : b.currRank === 2 ? '🥈' : b.currRank === 3 ? '🥉' : `#${b.currRank}`;
+        const labelColor = b.change > 0 ? '#22c55e' : b.change < 0 ? 'var(--slate-500)' : 'var(--slate-300)';
+        const shortName = b.name.length > 15 ? b.name.substring(0, 13) + '...' : b.name;
+        svg += `<text x="${chartWidth - 5}" y="${y + 4}" text-anchor="end" fill="${labelColor}" font-size="10" font-weight="500" style="cursor:pointer" onclick="goToBuildingDetail('${b.dataKey}')">${medal} ${shortName}</text>`;
       });
       
       svg += '</svg>';
       
-      document.getElementById('bumpChart').innerHTML = svg;
+      // Add race button
+      const buttonHtml = `
+        <div style="text-align:center;margin-top:1rem;">
+          <button id="raceBtn" onclick="animateRace()" style="background:linear-gradient(135deg,#1e3a5f,#2d4a6f);border:1px solid var(--gold);color:var(--gold);padding:0.75rem 2rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            ▶️ Race from ${prevMonth.month}
+          </button>
+          <div style="color:var(--slate-500);font-size:0.8rem;margin-top:0.5rem;">Click to animate from previous positions</div>
+        </div>
+      `;
+      
+      document.getElementById('bumpChart').innerHTML = svg + buttonHtml;
+    }
+    
+    function animateRace() {
+      if (!window.raceData || window.raceAnimated) {
+        // Reset if already animated
+        renderBumpChart();
+        return;
+      }
+      
+      const currentIdx = allData.findIndex(d => d.month === currentData.month);
+      const prevMonth = allData[currentIdx - 1];
+      
+      const chartWidth = 800;
+      const trackTop = 50;
+      const trackHeight = 440;
+      const laneHeight = trackHeight / 18;
+      const startX = 120;
+      const finishX = chartWidth - 180;
+      const trackWidth = finishX - startX;
+      
+      const getX = (rank) => finishX - ((rank - 1) / 17) * trackWidth;
+      const getY = (index) => trackTop + index * laneHeight + laneHeight / 2;
+      
+      // First move boats to starting (previous) positions instantly
+      window.raceData.forEach((b, i) => {
+        const boat = document.getElementById(`boat-${i}`);
+        if (boat) {
+          const prevX = getX(b.prevRank);
+          const currX = getX(b.currRank);
+          const y = getY(i);
+          const deltaX = prevX - currX;
+          boat.style.transition = 'none';
+          boat.style.transform = `translateX(${deltaX}px)`;
+        }
+      });
+      
+      // Then animate to current positions
+      setTimeout(() => {
+        window.raceData.forEach((b, i) => {
+          const boat = document.getElementById(`boat-${i}`);
+          if (boat) {
+            boat.style.transition = 'transform 1.5s ease-out';
+            boat.style.transform = 'translateX(0)';
+          }
+        });
+      }, 100);
+      
+      window.raceAnimated = true;
+      
+      // Update button
+      document.getElementById('raceBtn').innerHTML = '🔄 Reset Race';
     }
     
     function renderSpotlightCards() {
