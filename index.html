@@ -349,6 +349,7 @@
   <div class="container">
     <div class="tabs">
       <button class="tab active" data-tab="podium">⛵ The Fleet</button>
+      <button class="tab" data-tab="race">🏁 The Race</button>
       <button class="tab" data-tab="radar">🎯 Radar</button>
       <button class="tab" data-tab="heatmap">🔥 Heat Map</button>
       <button class="tab" data-tab="building">🏢 Building Detail</button>
@@ -356,7 +357,6 @@
       <button class="tab" data-tab="trends">📈 Trends</button>
       <button class="tab" data-tab="simulator">🧭 The Compass</button>
       <button class="tab" data-tab="compare">⚖️ Compare</button>
-      <button class="tab" data-tab="race">🏁 The Race</button>
       <button class="tab" data-tab="methodology">📋 Methodology</button>
     </div>
     
@@ -2286,22 +2286,41 @@
       document.getElementById('regionalWinnerSummary').innerHTML = `${winner.region}<br><span style="font-size:0.9rem;color:var(--slate-400)">Avg rank: ${winner.prevAvg.toFixed(1)} → ${winner.currAvg.toFixed(1)}</span>`;
       document.getElementById('regionalWinnerDetail').innerHTML = getRegionalWinnerDetail(winner.region, prevScores, currScores);
       
-      // Category Champions
-      const champions = [];
+      // Category Champions - with Jan vs Feb comparison
+      const championsNow = [];
+      const championsPrev = [];
+      
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
-        const catRanks = BUILDINGS.map(b => {
+        // Current month champions
+        const currCatRanks = BUILDINGS.map(b => {
           const ranked = getRankedForMonth(currMonth);
           const bData = ranked.find(r => r.dataKey === b.dataKey);
           return { name: b.name, dataKey: b.dataKey, catScore: bData?.categoryScores[catKey] || 99 };
         }).sort((a, b) => a.catScore - b.catScore);
         
-        if (catRanks[0]) {
-          champions.push({ category: cat.name, building: catRanks[0].name, dataKey: catRanks[0].dataKey });
+        // Previous month champions
+        const prevCatRanks = BUILDINGS.map(b => {
+          const ranked = getRankedForMonth(prevMonth);
+          const bData = ranked.find(r => r.dataKey === b.dataKey);
+          return { name: b.name, dataKey: b.dataKey, catScore: bData?.categoryScores[catKey] || 99 };
+        }).sort((a, b) => a.catScore - b.catScore);
+        
+        if (currCatRanks[0]) {
+          championsNow.push({ catKey, category: cat.name, building: currCatRanks[0].name, dataKey: currCatRanks[0].dataKey });
+        }
+        if (prevCatRanks[0]) {
+          championsPrev.push({ catKey, category: cat.name, building: prevCatRanks[0].name, dataKey: prevCatRanks[0].dataKey });
         }
       });
       
-      document.getElementById('categoryChampionsSummary').innerHTML = champions.slice(0, 3).map(c => `${c.category}: ${c.building.split(' ')[0]}`).join('<br>');
-      document.getElementById('categoryChampionsDetail').innerHTML = getCategoryChampionsDetail(champions);
+      // Count new vs retained champions
+      const newChamps = championsNow.filter(c => {
+        const prev = championsPrev.find(p => p.catKey === c.catKey);
+        return !prev || prev.dataKey !== c.dataKey;
+      }).length;
+      
+      document.getElementById('categoryChampionsSummary').innerHTML = `${newChamps} new champion${newChamps !== 1 ? 's' : ''} this month`;
+      document.getElementById('categoryChampionsDetail').innerHTML = getCategoryChampionsDetail(championsNow, championsPrev, prevMonth.month, currMonth.month);
     }
     
     function getMostImprovedDetail(dataKey, prevMonth, currMonth) {
@@ -2382,13 +2401,31 @@
         }).join('');
     }
     
-    function getCategoryChampionsDetail(champions) {
-      return champions.map(c => 
-        `<div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--white-05)">
-          <span style="color:var(--slate-300)">${c.category}</span>
-          <span style="color:var(--gold);cursor:pointer" onclick="goToBuildingDetail('${c.dataKey}')">${c.building} →</span>
-        </div>`
-      ).join('');
+    function getCategoryChampionsDetail(championsNow, championsPrev, prevMonthName, currMonthName) {
+      const shortPrev = prevMonthName.split(' ')[0].substring(0, 3);
+      const shortCurr = currMonthName.split(' ')[0].substring(0, 3);
+      
+      let html = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--white-10);">
+        <span style="color:var(--slate-500);font-size:0.8rem;">Category</span>
+        <span style="color:var(--slate-500);font-size:0.8rem;text-align:center;">${shortPrev}</span>
+        <span style="color:var(--slate-500);font-size:0.8rem;text-align:center;">${shortCurr}</span>
+      </div>`;
+      
+      championsNow.forEach(c => {
+        const prev = championsPrev.find(p => p.catKey === c.catKey);
+        const prevName = prev ? prev.building.split(' ')[0] : '—';
+        const currName = c.building.split(' ')[0];
+        const isNew = !prev || prev.dataKey !== c.dataKey;
+        const newBadge = isNew ? '<span style="color:#22c55e;font-size:0.7rem;margin-left:0.25rem;">NEW</span>' : '';
+        
+        html += `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;padding:0.35rem 0;border-bottom:1px solid var(--white-05);align-items:center;">
+          <span style="color:var(--slate-400);font-size:0.85rem;">${c.category}</span>
+          <span style="color:var(--slate-500);font-size:0.85rem;text-align:center;">${prevName}</span>
+          <span style="color:var(--gold);font-size:0.85rem;text-align:center;cursor:pointer;" onclick="goToBuildingDetail('${c.dataKey}')">${currName}${newBadge}</span>
+        </div>`;
+      });
+      
+      return html;
     }
     
     function getRankedForMonth(monthData) {
