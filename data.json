@@ -462,8 +462,8 @@
       "skilledMix": 40.58,
       "badDebt": 1.42,
       "dso": 50.76,
-      "noi": 10.71,
-      "labor": 46.05,
+      "noi": null,
+      "labor": null,
       "otdt": 4.45,
       "rehabProductivity": 85.6,
       "turnover": 31.4,
@@ -474,8 +474,8 @@
       "googleRating": 4.25,
       "yelpRating": 4.7,
       "legalClaims": 0,
-      "_score": 7.75,
-      "_rank": 9
+      "_score": 6.53,
+      "_rank": 7
     },
     "Camino Ridge Post Acute": {
       "healthInspections": 193.0,
@@ -487,8 +487,8 @@
       "skilledMix": 41.75,
       "badDebt": 1.5,
       "dso": 56.88,
-      "noi": 17.1,
-      "labor": 43.33,
+      "noi": null,
+      "labor": null,
       "otdt": 8.3,
       "rehabProductivity": 80.85,
       "turnover": 34.7,
@@ -499,8 +499,8 @@
       "googleRating": 4.6,
       "yelpRating": 3.1,
       "legalClaims": 1,
-      "_score": 10.63,
-      "_rank": 15
+      "_score": 9.75,
+      "_rank": 17
     },
     "Los Altos Post Acute": {
       "healthInspections": 61.0,
@@ -512,8 +512,8 @@
       "skilledMix": 48.35,
       "badDebt": 1.5,
       "dso": 51.84,
-      "noi": 10.52,
-      "labor": 43.25,
+      "noi": null,
+      "labor": null,
       "otdt": 6.55,
       "rehabProductivity": 87.3,
       "turnover": 45.2,
@@ -524,8 +524,8 @@
       "googleRating": 4.2,
       "yelpRating": 4.5,
       "legalClaims": 0,
-      "_score": 9.51,
-      "_rank": 12
+      "_score": 8.46,
+      "_rank": 11
     },
     "The Win Post Acute": {
       "healthInspections": 60.0,
@@ -537,8 +537,8 @@
       "skilledMix": 53.58,
       "badDebt": 1.67,
       "dso": 56.64,
-      "noi": 13.64,
-      "labor": 43.34,
+      "noi": null,
+      "labor": null,
       "otdt": 7.55,
       "rehabProductivity": 89.95,
       "turnover": 33.3,
@@ -549,8 +549,8 @@
       "googleRating": 4.3,
       "yelpRating": 3.0,
       "legalClaims": 0,
-      "_score": 7.5,
-      "_rank": 8
+      "_score": 6.49,
+      "_rank": 5
     },
     "Pacific Coast Manor": {
       "healthInspections": 33.0,
@@ -562,8 +562,8 @@
       "skilledMix": 66.06,
       "badDebt": 1.5,
       "dso": 44.28,
-      "noi": 19.19,
-      "labor": 40.82,
+      "noi": null,
+      "labor": null,
       "otdt": 4.95,
       "rehabProductivity": 84.55,
       "turnover": 43.1,
@@ -574,7 +574,7 @@
       "googleRating": 4.2,
       "yelpRating": 3.95,
       "legalClaims": 1,
-      "_score": 6.21,
+      "_score": 5.63,
       "_rank": 2
     },
     "PAC Hills Post Acute": {
@@ -587,8 +587,8 @@
       "skilledMix": 45.62,
       "badDebt": 1.5,
       "dso": 69.07,
-      "noi": 18.52,
-      "labor": 41.05,
+      "noi": null,
+      "labor": null,
       "otdt": 3.5,
       "rehabProductivity": 88.4,
       "turnover": 30.7,
@@ -599,7 +599,7 @@
       "googleRating": 4.8,
       "yelpRating": 3.7,
       "legalClaims": 0,
-      "_score": 6.44,
+      "_score": 5.76,
       "_rank": 3
     },
     "Manresa HC": {
@@ -612,8 +612,8 @@
       "skilledMix": 19.09,
       "badDebt": 1.5,
       "dso": 42.11,
-      "noi": 19.92,
-      "labor": 39.5,
+      "noi": null,
+      "labor": null,
       "otdt": 1.9,
       "rehabProductivity": 84.7,
       "turnover": 32.6,
@@ -624,8 +624,8 @@
       "googleRating": 4.45,
       "yelpRating": 5.0,
       "legalClaims": 0,
-      "_score": 6.95,
-      "_rank": 5
+      "_score": 6.53,
+      "_rank": 6
     },
     "Morgan Hill HC": {
       "healthInspections": 76.5,
@@ -637,8 +637,8 @@
       "skilledMix": 11.07,
       "badDebt": 1.5,
       "dso": 80.62,
-      "noi": 12.62,
-      "labor": 47.51,
+      "noi": null,
+      "labor": null,
       "otdt": 6.5,
       "rehabProductivity": 85.1,
       "turnover": 40.0,
@@ -649,8 +649,8 @@
       "googleRating": 4.85,
       "yelpRating": 4.6,
       "legalClaims": 2,
-      "_score": 9.75,
-      "_rank": 13
+      "_score": 8.49,
+      "_rank": 12
     },
     "Mountain View HC": {
       "healthInspections": 131.3,
@@ -662,8 +662,8 @@
       "skilledMix": 54.92,
       "badDebt": 2.5,
       "dso": 47.26,
-      "noi": 27.36,
-      "labor": 39.69,
+      "noi": null,
+      "labor": null,
       "otdt": 4.65,
       "rehabProductivity": 87.82,
       "turnover": 33.6,
@@ -674,8 +674,8 @@
       "googleRating": 4.6,
       "yelpRating": 4.0,
       "legalClaims": 1,
-      "_score": 7.46,
-      "_rank": 7
+      "_score": 7.08,
+      "_rank": 9
     },
     "Eden HC": {
       "healthInspections": 146.8,
@@ -687,8 +687,8 @@
       "skilledMix": 54.05,
       "badDebt": 4.0,
       "dso": 92.86,
-      "noi": 7.78,
-      "labor": 46.88,
+      "noi": null,
+      "labor": null,
       "otdt": 8.45,
       "rehabProductivity": 83.65,
       "turnover": 26.9,
@@ -699,7 +699,7 @@
       "googleRating": 4.6,
       "yelpRating": 4.0,
       "legalClaims": 0,
-      "_score": 11.26,
+      "_score": 9.87,
       "_rank": 18
     },
     "West Shore PA": {
@@ -712,8 +712,8 @@
       "skilledMix": 44.14,
       "badDebt": 1.5,
       "dso": 36.88,
-      "noi": 14.57,
-      "labor": 44.82,
+      "noi": null,
+      "labor": null,
       "otdt": 6.8,
       "rehabProductivity": 81.95,
       "turnover": 39.2,
@@ -724,7 +724,7 @@
       "googleRating": 4.6,
       "yelpRating": 4.6,
       "legalClaims": 0,
-      "_score": 9.82,
+      "_score": 8.81,
       "_rank": 14
     },
     "Golden Harbor HC": {
@@ -737,8 +737,8 @@
       "skilledMix": 32.14,
       "badDebt": 1.5,
       "dso": 87.84,
-      "noi": 21.51,
-      "labor": 41.42,
+      "noi": null,
+      "labor": null,
       "otdt": 6.85,
       "rehabProductivity": 82.0,
       "turnover": null,
@@ -749,7 +749,7 @@
       "googleRating": 4.55,
       "yelpRating": 3.0,
       "legalClaims": 0,
-      "_score": 8.07,
+      "_score": 7.53,
       "_rank": 10
     },
     "Belmont HC": {
@@ -762,8 +762,8 @@
       "skilledMix": 43.45,
       "badDebt": 3.0,
       "dso": 67.75,
-      "noi": 31.09,
-      "labor": 30.21,
+      "noi": null,
+      "labor": null,
       "otdt": 5.5,
       "rehabProductivity": 86.6,
       "turnover": 48.2,
@@ -774,7 +774,7 @@
       "googleRating": 4.95,
       "yelpRating": 4.25,
       "legalClaims": 0,
-      "_score": 5.25,
+      "_score": 5.08,
       "_rank": 1
     },
     "Palo Alto Post Acute": {
@@ -787,8 +787,8 @@
       "skilledMix": 43.06,
       "badDebt": 1.5,
       "dso": 50.01,
-      "noi": 17.73,
-      "labor": 37.7,
+      "noi": null,
+      "labor": null,
       "otdt": 3.35,
       "rehabProductivity": 87.8,
       "turnover": 35.2,
@@ -799,7 +799,7 @@
       "googleRating": 3.95,
       "yelpRating": 4.8,
       "legalClaims": 0,
-      "_score": 6.87,
+      "_score": 6.37,
       "_rank": 4
     },
     "Bridgewood PA": {
@@ -812,8 +812,8 @@
       "skilledMix": 22.66,
       "badDebt": 2.98,
       "dso": 43.53,
-      "noi": 19.63,
-      "labor": 38.89,
+      "noi": null,
+      "labor": null,
       "otdt": 8.55,
       "rehabProductivity": 78.15,
       "turnover": 37.7,
@@ -824,8 +824,8 @@
       "googleRating": 4.8,
       "yelpRating": 3.9,
       "legalClaims": 0,
-      "_score": 9.14,
-      "_rank": 11
+      "_score": 8.72,
+      "_rank": 13
     },
     "Cedarwood PA": {
       "healthInspections": 93.5,
@@ -837,8 +837,8 @@
       "skilledMix": 28.79,
       "badDebt": 1.5,
       "dso": 60.2,
-      "noi": 40.67,
-      "labor": 29.15,
+      "noi": null,
+      "labor": null,
       "otdt": 5.4,
       "rehabProductivity": 76.6,
       "turnover": 50.0,
@@ -849,8 +849,8 @@
       "googleRating": 4.45,
       "yelpRating": 4.4,
       "legalClaims": 0,
-      "_score": 7.15,
-      "_rank": 6
+      "_score": 7.06,
+      "_rank": 8
     },
     "Capital PA": {
       "healthInspections": 124.5,
@@ -862,8 +862,8 @@
       "skilledMix": 37.07,
       "badDebt": 1.5,
       "dso": 59.11,
-      "noi": 7.31,
-      "labor": 45.59,
+      "noi": null,
+      "labor": null,
       "otdt": 4.8,
       "rehabProductivity": 78.9,
       "turnover": 43.8,
@@ -874,8 +874,8 @@
       "googleRating": 4.7,
       "yelpRating": 4.05,
       "legalClaims": 3,
-      "_score": 10.84,
-      "_rank": 17
+      "_score": 9.5,
+      "_rank": 16
     },
     "Blue Oak": {
       "healthInspections": 158.5,
@@ -887,8 +887,8 @@
       "skilledMix": 26.11,
       "badDebt": 1.5,
       "dso": 25.03,
-      "noi": 8.86,
-      "labor": 48.4,
+      "noi": null,
+      "labor": null,
       "otdt": 6.15,
       "rehabProductivity": 80.5,
       "turnover": 21.5,
@@ -899,8 +899,8 @@
       "googleRating": 4.2,
       "yelpRating": 5.0,
       "legalClaims": 0,
-      "_score": 10.8,
-      "_rank": 16
+      "_score": 9.38,
+      "_rank": 15
     }
   }
 }
