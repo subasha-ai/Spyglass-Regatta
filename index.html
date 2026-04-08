@@ -553,7 +553,7 @@
         <div class="card spotlight-card" id="regionalWinnerCard" style="cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;" onclick="toggleSpotlightDetail('regionalWinner')">
           <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
             <span style="font-size:1.5rem;">🏅</span>
-            <span style="font-weight:700;color:var(--slate-200);">Regional Winner</span>
+            <span style="font-weight:700;color:var(--slate-200);">Regional Standings</span>
           </div>
           <div id="regionalWinnerSummary" style="font-size:1.25rem;font-weight:800;color:var(--gold);"></div>
           <div id="regionalWinnerDetail" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--white-10);font-size:0.9rem;"></div>
@@ -638,7 +638,7 @@
       { name: "Mountain View Healthcare Center", region: "Golden Coast", dataKey: "Mountain View HC" },
       { name: "Pacific Coast Manor", region: "Golden Coast", dataKey: "Pacific Coast Manor" },
       { name: "Pacific Hills Post Acute", region: "Golden Coast", dataKey: "PAC Hills Post Acute" },
-      { name: "Palo Alto Post Acute", region: "Overland", dataKey: "Palo Alto Post Acute" },
+      { name: "Palo Alto Post Acute", region: "Golden Coast", dataKey: "Palo Alto Post Acute" },
       { name: "The Win Post Acute", region: "Golden Coast", dataKey: "The Win Post Acute" },
       { name: "West Shore Post Acute", region: "Overland", dataKey: "West Shore PA" }
     ];
@@ -2346,18 +2346,24 @@
         document.getElementById('oneToWatchDetail').innerHTML = getOneToWatchDetail(oneToWatch.dataKey, currMonth);
       }
       
-      // Regional Winner
+      // Regional Stats - Best Region AND Most Improved
       const regions = ['Golden Coast', 'Overland'];
       const regionStats = regions.map(region => {
         const regionBuildings = BUILDINGS.filter(b => b.region === region);
         const prevAvg = regionBuildings.reduce((sum, b) => sum + (prevScores[b.dataKey]?.rank || 18), 0) / regionBuildings.length;
         const currAvg = regionBuildings.reduce((sum, b) => sum + (currScores[b.dataKey]?.rank || 18), 0) / regionBuildings.length;
-        return { region, prevAvg, currAvg, improvement: prevAvg - currAvg };
+        return { region, prevAvg, currAvg, improvement: prevAvg - currAvg, count: regionBuildings.length };
       });
       
-      const winner = regionStats.sort((a, b) => b.improvement - a.improvement)[0];
-      document.getElementById('regionalWinnerSummary').innerHTML = `${winner.region}<br><span style="font-size:0.9rem;color:var(--slate-400)">Avg rank: ${winner.prevAvg.toFixed(1)} → ${winner.currAvg.toFixed(1)}</span>`;
-      document.getElementById('regionalWinnerDetail').innerHTML = getRegionalWinnerDetail(winner.region, prevScores, currScores);
+      const bestRegion = regionStats.sort((a, b) => a.currAvg - b.currAvg)[0]; // lowest avg = best
+      const mostImprovedRegion = regionStats.sort((a, b) => b.improvement - a.improvement)[0]; // highest improvement
+      
+      document.getElementById('regionalWinnerSummary').innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <div>🏆 Best: ${bestRegion.region} <span style="font-size:0.85rem;color:var(--slate-400)">(avg #${bestRegion.currAvg.toFixed(1)})</span></div>
+          <div>📈 Most Improved: ${mostImprovedRegion.region} <span style="font-size:0.85rem;color:var(--slate-400)">(${mostImprovedRegion.improvement > 0 ? '+' : ''}${mostImprovedRegion.improvement.toFixed(1)})</span></div>
+        </div>`;
+      document.getElementById('regionalWinnerDetail').innerHTML = getRegionalWinnerDetail(regionStats, prevScores, currScores);
       
       // Category Champions - with Jan vs Feb comparison
       const championsNow = [];
@@ -2454,24 +2460,43 @@
         ).join('');
     }
     
-    function getRegionalWinnerDetail(region, prevScores, currScores) {
-      const regionBuildings = BUILDINGS.filter(b => b.region === region)
-        .map(b => ({
-          name: b.name,
-          prevRank: prevScores[b.dataKey]?.rank || 18,
-          currRank: currScores[b.dataKey]?.rank || 18
-        }))
-        .sort((a, b) => a.currRank - b.currRank);
+    function getRegionalWinnerDetail(regionStats, prevScores, currScores) {
+      let html = '';
       
-      return `<div style="color:var(--slate-300);margin-bottom:0.5rem;font-weight:600">Top performers:</div>` +
-        regionBuildings.slice(0, 4).map(b => {
+      regionStats.forEach(stat => {
+        const regionBuildings = BUILDINGS.filter(b => b.region === stat.region)
+          .map(b => ({
+            name: b.name,
+            dataKey: b.dataKey,
+            prevRank: prevScores[b.dataKey]?.rank || 18,
+            currRank: currScores[b.dataKey]?.rank || 18
+          }))
+          .sort((a, b) => a.currRank - b.currRank);
+        
+        const changeStr = stat.improvement > 0 ? `<span style="color:#22c55e">↑${stat.improvement.toFixed(1)}</span>` : 
+                          stat.improvement < 0 ? `<span style="color:#ef4444">↓${Math.abs(stat.improvement).toFixed(1)}</span>` : 
+                          '<span style="color:var(--slate-500)">—</span>';
+        
+        html += `<div style="margin-bottom:1rem;">
+          <div style="color:var(--slate-200);font-weight:600;margin-bottom:0.5rem;display:flex;justify-content:space-between;">
+            <span>${stat.region} (${stat.count} buildings)</span>
+            <span>Avg: ${stat.prevAvg.toFixed(1)} → ${stat.currAvg.toFixed(1)} ${changeStr}</span>
+          </div>`;
+        
+        html += regionBuildings.slice(0, 3).map(b => {
           const change = b.prevRank - b.currRank;
-          const changeStr = change > 0 ? `<span style="color:#22c55e">↑${change}</span>` : change < 0 ? `<span style="color:var(--slate-500)">↓${Math.abs(change)}</span>` : '<span style="color:var(--slate-500)">—</span>';
-          return `<div style="display:flex;justify-content:space-between;padding:0.3rem 0;color:var(--slate-400)">
+          const arrow = change > 0 ? `<span style="color:#22c55e">↑${change}</span>` : 
+                        change < 0 ? `<span style="color:var(--slate-500)">↓${Math.abs(change)}</span>` : '';
+          return `<div style="display:flex;justify-content:space-between;padding:0.2rem 0;color:var(--slate-400);font-size:0.85rem;cursor:pointer;" onclick="goToBuildingDetail('${b.dataKey}')">
             <span>• ${b.name}</span>
-            <span>#${b.currRank} ${changeStr}</span>
+            <span>#${b.currRank} ${arrow}</span>
           </div>`;
         }).join('');
+        
+        html += '</div>';
+      });
+      
+      return html;
     }
     
     function getCategoryChampionsDetail(championsNow, championsPrev, prevMonthName, currMonthName) {
