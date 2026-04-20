@@ -2190,10 +2190,10 @@
         </div>`;
       }
       
-      // Watch list (bottom 3)
+      // Needs Attention (bottom 3)
       const bottom3 = currRanked.slice(-3).reverse();
       html += `<div style="background:var(--white-05);border-radius:10px;padding:1rem;">
-        <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.5rem;">⚠️ Watch List</div>
+        <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.5rem;">⚠️ Needs Attention</div>
         ${bottom3.map(b => `<div style="display:flex;justify-content:space-between;padding:0.25rem 0;"><span style="color:var(--slate-200)">${b.name}</span><span style="color:var(--slate-400)">#${b.rank}</span></div>`).join('')}
       </div>`;
       
