@@ -354,6 +354,7 @@
       <button class="tab" data-tab="race">🏁 The Race</button>
       <button class="tab" data-tab="radar">🎯 Radar</button>
       <button class="tab" data-tab="heatmap">🔥 Heat Map</button>
+      <button class="tab" data-tab="categories">📊 Category Rankings</button>
       <button class="tab" data-tab="building">🏢 Building Detail</button>
       <button class="tab" data-tab="regional">🗺️ Regional</button>
       <button class="tab" data-tab="trends">📈 Trends</button>
@@ -409,6 +410,22 @@
         <div class="card-title">🔥 Weighted Rank Heat Map</div>
         <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Weighted rank contribution per category (green = low/good, red = high/needs work)</p>
         <div class="heatmap-container"><table class="heatmap" id="heatmapTable"></table></div>
+      </div>
+    </div>
+    
+    <div id="categories" class="tab-content">
+      <div class="card">
+        <div class="card-title">📊 Category Rankings</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select a category and metric to see all buildings ranked #1-#18</p>
+        <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+          <select id="categorySelect" onchange="updateMetricSelect()" style="flex:1;min-width:200px;padding:0.75rem;border-radius:8px;background:var(--white-05);border:1px solid var(--white-10);color:var(--slate-200);font-size:1rem;">
+            <option value="">Select Category</option>
+          </select>
+          <select id="metricSelect" onchange="renderCategoryRankings()" style="flex:1;min-width:200px;padding:0.75rem;border-radius:8px;background:var(--white-05);border:1px solid var(--white-10);color:var(--slate-200);font-size:1rem;">
+            <option value="">Select Metric</option>
+          </select>
+        </div>
+        <div id="categoryRankingsContent"></div>
       </div>
     </div>
     
@@ -891,7 +908,7 @@
 
     function initMonthSelect() { const select = document.getElementById('monthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { currentData = allData[parseInt(e.target.value)]; updateAllDisplays(); }); }
     function initRegionalMonthSelect() { const select = document.getElementById('regionalMonthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { regionalMonthData = allData[parseInt(e.target.value)]; renderRegionalStats(); renderRegionalChart(); }); }
-    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); updateSearchBarVisibility(tab.dataset.tab); clearURLParams(); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'simulator') initSimulator(); if (tab.dataset.tab === 'race') renderRaceTab(); } }); }); }
+    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); updateSearchBarVisibility(tab.dataset.tab); clearURLParams(); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'simulator') initSimulator(); if (tab.dataset.tab === 'race') renderRaceTab(); if (tab.dataset.tab === 'categories') initCategoryRankings(); } }); }); }
     function clearURLParams() { window.history.replaceState({}, '', window.location.pathname); }
     function updateSearchBarVisibility(tabId) { const showOn = ['podium', 'heatmap']; document.getElementById('searchFilterBar').style.display = showOn.includes(tabId) ? 'flex' : 'none'; }
     function initSelects() { ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3', 'simBuildingSelect'].forEach(id => { const select = document.getElementById(id); BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.dataKey; opt.textContent = b.name; select.appendChild(opt); }); }); document.getElementById('buildingSelect').addEventListener('change', e => { renderBuildingDetail(e.target.value); if (e.target.value) updateURL('building', e.target.value); }); ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); }); }
@@ -1336,6 +1353,116 @@
       }); 
       html += '</tbody>'; 
       document.getElementById('heatmapTable').innerHTML = html; 
+    }
+    
+    // =====================
+    // CATEGORY RANKINGS
+    // =====================
+    function initCategoryRankings() {
+      const catSelect = document.getElementById('categorySelect');
+      catSelect.innerHTML = '<option value="">Select Category</option>' + 
+        Object.entries(CATEGORIES).map(([key, cat]) => 
+          `<option value="${key}">${cat.name} (${(cat.weight * 100).toFixed(0)}%)</option>`
+        ).join('');
+      document.getElementById('metricSelect').innerHTML = '<option value="">Select Metric</option>';
+      document.getElementById('categoryRankingsContent').innerHTML = '<div style="color:var(--slate-400);text-align:center;padding:2rem;">Select a category and metric to view rankings</div>';
+    }
+    
+    function updateMetricSelect() {
+      const catKey = document.getElementById('categorySelect').value;
+      const metricSelect = document.getElementById('metricSelect');
+      
+      if (!catKey) {
+        metricSelect.innerHTML = '<option value="">Select Metric</option>';
+        document.getElementById('categoryRankingsContent').innerHTML = '<div style="color:var(--slate-400);text-align:center;padding:2rem;">Select a category and metric to view rankings</div>';
+        return;
+      }
+      
+      const cat = CATEGORIES[catKey];
+      metricSelect.innerHTML = '<option value="">Select Metric</option>' + 
+        cat.metrics.map(m => 
+          `<option value="${m.key}" data-higher="${m.higher}">${m.label} (${(m.weight * 100).toFixed(0)}%) ${m.higher ? '↑' : '↓'}</option>`
+        ).join('');
+    }
+    
+    function renderCategoryRankings() {
+      const catKey = document.getElementById('categorySelect').value;
+      const metricKey = document.getElementById('metricSelect').value;
+      const container = document.getElementById('categoryRankingsContent');
+      
+      if (!catKey || !metricKey || !currentData) {
+        container.innerHTML = '<div style="color:var(--slate-400);text-align:center;padding:2rem;">Select a category and metric to view rankings</div>';
+        return;
+      }
+      
+      const cat = CATEGORIES[catKey];
+      const metric = cat.metrics.find(m => m.key === metricKey);
+      if (!metric) return;
+      
+      // Get all building values for this metric
+      const values = BUILDINGS.map(b => {
+        const data = currentData.buildingData[b.dataKey];
+        const value = data ? data[metricKey] : null;
+        return {
+          name: b.name,
+          dataKey: b.dataKey,
+          region: b.region,
+          value: value
+        };
+      }).filter(v => v.value !== null && v.value !== undefined);
+      
+      // Sort by value
+      values.sort((a, b) => metric.higher ? b.value - a.value : a.value - b.value);
+      
+      // Assign ranks with ties
+      let currentRank = 1;
+      let i = 0;
+      while (i < values.length) {
+        const currentValue = values[i].value;
+        const tiedItems = values.filter(v => v.value === currentValue);
+        tiedItems.forEach(item => { item.rank = currentRank; });
+        i += tiedItems.length;
+        currentRank = i + 1;
+      }
+      
+      const direction = metric.higher ? '(Higher is better ↑)' : '(Lower is better ↓)';
+      
+      let html = `
+        <div style="margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span style="font-size:1.1rem;font-weight:700;color:var(--slate-200);">${metric.label}</span>
+            <span style="color:var(--slate-400);font-size:0.85rem;margin-left:0.5rem;">${direction}</span>
+          </div>
+          <span style="color:var(--slate-400);font-size:0.85rem;">${cat.name} • ${(metric.weight * 100).toFixed(0)}% weight</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+      `;
+      
+      values.forEach((v, idx) => {
+        const medal = v.rank === 1 ? '🥇' : v.rank === 2 ? '🥈' : v.rank === 3 ? '🥉' : '';
+        const bgColor = v.rank <= 3 ? 'rgba(251,191,36,0.1)' : 'var(--white-05)';
+        const borderColor = v.rank <= 3 ? 'rgba(251,191,36,0.3)' : 'var(--white-10)';
+        
+        html += `
+          <div onclick="goToBuildingDetail('${v.dataKey}')" style="display:grid;grid-template-columns:50px 1fr 100px;align-items:center;padding:0.75rem 1rem;background:${bgColor};border:1px solid ${borderColor};border-radius:10px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform=''">
+            <span style="font-size:1.1rem;font-weight:700;color:var(--gold);">${medal} #${v.rank}</span>
+            <div>
+              <div style="color:var(--slate-200);font-weight:500;">${v.name}</div>
+              <div style="color:var(--slate-500);font-size:0.8rem;">${v.region}</div>
+            </div>
+            <div style="text-align:right;font-size:1.1rem;font-weight:600;color:var(--slate-200);">${typeof v.value === 'number' ? v.value.toFixed(2) : v.value}</div>
+          </div>
+        `;
+      });
+      
+      // Show buildings with no data
+      const noData = BUILDINGS.filter(b => !values.find(v => v.dataKey === b.dataKey));
+      if (noData.length > 0) {
+        html += `<div style="color:var(--slate-500);font-size:0.85rem;padding:0.75rem;margin-top:0.5rem;">No data: ${noData.map(b => b.name).join(', ')}</div>`;
+      }
+      
+      html += '</div>';
+      container.innerHTML = html;
     }
     
     function renderTrends() { 
