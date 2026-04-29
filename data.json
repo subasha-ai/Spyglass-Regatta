@@ -23,7 +23,7 @@
       "yelpRating": 4.4,
       "legalClaims": 0,
       "_score": 7.88,
-      "_rank": 10
+      "_rank": 9
     },
     "Camino Ridge Post Acute": {
       "healthInspections": 194.0,
@@ -46,9 +46,9 @@
       "substandardQoc": 0,
       "googleRating": 4.6,
       "yelpRating": 2.3,
-      "legalClaims": 1,
-      "_score": 10.39,
-      "_rank": 16
+      "legalClaims": 0,
+      "_score": 9.55,
+      "_rank": 14
     },
     "Los Altos Post Acute": {
       "healthInspections": 64.0,
@@ -66,13 +66,13 @@
       "rehabProductivity": 86.6,
       "turnover": 45.2,
       "workerSafety": 100.0,
-      "admissionPacket": 90.4,
-      "arbitration": 60.3,
+      "admissionPacket": 93.2,
+      "arbitration": 65.8,
       "substandardQoc": 0,
       "googleRating": 3.5,
       "yelpRating": 4.4,
       "legalClaims": 0,
-      "_score": 8.92,
+      "_score": 8.84,
       "_rank": 13
     },
     "The Win Post Acute": {
@@ -222,8 +222,8 @@
       "googleRating": 4.6,
       "yelpRating": 4.0,
       "legalClaims": 1,
-      "_score": 7.85,
-      "_rank": 9
+      "_score": 8.0,
+      "_rank": 10
     },
     "Eden HC": {
       "healthInspections": 144.8,
@@ -247,8 +247,8 @@
       "googleRating": 4.6,
       "yelpRating": 4.0,
       "legalClaims": 0,
-      "_score": 10.18,
-      "_rank": 14
+      "_score": 10.2,
+      "_rank": 16
     },
     "West Shore PA": {
       "healthInspections": 178.0,
@@ -273,7 +273,7 @@
       "yelpRating": 4.6,
       "legalClaims": 0,
       "_score": 10.28,
-      "_rank": 15
+      "_rank": 17
     },
     "Golden Harbor HC": {
       "healthInspections": 147.8,
@@ -297,7 +297,7 @@
       "googleRating": 4.6,
       "yelpRating": 3.2,
       "legalClaims": 0,
-      "_score": 8.11,
+      "_score": 8.13,
       "_rank": 11
     },
     "Belmont HC": {
@@ -421,9 +421,9 @@
       "substandardQoc": 0,
       "googleRating": 4.7,
       "yelpRating": 4.0,
-      "legalClaims": 1,
-      "_score": 10.46,
-      "_rank": 17
+      "legalClaims": 0,
+      "_score": 9.62,
+      "_rank": 15
     },
     "Blue Oak": {
       "healthInspections": 161.0,
@@ -475,7 +475,7 @@
       "yelpRating": 4.7,
       "legalClaims": 0,
       "_score": 7.96,
-      "_rank": 9
+      "_rank": 8
     },
     "Camino Ridge Post Acute": {
       "healthInspections": 193.0,
@@ -498,9 +498,9 @@
       "substandardQoc": 0,
       "googleRating": 4.6,
       "yelpRating": 3.1,
-      "legalClaims": 1,
-      "_score": 10.95,
-      "_rank": 17
+      "legalClaims": 0,
+      "_score": 10.22,
+      "_rank": 15
     },
     "Los Altos Post Acute": {
       "healthInspections": 61.0,
@@ -518,14 +518,14 @@
       "rehabProductivity": 87.3,
       "turnover": 45.2,
       "workerSafety": 93.5,
-      "admissionPacket": 91.25,
-      "arbitration": 63.25,
+      "admissionPacket": 92.65,
+      "arbitration": 66.0,
       "substandardQoc": 0,
       "googleRating": 4.2,
       "yelpRating": 4.5,
       "legalClaims": 0,
-      "_score": 9.49,
-      "_rank": 12
+      "_score": 9.47,
+      "_rank": 13
     },
     "The Win Post Acute": {
       "healthInspections": 60.0,
@@ -573,8 +573,8 @@
       "substandardQoc": 0,
       "googleRating": 4.2,
       "yelpRating": 3.95,
-      "legalClaims": 1,
-      "_score": 6.21,
+      "legalClaims": 0,
+      "_score": 5.49,
       "_rank": 2
     },
     "PAC Hills Post Acute": {
@@ -648,9 +648,9 @@
       "substandardQoc": 0,
       "googleRating": 4.85,
       "yelpRating": 4.6,
-      "legalClaims": 2,
-      "_score": 9.95,
-      "_rank": 14
+      "legalClaims": 0,
+      "_score": 9.06,
+      "_rank": 12
     },
     "Mountain View HC": {
       "healthInspections": 131.3,
@@ -673,9 +673,9 @@
       "substandardQoc": 0,
       "googleRating": 4.6,
       "yelpRating": 4.0,
-      "legalClaims": 1,
-      "_score": 7.75,
-      "_rank": 8
+      "legalClaims": 2,
+      "_score": 7.97,
+      "_rank": 9
     },
     "Eden HC": {
       "healthInspections": 146.8,
@@ -700,7 +700,7 @@
       "yelpRating": 4.0,
       "legalClaims": 0,
       "_score": 10.86,
-      "_rank": 16
+      "_rank": 18
     },
     "West Shore PA": {
       "healthInspections": 178.0,
@@ -725,7 +725,7 @@
       "yelpRating": 4.6,
       "legalClaims": 0,
       "_score": 9.62,
-      "_rank": 13
+      "_rank": 14
     },
     "Golden Harbor HC": {
       "healthInspections": 146.3,
@@ -749,7 +749,7 @@
       "googleRating": 4.55,
       "yelpRating": 3.0,
       "legalClaims": 0,
-      "_score": 8.16,
+      "_score": 8.18,
       "_rank": 10
     },
     "Belmont HC": {
@@ -873,9 +873,9 @@
       "substandardQoc": 0,
       "googleRating": 4.7,
       "yelpRating": 4.05,
-      "legalClaims": 3,
-      "_score": 11.74,
-      "_rank": 18
+      "legalClaims": 0,
+      "_score": 10.79,
+      "_rank": 17
     },
     "Blue Oak": {
       "healthInspections": 158.5,
@@ -900,7 +900,7 @@
       "yelpRating": 5.0,
       "legalClaims": 0,
       "_score": 10.51,
-      "_rank": 15
+      "_rank": 16
     }
   }
 }
