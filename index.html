@@ -397,14 +397,6 @@
         <div class="card-title">🎯 Category Comparison <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Higher = Better Performance)</span></div>
         <div class="radar-wrapper"><canvas id="radarChart"></canvas></div>
       </div>
-      <div class="card">
-        <div class="card-title">🤖 Performance Coach</div>
-        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select a building above and get recommendations on what to improve.</p>
-        <div style="margin-bottom:1rem;">
-          <button id="getAnalysisBtn" onclick="getAIAnalysis()" style="background:linear-gradient(135deg,var(--navy),var(--navy-light));color:var(--gold-light);border:none;padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">📊 Analyze Performance</button>
-        </div>
-        <div id="aiAnalysisResult" style="display:none;background:var(--white-05);border:1px solid var(--white-10);border-radius:12px;padding:1.25rem;line-height:1.7;color:var(--slate-200);"></div>
-      </div>
     </div>
     
     <div id="heatmap" class="tab-content">
@@ -1139,7 +1131,7 @@ Provide a brief executive insight in this exact format (use plain text, no markd
 
 TRAJECTORY: One sentence on where this building is heading if current trends continue.
 
-QUICK WINS: List 1-2 specific metrics they should focus on to improve their ranking, and estimate how many spots they could gain.
+KEY OPPORTUNITIES: List 1-2 specific metrics they should focus on to improve their ranking, and estimate how many spots they could gain.
 
 Keep it concise and actionable. No fluff. Leadership style.`;
     }
@@ -1232,7 +1224,7 @@ Keep it concise and actionable. No fluff. Leadership style.`;
           </div>
         </div>
         <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:1.25rem;">
-          <div style="font-size:0.8rem;color:#fbbf24;text-transform:uppercase;margin-bottom:0.75rem;">📊 Quick Wins</div>
+          <div style="font-size:0.8rem;color:#fbbf24;text-transform:uppercase;margin-bottom:0.75rem;">🎯 Key Opportunities</div>
           <div style="color:#e2e8f0;line-height:1.8;white-space:pre-line;">${weakestList}</div>
         </div>
       `;
@@ -2068,145 +2060,6 @@ Keep it concise and actionable. No fluff. Leadership style.`;
           }
         } 
       }); 
-    }
-    
-    function getAIAnalysis() {
-      const selected = document.getElementById('radarSelect1').value;
-      if (!selected) {
-        alert('Please select a building first');
-        return;
-      }
-      
-      const result = document.getElementById('aiAnalysisResult');
-      const ranked = getRanked();
-      const building = ranked.find(r => r.dataKey === selected);
-      const catRanks = getCategoryRanksByCategory();
-      const buildingCatRanks = catRanks[selected];
-      
-      // Analyze performance
-      const analysis = [];
-      const priorities = [];
-      
-      // Overall assessment
-      let overallStatus = '';
-      if (building.rank <= 3) {
-        overallStatus = `<strong style="color:#10b981">Top Performer!</strong> Ranked #${building.rank} of 17 facilities with a score of ${building.score.toFixed(2)}.`;
-      } else if (building.rank <= 8) {
-        overallStatus = `<strong style="color:var(--gold)">Above Average.</strong> Ranked #${building.rank} of 17 facilities with a score of ${building.score.toFixed(2)}.`;
-      } else if (building.rank <= 12) {
-        overallStatus = `<strong style="color:#f59e0b">Room for Improvement.</strong> Ranked #${building.rank} of 17 facilities with a score of ${building.score.toFixed(2)}.`;
-      } else {
-        overallStatus = `<strong style="color:#ef4444">Needs Attention.</strong> Ranked #${building.rank} of 17 facilities with a score of ${building.score.toFixed(2)}.`;
-      }
-      
-      // Find weak categories and metrics
-      const recommendations = {
-        care: {
-          healthInspections: "Schedule mock surveys and address deficiency trends. Focus on documentation compliance.",
-          qmRating: "Review quality measures monthly. Target high-impact measures like falls and pressure ulcers.",
-          rehospitalization: "Implement care transitions program. Ensure 48-hour follow-up calls post-discharge.",
-          dischargeFunctional: "Set aggressive but realistic therapy goals. Track functional outcomes weekly."
-        },
-        census: {
-          occupancy: "Strengthen referral relationships. Reduce hospital notification-to-admission time.",
-          medicareCensus: "Target hospital discharge planners. Highlight specialized programs and outcomes.",
-          skilledMix: "Develop clinical programs that attract higher-acuity patients. Market rehab capabilities."
-        },
-        collections: {
-          badDebt: "Verify insurance earlier in admission process. Implement payment plans proactively.",
-          dso: "Bill within 24 hours of discharge. Follow up on aged receivables weekly."
-        },
-        controls: {
-          noi: "Review expense categories monthly. Benchmark against top performers.",
-          labor: "Optimize scheduling to census. Cross-train staff for flexibility.",
-          otdt: "Monitor OT approvals daily. Address staffing gaps before they require overtime.",
-          rehabProductivity: "Review therapist schedules. Minimize non-productive time between treatments."
-        },
-        culture: {
-          turnover: "Conduct stay interviews. Address top turnover reasons within 30 days.",
-          workerSafety: "Review incident trends. Implement targeted training for high-risk areas."
-        },
-        compliance: {
-          admissionPacket: "Create admission packet checklist. Train admissions staff monthly.",
-          arbitration: "Review arbitration process with legal. Ensure consistent execution.",
-          substandardQoc: "Implement QoC prevention protocols. Review all incidents within 24 hours."
-        },
-        credibility: {
-          googleRating: "Respond to all reviews within 48 hours. Ask satisfied families to leave reviews.",
-          yelpRating: "Monitor Yelp weekly. Address negative feedback patterns operationally.",
-          legalClaims: "Review risk management protocols. Ensure incident documentation is thorough."
-        }
-      };
-      
-      // Find weak areas
-      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
-        const catRank = buildingCatRanks[catKey];
-        if (catRank >= 10) {
-          const weakMetrics = [];
-          cat.metrics.forEach(m => {
-            const metricRank = building.metricRanks[m.key];
-            if (metricRank >= 10) {
-              weakMetrics.push({
-                label: m.label,
-                rank: metricRank,
-                recommendation: recommendations[catKey]?.[m.key] || "Review current processes and benchmark against top performers."
-              });
-            }
-          });
-          
-          if (weakMetrics.length > 0) {
-            priorities.push({
-              category: cat.name,
-              catRank: catRank,
-              weight: cat.weight,
-              metrics: weakMetrics
-            });
-          }
-        }
-      });
-      
-      // Sort priorities by category weight (highest impact first)
-      priorities.sort((a, b) => b.weight - a.weight);
-      
-      // Build HTML output
-      let html = `<div style="margin-bottom:1rem">${overallStatus}</div>`;
-      
-      if (priorities.length === 0) {
-        html += `<div style="color:#10b981;padding:1rem;background:rgba(16,185,129,0.1);border-radius:8px;margin-top:1rem">
-          <strong>✓ No Critical Areas!</strong><br>
-          All categories rank in the top half. Focus on maintaining current performance and targeting #1 positions.
-        </div>`;
-      } else {
-        html += `<div style="font-weight:700;color:var(--gold);margin:1rem 0 0.75rem">🎯 Priority Improvement Areas:</div>`;
-        
-        priorities.slice(0, 3).forEach((p, idx) => {
-          html += `<div style="background:var(--white-05);border-left:3px solid var(--gold);padding:1rem;margin-bottom:0.75rem;border-radius:0 8px 8px 0">
-            <div style="font-weight:700;color:var(--slate-100);margin-bottom:0.5rem">${idx + 1}. ${p.category} <span style="color:var(--slate-400);font-weight:normal">(Rank #${p.catRank}/17)</span></div>`;
-          
-          p.metrics.slice(0, 2).forEach(m => {
-            html += `<div style="margin-left:1rem;margin-bottom:0.5rem">
-              <span style="color:#f87171">▸ ${m.label}</span> <span style="color:var(--slate-500)">(Rank #${m.rank})</span><br>
-              <span style="color:var(--slate-300);font-size:0.9rem">${m.recommendation}</span>
-            </div>`;
-          });
-          
-          html += `</div>`;
-        });
-      }
-      
-      // Add strengths
-      const strengths = Object.entries(buildingCatRanks)
-        .filter(([k, rank]) => rank <= 5)
-        .map(([k, rank]) => ({ name: CATEGORIES[k].name, rank }))
-        .sort((a, b) => a.rank - b.rank);
-      
-      if (strengths.length > 0) {
-        html += `<div style="font-weight:700;color:#10b981;margin:1rem 0 0.5rem">💪 Strengths to Maintain:</div>
-          <div style="color:var(--slate-300)">${strengths.map(s => `${s.name} (#${s.rank})`).join(', ')}</div>`;
-      }
-      
-      result.innerHTML = `<div style="margin-bottom:0.5rem;font-weight:700;color:var(--gold)">📊 Analysis for ${getFullName(selected)}</div>${html}`;
-      result.style.display = 'block';
     }
     
     function renderRegionalStats() { 
