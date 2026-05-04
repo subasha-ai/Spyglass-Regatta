@@ -91,7 +91,7 @@
     .place-3 .podium-avatar { background: linear-gradient(135deg, #cd7f32, #daa06d); color: #5c3d1e; }
     .place-3 .podium-block { background: linear-gradient(135deg, #cd7f32, #8b4513); height: 80px; }
     .rankings-list { display: flex; flex-direction: column; gap: 0.5rem; }
-    .rank-item { display: grid; grid-template-columns: 45px 1fr 80px 50px 70px; align-items: center; padding: 0.875rem 1rem; background: var(--white-05); border: 1px solid var(--white-10); border-radius: 12px; gap: 0.75rem; transition: all 0.2s; }
+    .rank-item { display: grid; grid-template-columns: 45px 1fr 80px 70px; align-items: center; padding: 0.875rem 1rem; background: var(--white-05); border: 1px solid var(--white-10); border-radius: 12px; gap: 1rem; transition: all 0.2s; }
     .rank-item:hover { background: var(--white-10); transform: translateX(4px); border-color: var(--navy); }
     .rank-item.streak-up { background: linear-gradient(90deg, rgba(34,197,94,0.15) 0%, transparent 50%); border-color: #22c55e; }
     .rank-item.streak-down { background: linear-gradient(90deg, rgba(239,68,68,0.15) 0%, transparent 50%); border-color: #ef4444; }
@@ -224,7 +224,7 @@
       .podium-score { font-size: 0.8rem; }
       .podium-block { font-size: 1.25rem; }
       
-      .rank-item { grid-template-columns: 30px 1fr 50px 40px 50px; padding: 0.75rem; gap: 0.4rem; }
+      .rank-item { grid-template-columns: 30px 1fr 50px 50px; padding: 0.75rem; gap: 0.5rem; }
       .rank-item.streak-up, .rank-item.streak-down { background: transparent; border-color: var(--white-10); }
       .rank-num { font-size: 0.9rem; width: 28px; height: 28px; }
       .rank-name { font-size: 0.85rem; }
@@ -309,7 +309,6 @@
       .tab { padding: 0.5rem 0.75rem; font-size: 0.7rem; }
       .card { padding: 0.875rem; }
       .rank-item { grid-template-columns: 28px 1fr 40px 45px; }
-      .rank-item button { font-size: 0.6rem !important; padding: 0.2rem 0.3rem !important; }
       .podium-place { min-width: 180px; padding: 0.6rem 0.875rem; }
       .region-stats { grid-template-columns: repeat(2, 1fr); }
       #metricModalContent > div > div { grid-template-columns: 20px 1fr 50px; gap: 0.5rem; }
@@ -362,6 +361,7 @@
       <button class="tab" data-tab="trends">📈 Trends</button>
       <button class="tab" data-tab="simulator">🧭 The Compass</button>
       <button class="tab" data-tab="compare">⚖️ Compare</button>
+      <button class="tab" data-tab="insights">📖 Insights</button>
       <button class="tab" data-tab="methodology">📋 Methodology</button>
     </div>
     
@@ -584,6 +584,27 @@
           <div id="categoryChampionsSummary" style="font-size:1.1rem;font-weight:600;color:var(--gold);"></div>
           <div id="categoryChampionsDetail" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--white-10);font-size:0.9rem;"></div>
         </div>
+      </div>
+    </div>
+    
+    <div id="insights" class="tab-content">
+      <div class="card">
+        <div class="card-title">📖 Monthly Story</div>
+        <div id="monthlyStoryContent" style="color:var(--slate-200);line-height:1.8;font-size:1.05rem;"></div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">📊 Metric Spotlight</div>
+        <div id="metricSpotlightContent" style="color:var(--slate-200);"></div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">🔮 AI Trajectory</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select a building to see projected ranking and key opportunities</p>
+        <select id="trajectoryBuildingSelect" onchange="showTrajectoryForBuilding()" style="width:100%;max-width:350px;padding:0.75rem;border-radius:8px;background:var(--white-05);border:1px solid var(--white-10);color:var(--slate-200);font-size:1rem;margin-bottom:1rem;">
+          <option value="">Select a building...</option>
+        </select>
+        <div id="trajectoryContent"></div>
       </div>
     </div>
     
@@ -918,7 +939,7 @@
 
     function initMonthSelect() { const select = document.getElementById('monthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { currentData = allData[parseInt(e.target.value)]; updateAllDisplays(); }); }
     function initRegionalMonthSelect() { const select = document.getElementById('regionalMonthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { regionalMonthData = allData[parseInt(e.target.value)]; renderRegionalStats(); renderRegionalChart(); }); }
-    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); updateSearchBarVisibility(tab.dataset.tab); clearURLParams(); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'simulator') initSimulator(); if (tab.dataset.tab === 'race') renderRaceTab(); if (tab.dataset.tab === 'categories') initCategoryRankings(); } }); }); }
+    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); updateSearchBarVisibility(tab.dataset.tab); clearURLParams(); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'simulator') initSimulator(); if (tab.dataset.tab === 'race') renderRaceTab(); if (tab.dataset.tab === 'categories') initCategoryRankings(); if (tab.dataset.tab === 'insights') renderInsightsTab(); } }); }); }
     function clearURLParams() { window.history.replaceState({}, '', window.location.pathname); }
     function updateSearchBarVisibility(tabId) { const showOn = ['podium', 'heatmap']; document.getElementById('searchFilterBar').style.display = showOn.includes(tabId) ? 'flex' : 'none'; }
     function initSelects() { ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3', 'simBuildingSelect'].forEach(id => { const select = document.getElementById(id); BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.dataKey; opt.textContent = b.name; select.appendChild(opt); }); }); document.getElementById('buildingSelect').addEventListener('change', e => { renderBuildingDetail(e.target.value); if (e.target.value) updateURL('building', e.target.value); }); ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); }); }
@@ -956,7 +977,6 @@
         const rankChange = getRankChange(r.dataKey);
         return `<div class="rank-item ${streakClass}"><span class="rank-num">${r.rank}</span><div style="cursor:pointer;flex:1;" onclick="goToBuildingDetail('${r.dataKey}')"><span class="rank-name">${r.name}${streakBadge}</span><div class="rank-region">${r.region}</div></div>
         <div style="display:flex;align-items:center;gap:8px;">${sparkline}${rankChange.text}</div>
-        <button onclick="event.stopPropagation();openAITrajectory('${r.dataKey}')" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);border:none;color:#1e1b4b;padding:0.3rem 0.5rem;border-radius:6px;cursor:pointer;font-size:0.7rem;font-weight:600;display:flex;align-items:center;gap:4px;opacity:0.9;transition:all 0.2s;" onmouseover="this.style.opacity='1';this.style.transform='scale(1.05)'" onmouseout="this.style.opacity='0.9';this.style.transform='scale(1)'">🔮 AI</button>
         <span class="rank-score">${r.score.toFixed(2)}</span></div>`;
       }).join('')}</div>`; 
     }
@@ -1232,6 +1252,257 @@ Keep it concise and actionable. No fluff. Leadership style.`;
     
     function closeAITrajectory() {
       document.getElementById('aiTrajectoryModal').style.display = 'none';
+    }
+    
+    // =====================
+    // INSIGHTS TAB
+    // =====================
+    function renderInsightsTab() {
+      if (!currentData) return;
+      renderMonthlyStory();
+      renderMetricSpotlight();
+      initTrajectorySelect();
+    }
+    
+    function renderMonthlyStory() {
+      const container = document.getElementById('monthlyStoryContent');
+      const ranked = getRanked();
+      const months = allData.map(d => d.month);
+      const currentMonth = currentData.month;
+      
+      // Find #1
+      const leader = ranked[0];
+      
+      // Count consecutive months at #1
+      let streak = 1;
+      for (let i = allData.length - 2; i >= 0; i--) {
+        const prevScores = calculateRankBasedScores(allData[i]);
+        const prevRanked = Object.entries(prevScores).sort((a, b) => a[1].total - b[1].total);
+        if (prevRanked[0] && prevRanked[0][0] === leader.dataKey) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+      
+      // Find biggest mover (up)
+      let biggestMover = null;
+      let biggestGain = 0;
+      if (allData.length >= 2) {
+        const prevScores = calculateRankBasedScores(allData[allData.length - 2]);
+        ranked.forEach(r => {
+          const prevRank = prevScores[r.dataKey]?.rank || 9;
+          const gain = prevRank - r.rank;
+          if (gain > biggestGain) {
+            biggestGain = gain;
+            biggestMover = { name: r.name, gain, newRank: r.rank };
+          }
+        });
+      }
+      
+      // Find buildings stuck at bottom
+      const bottom3 = ranked.slice(-3);
+      let stuckAtBottom = [];
+      if (allData.length >= 2) {
+        bottom3.forEach(b => {
+          let consecutiveBottom = 0;
+          for (let i = allData.length - 1; i >= 0; i--) {
+            const monthScores = calculateRankBasedScores(allData[i]);
+            const monthRanked = Object.entries(monthScores).sort((a, b) => a[1].total - b[1].total);
+            const buildingRank = monthRanked.findIndex(([k]) => k === b.dataKey) + 1;
+            if (buildingRank >= 16) {
+              consecutiveBottom++;
+            } else {
+              break;
+            }
+          }
+          if (consecutiveBottom >= 2) {
+            stuckAtBottom.push({ name: b.name, months: consecutiveBottom, rank: b.rank });
+          }
+        });
+      }
+      
+      // Regional race
+      const gcBuildings = ranked.filter(r => r.region === 'Golden Coast');
+      const olBuildings = ranked.filter(r => r.region === 'Overland');
+      const gcTop10 = ranked.slice(0, 10).filter(r => r.region === 'Golden Coast').length;
+      const olTop10 = 10 - gcTop10;
+      const regionLeader = gcTop10 > olTop10 ? 'Golden Coast' : gcTop10 < olTop10 ? 'Overland' : 'Tied';
+      
+      // Build narrative
+      let story = '';
+      
+      // Leader sentence
+      const streakText = streak > 1 ? ` for the ${streak}${streak === 2 ? 'nd' : streak === 3 ? 'rd' : 'th'} straight month` : '';
+      story += `<p style="margin-bottom:1rem;"><strong style="color:var(--gold);">🏆 ${leader.name}</strong> holds the #1 position${streakText} with a score of ${leader.score.toFixed(2)}.</p>`;
+      
+      // Biggest mover
+      if (biggestMover && biggestGain > 0) {
+        story += `<p style="margin-bottom:1rem;"><strong style="color:#4ade80;">📈 ${biggestMover.name}</strong> is the biggest mover, climbing ${biggestGain} spot${biggestGain > 1 ? 's' : ''} to #${biggestMover.newRank}.</p>`;
+      }
+      
+      // Stuck at bottom
+      if (stuckAtBottom.length > 0) {
+        const stuckNames = stuckAtBottom.map(s => `${s.name} (#${s.rank})`).join(', ');
+        story += `<p style="margin-bottom:1rem;"><strong style="color:#f87171;">⚠️ Watch:</strong> ${stuckNames} ${stuckAtBottom.length > 1 ? 'have' : 'has'} been in the bottom 3 for ${stuckAtBottom[0].months}+ months.</p>`;
+      }
+      
+      // Regional race
+      story += `<p><strong style="color:#60a5fa;">🗺️ Regional Race:</strong> ${regionLeader === 'Tied' ? 'Regions are tied' : regionLeader + ' leads'} with ${Math.max(gcTop10, olTop10)} of the top 10 buildings.</p>`;
+      
+      container.innerHTML = story;
+    }
+    
+    function renderMetricSpotlight() {
+      const container = document.getElementById('metricSpotlightContent');
+      
+      if (allData.length < 2) {
+        container.innerHTML = '<p style="color:var(--slate-400);">Need at least 2 months of data for metric spotlight.</p>';
+        return;
+      }
+      
+      const currentScores = calculateRankBasedScores(currentData);
+      const prevScores = calculateRankBasedScores(allData[allData.length - 2]);
+      
+      // Find metric with most rank changes
+      const metricChanges = {};
+      
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        cat.metrics.forEach(metric => {
+          let totalChange = 0;
+          let improvedCount = 0;
+          let declinedCount = 0;
+          
+          BUILDINGS.forEach(b => {
+            const currRank = currentScores[b.dataKey]?.metricRanks?.[metric.key] || 9;
+            const prevRank = prevScores[b.dataKey]?.metricRanks?.[metric.key] || 9;
+            const change = prevRank - currRank;
+            totalChange += Math.abs(change);
+            if (change > 0) improvedCount++;
+            if (change < 0) declinedCount++;
+          });
+          
+          metricChanges[metric.key] = {
+            label: metric.label,
+            category: cat.name,
+            totalChange,
+            improved: improvedCount,
+            declined: declinedCount
+          };
+        });
+      });
+      
+      // Find most impactful metric
+      const sorted = Object.entries(metricChanges).sort((a, b) => b[1].totalChange - a[1].totalChange);
+      const top = sorted[0];
+      
+      if (top && top[1].totalChange > 0) {
+        container.innerHTML = `
+          <div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:12px;padding:1.25rem;">
+            <div style="font-size:1.2rem;font-weight:700;color:var(--gold);margin-bottom:0.5rem;">📊 ${top[1].label}</div>
+            <div style="color:var(--slate-400);font-size:0.9rem;margin-bottom:1rem;">${top[1].category}</div>
+            <div style="display:flex;gap:2rem;flex-wrap:wrap;">
+              <div>
+                <span style="color:#4ade80;font-size:1.5rem;font-weight:700;">${top[1].improved}</span>
+                <span style="color:var(--slate-400);"> buildings improved</span>
+              </div>
+              <div>
+                <span style="color:#f87171;font-size:1.5rem;font-weight:700;">${top[1].declined}</span>
+                <span style="color:var(--slate-400);"> buildings declined</span>
+              </div>
+            </div>
+            <p style="color:var(--slate-300);margin-top:1rem;font-size:0.95rem;">This metric had the most ranking movement this month.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = '<p style="color:var(--slate-400);">No significant metric changes this month.</p>';
+      }
+    }
+    
+    function initTrajectorySelect() {
+      const select = document.getElementById('trajectoryBuildingSelect');
+      select.innerHTML = '<option value="">Select a building...</option>' + 
+        BUILDINGS.map(b => `<option value="${b.dataKey}">${b.name}</option>`).join('');
+      document.getElementById('trajectoryContent').innerHTML = '<p style="color:var(--slate-400);">Select a building above to see trajectory analysis.</p>';
+    }
+    
+    function showTrajectoryForBuilding() {
+      const dataKey = document.getElementById('trajectoryBuildingSelect').value;
+      const container = document.getElementById('trajectoryContent');
+      
+      if (!dataKey) {
+        container.innerHTML = '<p style="color:var(--slate-400);">Select a building above to see trajectory analysis.</p>';
+        return;
+      }
+      
+      const building = BUILDINGS.find(b => b.dataKey === dataKey);
+      const buildingName = building ? building.name : dataKey;
+      
+      // Get historical ranks
+      const historyData = allData.map(monthData => {
+        const scores = calculateRankBasedScores(monthData);
+        return {
+          month: monthData.month,
+          rank: scores[dataKey]?.rank || null,
+          score: scores[dataKey]?.total || null
+        };
+      }).filter(d => d.rank !== null);
+      
+      // Get current metrics and ranks
+      const currentScores = calculateRankBasedScores(currentData);
+      const metricRanks = currentScores[dataKey]?.metricRanks || {};
+      const currentRank = currentScores[dataKey]?.rank || 0;
+      
+      // Find weakest metrics (highest rank = worst)
+      const sortedMetrics = Object.entries(metricRanks)
+        .filter(([k, v]) => v !== null && v !== undefined)
+        .sort((a, b) => b[1] - a[1]);
+      const weakestMetrics = sortedMetrics.slice(0, 3);
+      
+      // Calculate trajectory
+      let trajectory = 'stable';
+      let projectedRank = currentRank;
+      if (historyData.length >= 2) {
+        const rankChanges = [];
+        for (let i = 1; i < historyData.length; i++) {
+          rankChanges.push(historyData[i-1].rank - historyData[i].rank);
+        }
+        const avgChange = rankChanges.reduce((a, b) => a + b, 0) / rankChanges.length;
+        projectedRank = Math.max(1, Math.min(18, Math.round(currentRank - avgChange)));
+        if (avgChange > 0.5) trajectory = 'improving';
+        else if (avgChange < -0.5) trajectory = 'declining';
+      }
+      
+      // Display inline (not modal)
+      const trendIcon = trajectory === 'improving' ? '📈' : trajectory === 'declining' ? '📉' : '➡️';
+      const trendColor = trajectory === 'improving' ? '#4ade80' : trajectory === 'declining' ? '#f87171' : '#fbbf24';
+      const projectionText = projectedRank < currentRank ? `↑ #${projectedRank}` : projectedRank > currentRank ? `↓ #${projectedRank}` : `→ #${projectedRank}`;
+      
+      const weakestList = weakestMetrics.map(([m, r]) => `• Improve <strong>${getMetricLabel(m)}</strong> (currently ranked #${r})`).join('<br>');
+      
+      container.innerHTML = `
+        <div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:12px;padding:1.25rem;">
+          <div style="font-size:1.2rem;font-weight:700;color:var(--slate-100);margin-bottom:1rem;">${buildingName}</div>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+            <div style="background:var(--white-05);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:var(--slate-400);text-transform:uppercase;">Current</div>
+              <div style="font-size:1.5rem;font-weight:700;color:var(--gold);">#${currentRank}</div>
+            </div>
+            <div style="background:var(--white-05);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:var(--slate-400);text-transform:uppercase;">Trend</div>
+              <div style="font-size:1.5rem;font-weight:700;color:${trendColor};">${trendIcon} ${trajectory}</div>
+            </div>
+            <div style="background:var(--white-05);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:var(--slate-400);text-transform:uppercase;">Projected</div>
+              <div style="font-size:1.5rem;font-weight:700;color:${trendColor};">${projectionText}</div>
+            </div>
+          </div>
+          <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:1rem;">
+            <div style="font-size:0.8rem;color:#fbbf24;text-transform:uppercase;margin-bottom:0.75rem;">🎯 Key Opportunities</div>
+            <div style="color:var(--slate-200);line-height:1.8;">${weakestList}</div>
+          </div>
+        </div>
+      `;
     }
     
     function goToBuildingDetail(dataKey) {
