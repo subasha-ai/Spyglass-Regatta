@@ -1376,10 +1376,16 @@ Keep it concise and actionable. No fluff. Leadership style.`;
           BUILDINGS.forEach(b => {
             const currRank = currentScores[b.dataKey]?.metricRanks?.[metric.key] || 9;
             const prevRank = prevScores[b.dataKey]?.metricRanks?.[metric.key] || 9;
-            const change = prevRank - currRank;
-            totalChange += Math.abs(change);
-            if (change > 0) improvedCount++;
-            if (change < 0) declinedCount++;
+            const rankChange = prevRank - currRank;
+            totalChange += Math.abs(rankChange);
+            // Count improved/declined based on actual raw value change, not rank shift
+            const currVal = currentData[b.dataKey]?.[metric.key];
+            const prevVal = allData[allData.length - 2][b.dataKey]?.[metric.key];
+            if (currVal !== undefined && prevVal !== undefined && currVal !== prevVal) {
+              const valueImproved = metric.higher ? currVal > prevVal : currVal < prevVal;
+              if (valueImproved) improvedCount++;
+              else declinedCount++;
+            }
           });
           
           metricChanges[metric.key] = {
@@ -1404,14 +1410,14 @@ Keep it concise and actionable. No fluff. Leadership style.`;
             <div style="display:flex;gap:2rem;flex-wrap:wrap;">
               <div>
                 <span style="color:#4ade80;font-size:1.5rem;font-weight:700;">${top[1].improved}</span>
-                <span style="color:var(--slate-400);"> buildings improved</span>
+                <span style="color:var(--slate-400);"> buildings improved their actual value</span>
               </div>
               <div>
                 <span style="color:#f87171;font-size:1.5rem;font-weight:700;">${top[1].declined}</span>
-                <span style="color:var(--slate-400);"> buildings declined</span>
+                <span style="color:var(--slate-400);"> buildings declined in actual value</span>
               </div>
             </div>
-            <p style="color:var(--slate-300);margin-top:1rem;font-size:0.95rem;">This metric had the most ranking movement this month.</p>
+            <p style="color:var(--slate-300);margin-top:1rem;font-size:0.95rem;">This metric had the most ranking movement this month. Counts reflect buildings whose values actually changed.</p>
           </div>
         `;
       } else {
