@@ -1379,8 +1379,8 @@ Keep it concise and actionable. No fluff. Leadership style.`;
             const rankChange = prevRank - currRank;
             totalChange += Math.abs(rankChange);
             // Count improved/declined based on actual raw value change, not rank shift
-            const currVal = currentData[b.dataKey]?.[metric.key];
-            const prevVal = allData[allData.length - 2][b.dataKey]?.[metric.key];
+            const currVal = currentData.buildingData[b.dataKey]?.[metric.key];
+            const prevVal = allData[allData.length - 2].buildingData[b.dataKey]?.[metric.key];
             if (currVal !== undefined && prevVal !== undefined && currVal !== prevVal) {
               const valueImproved = metric.higher ? currVal > prevVal : currVal < prevVal;
               if (valueImproved) improvedCount++;
