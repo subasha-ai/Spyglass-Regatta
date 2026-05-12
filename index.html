@@ -278,9 +278,6 @@
       #metricModalTitle { font-size: 1rem; }
       #metricModalContent > div > div { grid-template-columns: 25px 1fr 60px; font-size: 0.8rem; }
       
-      #monthlyHighlights { padding: 1rem; }
-      #highlightsContent > div { grid-template-columns: 1fr; }
-      
       /* Search/Filter mobile */
       #searchFilterBar { flex-direction: column; gap: 0.5rem; }
       #searchFilterBar input, #searchFilterBar select { width: 100%; }
@@ -382,13 +379,10 @@
     </div>
     
     <div id="podium" class="tab-content active">
-      <div id="monthlyHighlights" class="card" style="display:none;background:linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(245,158,11,0.05) 100%);border:1px solid rgba(251,191,36,0.3);">
-        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleHighlights()">📊 Monthly Highlights <span id="highlightsArrow" style="font-size:0.8rem;color:var(--slate-400);">▴</span></div>
-        <div id="highlightsContent"></div>
-      </div>
+      
       
       <div class="card"><div class="card-title">🏆 Top Performers <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Lowest Score Wins)</span></div><div id="podiumContent"><div class="loading">Loading data...</div></div></div>
-      <div class="card"><div class="card-title">Complete Rankings</div><div id="quickRankings"></div></div>
+      <div class="card"><div class="card-title">Complete Rankings</div><div id="moversStrip" style="display:none;padding:0.5rem 0 0.75rem;border-bottom:1px solid var(--white-10);margin-bottom:0.5rem;font-size:0.85rem;display:flex;gap:1.5rem;flex-wrap:wrap;"></div><div id="quickRankings"></div></div>
     </div>
     
     <div id="radar" class="tab-content">
@@ -954,6 +948,36 @@
       </div>`; 
     }
     
+
+    function renderMoversStrip() {
+      const strip = document.getElementById('moversStrip');
+      if (!strip) return;
+      if (allData.length < 2) { strip.style.display = 'none'; return; }
+
+      const currentIdx = allData.findIndex(d => d.month === currentData.month);
+      if (currentIdx < 1) { strip.style.display = 'none'; return; }
+
+      const prevData = allData[currentIdx - 1];
+      const currRanked = getRanked(currentData);
+      const prevRanked = getRanked(prevData);
+
+      const movers = currRanked.map(c => {
+        const prev = prevRanked.find(p => p.dataKey === c.dataKey);
+        return { name: c.name, change: prev ? prev.rank - c.rank : 0 };
+      }).filter(m => m.change !== 0);
+
+      const topRiser = movers.filter(m => m.change > 0).sort((a,b) => b.change - a.change)[0];
+      const topFaller = movers.filter(m => m.change < 0).sort((a,b) => a.change - b.change)[0];
+
+      if (!topRiser && !topFaller) { strip.style.display = 'none'; return; }
+
+      strip.style.display = 'flex';
+      strip.innerHTML =
+        (topRiser ? '<span style="color:#4ade80;font-weight:600;">&#8593; ' + topRiser.name + ' +' + topRiser.change + ' spots</span>' : '') +
+        (topRiser && topFaller ? '<span style="color:var(--white-20);">|</span>' : '') +
+        (topFaller ? '<span style="color:#f87171;font-weight:600;">&#8595; ' + topFaller.name + ' ' + topFaller.change + ' spots</span>' : '');
+    }
+
     function renderQuickRankings() { 
       if (!currentData) return; 
       const ranked = getRanked(); 
@@ -1314,13 +1338,6 @@ function toggleQ1Review() {
         '</div>';
     }
 
-    function toggleHighlights() {
-      const content = document.getElementById('highlightsContent');
-      const arrow = document.getElementById('highlightsArrow');
-      const isOpen = content.style.display !== 'none';
-      content.style.display = isOpen ? 'none' : 'block';
-      arrow.textContent = isOpen ? '▾' : '▴';
-    }
 
     function renderMonthlyStory() {
       const container = document.getElementById('monthlyStoryContent');
@@ -2647,76 +2664,6 @@ function toggleQ1Review() {
     // =====================
     // MONTHLY HIGHLIGHTS
     // =====================
-    function renderMonthlyHighlights() {
-      if (allData.length < 2) {
-        document.getElementById('monthlyHighlights').style.display = 'none';
-        return;
-      }
-      
-      document.getElementById('monthlyHighlights').style.display = 'block';
-      
-      const currentIdx = allData.findIndex(d => d.month === currentData.month);
-      if (currentIdx < 1) {
-        document.getElementById('monthlyHighlights').style.display = 'none';
-        return;
-      }
-      
-      const prevData = allData[currentIdx - 1];
-      const currRanked = getRanked(currentData);
-      const prevRanked = getRanked(prevData);
-      
-      // Find buildings in both months
-      const comparableBuildings = currRanked.filter(c => prevRanked.find(p => p.dataKey === c.dataKey));
-      
-      // Biggest movers
-      const movers = comparableBuildings.map(c => {
-        const prev = prevRanked.find(p => p.dataKey === c.dataKey);
-        return { name: c.name, currRank: c.rank, prevRank: prev.rank, change: prev.rank - c.rank };
-      }).filter(m => m.change !== 0).sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
-      
-      const risers = movers.filter(m => m.change > 0).slice(0, 3);
-      const fallers = movers.filter(m => m.change < 0).slice(0, 3);
-      
-      // New leader?
-      const currLeader = currRanked[0];
-      const prevLeader = prevRanked[0];
-      const newLeader = currLeader.dataKey !== prevLeader?.dataKey;
-      
-      let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;">';
-      
-      // Leader box
-      html += `<div style="background:var(--white-05);border-radius:10px;padding:1rem;">
-        <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.5rem;">${newLeader ? '🆕 New Leader!' : '👑 Still #1'}</div>
-        <div style="font-weight:700;color:var(--gold);font-size:1.1rem;">${currLeader.name}</div>
-        <div style="font-size:0.85rem;color:var(--slate-300);">Score: ${currLeader.score.toFixed(2)}</div>
-      </div>`;
-      
-      // Risers
-      if (risers.length > 0) {
-        html += `<div style="background:var(--white-05);border-radius:10px;padding:1rem;">
-          <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.5rem;">📈 Biggest Climbers</div>
-          ${risers.map(r => `<div style="display:flex;justify-content:space-between;padding:0.25rem 0;"><span style="color:var(--slate-200)">${r.name}</span><span style="color:#10b981;font-weight:600">↑${r.change}</span></div>`).join('')}
-        </div>`;
-      }
-      
-      // Fallers
-      if (fallers.length > 0) {
-        html += `<div style="background:var(--white-05);border-radius:10px;padding:1rem;">
-          <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.5rem;">📉 Biggest Drops</div>
-          ${fallers.map(f => `<div style="display:flex;justify-content:space-between;padding:0.25rem 0;"><span style="color:var(--slate-200)">${f.name}</span><span style="color:#ef4444;font-weight:600">↓${Math.abs(f.change)}</span></div>`).join('')}
-        </div>`;
-      }
-      
-      // Needs Attention (bottom 3)
-      const bottom3 = currRanked.slice(-3).reverse();
-      html += `<div style="background:var(--white-05);border-radius:10px;padding:1rem;">
-        <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.5rem;">⚠️ Needs Attention</div>
-        ${bottom3.map(b => `<div style="display:flex;justify-content:space-between;padding:0.25rem 0;"><span style="color:var(--slate-200)">${b.name}</span><span style="color:var(--slate-400)">#${b.rank}</span></div>`).join('')}
-      </div>`;
-      
-      html += '</div>';
-      document.getElementById('highlightsContent').innerHTML = html;
-    }
 
     // =====================
     // WEIGHT SIMULATOR
@@ -3299,7 +3246,7 @@ function toggleQ1Review() {
           <span style="font-size:1.1rem;text-align:center;">${medal || '#' + v.rank}</span>
           <span style="color:var(--slate-200);font-weight:500;">${v.name}</span>
           <div style="background:var(--white-10);border-radius:4px;height:20px;overflow:hidden;">
-            <div style="background:${v.rank <= 3 ? 'var(--gold)' : 'var(--slate-500)'};height:100%;width:${Math.max(5, barWidth)}%;border-radius:4px;"></div>
+            
           </div>
           <span style="color:var(--slate-300);font-weight:600;text-align:right;">${typeof v.value === 'number' ? v.value.toFixed(2) : v.value}</span>
         </div>`;
@@ -3323,7 +3270,7 @@ function toggleQ1Review() {
     const originalUpdateAllDisplays = updateAllDisplays;
     updateAllDisplays = function() {
       originalUpdateAllDisplays();
-      renderMonthlyHighlights();
+      renderMoversStrip();
     };
   </script>
   </div><!-- end mainContent -->
