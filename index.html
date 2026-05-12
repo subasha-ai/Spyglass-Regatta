@@ -1279,6 +1279,14 @@ function toggleQ1Review() {
       btn.innerHTML = isOpen ? '🏆 Q1 Review ▾' : '🏆 Q1 Review ▴';
     }
 
+    function toggleQ1Review() {
+      const panel = document.getElementById('q1ReviewPanel');
+      const btn = document.getElementById('q1ReviewToggle');
+      const isOpen = panel.style.display !== 'none';
+      panel.style.display = isOpen ? 'none' : 'block';
+      btn.innerHTML = isOpen ? '🏆 Q1 Review ▾' : '🏆 Q1 Review ▴';
+    }
+
     function renderQ1Review() {
       const panel = document.getElementById('q1ReviewPanel');
       const container = document.getElementById('q1ReviewContent');
@@ -1293,41 +1301,41 @@ function toggleQ1Review() {
 
       const avgRank = {};
       BUILDINGS.forEach(b => {
-        const ranks = allMonthScores.map(s => s[b.dataKey]?.rank || 18);
+        const ranks = allMonthScores.map(s => s[b.dataKey] ? s[b.dataKey].rank : 18);
         avgRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
       });
 
       const champion = BUILDINGS.reduce((best, b) => avgRank[b.dataKey] < avgRank[best.dataKey] ? b : best);
 
       const topImproved = BUILDINGS.map(b => ({
-        b, delta: allMonthScores[0][b.dataKey]?.rank - allMonthScores[allMonthScores.length-1][b.dataKey]?.rank
+        b: b, delta: (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18)
       })).sort((a, b) => b.delta - a.delta)[0];
 
-      const bottom6 = BUILDINGS.filter(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank >= 13);
+      const bottom6 = BUILDINGS.filter(b => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) >= 13);
       const atRisk = bottom6.reduce((worst, b) => {
-        const declineB = allMonthScores[allMonthScores.length-1][b.dataKey]?.rank - allMonthScores[0][b.dataKey]?.rank;
-        const declineW = allMonthScores[allMonthScores.length-1][worst.dataKey]?.rank - allMonthScores[0][worst.dataKey]?.rank;
+        const declineB = (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) - (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18);
+        const declineW = (allMonthScores[allMonthScores.length-1][worst.dataKey] ? allMonthScores[allMonthScores.length-1][worst.dataKey].rank : 18) - (allMonthScores[0][worst.dataKey] ? allMonthScores[0][worst.dataKey].rank : 18);
         return declineB > declineW ? b : worst;
       });
-      const atRiskJan = allMonthScores[0][atRisk.dataKey]?.rank;
-      const atRiskMar = allMonthScores[allMonthScores.length-1][atRisk.dataKey]?.rank;
+      const atRiskJan = allMonthScores[0][atRisk.dataKey] ? allMonthScores[0][atRisk.dataKey].rank : 18;
+      const atRiskMar = allMonthScores[allMonthScores.length-1][atRisk.dataKey] ? allMonthScores[allMonthScores.length-1][atRisk.dataKey].rank : 18;
 
       const nonChamps = BUILDINGS.filter(b => b.dataKey !== champion.dataKey);
       const variance = {};
       nonChamps.forEach(b => {
-        const ranks = allMonthScores.map(s => s[b.dataKey]?.rank || 18);
+        const ranks = allMonthScores.map(s => s[b.dataKey] ? s[b.dataKey].rank : 18);
         const mean = ranks.reduce((a, v) => a + v, 0) / ranks.length;
         variance[b.dataKey] = ranks.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / ranks.length;
       });
       const consistent = nonChamps.reduce((best, b) => variance[b.dataKey] < variance[best.dataKey] ? b : best);
-      const consistRanks = allMonthScores.map(s => s[consistent.dataKey]?.rank || 18);
+      const consistRanks = allMonthScores.map(s => s[consistent.dataKey] ? s[consistent.dataKey].rank : 18);
 
       const catEmoji = { care:'🏥', census:'📈', collections:'💰', controls:'⚙️', culture:'❤️', compliance:'✅', credibility:'⭐' };
       const catWinners = {};
-      Object.keys(CATEGORIES).forEach(catKey => {
+      Object.keys(CATEGORIES).forEach(function(catKey) {
         const avgCatRank = {};
         BUILDINGS.forEach(b => {
-          const ranks = allMonthCatRanks.map(mr => mr[b.dataKey]?.[catKey] || 18);
+          const ranks = allMonthCatRanks.map(mr => mr[b.dataKey] && mr[b.dataKey][catKey] ? mr[b.dataKey][catKey] : 18);
           avgCatRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
         });
         const winner = BUILDINGS.reduce((best, b) => avgCatRank[b.dataKey] < avgCatRank[best.dataKey] ? b : best);
@@ -1336,210 +1344,81 @@ function toggleQ1Review() {
 
       const gcBuildings = BUILDINGS.filter(b => b.region === 'Golden Coast');
       const olBuildings = BUILDINGS.filter(b => b.region === 'Overland');
-      const topHalfCount = (buildings, scores) => buildings.filter(b => scores[b.dataKey]?.rank <= 9).length;
-      const gcCounts = allMonthScores.map(s => topHalfCount(gcBuildings, s));
-      const olCounts = allMonthScores.map(s => topHalfCount(olBuildings, s));
+      const getTopHalf = function(buildings, scores) { return buildings.filter(b => scores[b.dataKey] && scores[b.dataKey].rank <= 9).length; };
+      const gcCounts = allMonthScores.map(s => getTopHalf(gcBuildings, s));
+      const olCounts = allMonthScores.map(s => getTopHalf(olBuildings, s));
       const gcCurrentTop = gcCounts[gcCounts.length-1];
       const olCurrentTop = olCounts[olCounts.length-1];
       const gcConsistent = gcCounts.every(c => c === gcCounts[0]);
       const olConsistent = olCounts.every(c => c === olCounts[0]);
-      const gcBest = gcBuildings.reduce((best, b) => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank < allMonthScores[allMonthScores.length-1][best.dataKey]?.rank ? b : best);
-      const olBest = olBuildings.reduce((best, b) => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank < allMonthScores[allMonthScores.length-1][best.dataKey]?.rank ? b : best);
-      const gcCurrentRanks = gcBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank || 18).sort((a,b)=>a-b);
-      const olCurrentRanks = olBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank || 18).sort((a,b)=>a-b);
+      const gcBest = gcBuildings.reduce((best, b) => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) < (allMonthScores[allMonthScores.length-1][best.dataKey] ? allMonthScores[allMonthScores.length-1][best.dataKey].rank : 18) ? b : best);
+      const olBest = olBuildings.reduce((best, b) => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) < (allMonthScores[allMonthScores.length-1][best.dataKey] ? allMonthScores[allMonthScores.length-1][best.dataKey].rank : 18) ? b : best);
 
-      container.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin-bottom:4px;">
-          <div style="border-radius:10px;padding:14px 16px;border:0.5px solid rgba(184,134,11,0.35);background:rgba(184,134,11,0.07);">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#f5c842;margin-bottom:6px;">Q1 CHAMPION</div>
-            <div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">${champion.name}</div>
-            <div style="font-size:12px;color:var(--slate-400);">Avg rank ${avgRank[champion.dataKey].toFixed(1)} all quarter</div>
-          </div>
-          <div style="border-radius:10px;padding:14px 16px;border:0.5px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.07);">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:6px;">MOST IMPROVED</div>
-            <div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">${topImproved.b.name}</div>
-            <div style="font-size:12px;color:var(--slate-400);">↑ ${topImproved.delta} spots since January</div>
-          </div>
-          <div style="border-radius:10px;padding:14px 16px;border:0.5px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.07);">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:6px;">MOST AT RISK</div>
-            <div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">${atRisk.name}</div>
-            <div style="font-size:12px;color:var(--slate-400);">Jan #${atRiskJan} → Mar #${atRiskMar} · legal claims in March</div>
-          </div>
-          <div style="border-radius:10px;padding:14px 16px;border:0.5px solid var(--white-10);background:var(--white-05);">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--slate-300);margin-bottom:6px;">MOST CONSISTENT</div>
-            <div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">${consistent.name}</div>
-            <div style="font-size:12px;color:var(--slate-400);">${consistRanks.map(r => '#'+r).join(' → ')} all quarter</div>
-          </div>
-        </div>
+      const gcDots = gcBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18).sort((a,b)=>a-b).map(r => '<div style="width:10px;height:10px;border-radius:50%;display:inline-block;margin:2px;background:' + (r<=9?'#4ade80':'#f87171') + '"></div>').join('');
+      const olDots = olBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18).sort((a,b)=>a-b).map(r => '<div style="width:10px;height:10px;border-radius:50%;display:inline-block;margin:2px;background:' + (r<=9?'#4ade80':'#f87171') + '"></div>').join('');
 
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:1.25rem 0 0.65rem;">CATEGORY LEADERS — Q1 2026</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;">
-          ${Object.entries(CATEGORIES).map(([catKey, cat]) => {
-            const w = catWinners[catKey];
-            return `<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:8px;padding:10px 12px;">
-              <div style="font-size:11px;color:var(--slate-400);margin-bottom:4px;">${catEmoji[catKey]} ${cat.name} <span style="color:var(--slate-500)">(${(cat.weight*100).toFixed(0)}%)</span></div>
-              <div style="font-size:12px;font-weight:600;color:var(--slate-100);line-height:1.3;">${w.building.name}</div>
-              <div style="font-size:11px;color:var(--gold);margin-top:2px;">avg rank ${w.avg}</div>
-              ${w.surprise ? `<div style="display:inline-block;font-size:10px;background:rgba(167,139,250,0.15);color:#a78bfa;border:0.5px solid rgba(167,139,250,0.3);border-radius:4px;padding:1px 5px;margin-top:4px;">overall rank #${Math.round(avgRank[w.building.dataKey])}</div>` : ''}
-            </div>`;
-          }).join('')}
-        </div>
+      const catWinnersHTML = Object.entries(CATEGORIES).map(function(entry) {
+        const catKey = entry[0]; const cat = entry[1];
+        const w = catWinners[catKey];
+        const surpriseBadge = w.surprise ? '<div style="display:inline-block;font-size:10px;background:rgba(167,139,250,0.15);color:#a78bfa;border:0.5px solid rgba(167,139,250,0.3);border-radius:4px;padding:1px 5px;margin-top:4px;">overall rank #' + Math.round(avgRank[w.building.dataKey]) + '</div>' : '';
+        return '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:8px;padding:10px 12px;">' +
+          '<div style="font-size:11px;color:var(--slate-400);margin-bottom:4px;">' + catEmoji[catKey] + ' ' + cat.name + ' (' + Math.round(cat.weight*100) + '%)</div>' +
+          '<div style="font-size:12px;font-weight:600;color:var(--slate-100);line-height:1.3;">' + w.building.name + '</div>' +
+          '<div style="font-size:11px;color:var(--gold);margin-top:2px;">avg rank ' + w.avg + '</div>' +
+          surpriseBadge + '</div>';
+      }).join('');
 
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:1.25rem 0 0.65rem;">REGIONAL COMPARISON</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:14px 16px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;color:#38bdf8;margin-bottom:10px;">GOLDEN COAST — ${gcBuildings.length} buildings</div>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">${gcCurrentRanks.map(r => `<div style="width:10px;height:10px;border-radius:50%;background:${r<=9?'#4ade80':'#f87171'}" title="#${r}"></div>`).join('')}</div>
-            <div style="font-size:28px;font-weight:600;color:var(--slate-100);line-height:1;margin-bottom:3px;">${gcCurrentTop} <span style="font-size:16px;font-weight:400;">of ${gcBuildings.length}</span></div>
-            <div style="font-size:12px;color:var(--slate-400);margin-bottom:10px;">buildings in top half</div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Consistent all quarter</span><span style="color:var(--slate-200);font-weight:600;">${gcConsistent ? gcCounts[0]+' each month' : gcCounts.join(' → ')}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Best building</span><span style="color:var(--slate-200);font-weight:600;">${gcBest.name} #${allMonthScores[allMonthScores.length-1][gcBest.dataKey]?.rank}</span></div>
-          </div>
-          <div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:14px 16px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;color:#a78bfa;margin-bottom:10px;">OVERLAND — ${olBuildings.length} buildings</div>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">${olCurrentRanks.map(r => `<div style="width:10px;height:10px;border-radius:50%;background:${r<=9?'#4ade80':'#f87171'}" title="#${r}"></div>`).join('')}</div>
-            <div style="font-size:28px;font-weight:600;color:var(--slate-100);line-height:1;margin-bottom:3px;">${olCurrentTop} <span style="font-size:16px;font-weight:400;">of ${olBuildings.length}</span></div>
-            <div style="font-size:12px;color:var(--slate-400);margin-bottom:10px;">buildings in top half</div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Consistent all quarter</span><span style="color:var(--slate-200);font-weight:600;">${olConsistent ? olCounts[0]+' each month' : olCounts.join(' → ')}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Best building</span><span style="color:var(--slate-200);font-weight:600;">${olBest.name} #${allMonthScores[allMonthScores.length-1][olBest.dataKey]?.rank}</span></div>
-          </div>
-        </div>
-        <div style="margin-top:10px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--slate-400);">
-          <span style="color:#a78bfa;font-weight:600;">Regional gap</span> — Golden Coast has held a ${gcCurrentTop}-of-${gcBuildings.length} top-half advantage over Overland all quarter. This is a structural pattern, not a monthly fluctuation.
-        </div>`;
+      const gcBestRank = allMonthScores[allMonthScores.length-1][gcBest.dataKey] ? allMonthScores[allMonthScores.length-1][gcBest.dataKey].rank : 18;
+      const olBestRank = allMonthScores[allMonthScores.length-1][olBest.dataKey] ? allMonthScores[allMonthScores.length-1][olBest.dataKey].rank : 18;
+
+      container.innerHTML =
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin-bottom:4px;">' +
+          '<div style="border-radius:10px;padding:14px 16px;border:0.5px solid rgba(184,134,11,0.35);background:rgba(184,134,11,0.07);">' +
+            '<div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#f5c842;margin-bottom:6px;">Q1 CHAMPION</div>' +
+            '<div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">' + champion.name + '</div>' +
+            '<div style="font-size:12px;color:var(--slate-400);">Avg rank ' + avgRank[champion.dataKey].toFixed(1) + ' all quarter</div>' +
+          '</div>' +
+          '<div style="border-radius:10px;padding:14px 16px;border:0.5px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.07);">' +
+            '<div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:6px;">MOST IMPROVED</div>' +
+            '<div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">' + topImproved.b.name + '</div>' +
+            '<div style="font-size:12px;color:var(--slate-400);">&#8593; ' + topImproved.delta + ' spots since January</div>' +
+          '</div>' +
+          '<div style="border-radius:10px;padding:14px 16px;border:0.5px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.07);">' +
+            '<div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:6px;">MOST AT RISK</div>' +
+            '<div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">' + atRisk.name + '</div>' +
+            '<div style="font-size:12px;color:var(--slate-400);">Jan #' + atRiskJan + ' &#8594; Mar #' + atRiskMar + ' &middot; legal claims in March</div>' +
+          '</div>' +
+          '<div style="border-radius:10px;padding:14px 16px;border:0.5px solid var(--white-10);background:var(--white-05);">' +
+            '<div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--slate-300);margin-bottom:6px;">MOST CONSISTENT</div>' +
+            '<div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">' + consistent.name + '</div>' +
+            '<div style="font-size:12px;color:var(--slate-400);">' + consistRanks.map(r => '#'+r).join(' &#8594; ') + ' all quarter</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="font-size:11px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:1.25rem 0 0.65rem;">CATEGORY LEADERS &#8212; Q1 2026</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;">' + catWinnersHTML + '</div>' +
+        '<div style="font-size:11px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:1.25rem 0 0.65rem;">REGIONAL COMPARISON</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+          '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:14px 16px;">' +
+            '<div style="font-size:11px;font-weight:700;letter-spacing:0.05em;color:#38bdf8;margin-bottom:10px;">GOLDEN COAST &#8212; ' + gcBuildings.length + ' buildings</div>' +
+            '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">' + gcDots + '</div>' +
+            '<div style="font-size:28px;font-weight:600;color:var(--slate-100);line-height:1;margin-bottom:3px;">' + gcCurrentTop + ' <span style="font-size:16px;font-weight:400;">of ' + gcBuildings.length + '</span></div>' +
+            '<div style="font-size:12px;color:var(--slate-400);margin-bottom:10px;">buildings in top half</div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Consistent all quarter</span><span style="color:var(--slate-200);font-weight:600;">' + (gcConsistent ? gcCounts[0]+' each month' : gcCounts.join(' &#8594; ')) + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Best building</span><span style="color:var(--slate-200);font-weight:600;">' + gcBest.name + ' #' + gcBestRank + '</span></div>' +
+          '</div>' +
+          '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:14px 16px;">' +
+            '<div style="font-size:11px;font-weight:700;letter-spacing:0.05em;color:#a78bfa;margin-bottom:10px;">OVERLAND &#8212; ' + olBuildings.length + ' buildings</div>' +
+            '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">' + olDots + '</div>' +
+            '<div style="font-size:28px;font-weight:600;color:var(--slate-100);line-height:1;margin-bottom:3px;">' + olCurrentTop + ' <span style="font-size:16px;font-weight:400;">of ' + olBuildings.length + '</span></div>' +
+            '<div style="font-size:12px;color:var(--slate-400);margin-bottom:10px;">buildings in top half</div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Consistent all quarter</span><span style="color:var(--slate-200);font-weight:600;">' + (olConsistent ? olCounts[0]+' each month' : olCounts.join(' &#8594; ')) + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Best building</span><span style="color:var(--slate-200);font-weight:600;">' + olBest.name + ' #' + olBestRank + '</span></div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-top:10px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--slate-400);">' +
+          '<span style="color:#a78bfa;font-weight:600;">Regional gap</span> &#8212; Golden Coast has held a ' + gcCurrentTop + '-of-' + gcBuildings.length + ' top-half advantage over Overland all quarter. This is a structural pattern, not a monthly fluctuation.' +
+        '</div>';
     }
-
-      const allMonthScores = allData.map(d => calculateRankBasedScores(d));
-      const allMonthCatRanks = allData.map(d => getCategoryRanksByCategory(d));
-      const months = allData.map(d => d.month);
-
-      const avgRank = {};
-      BUILDINGS.forEach(b => {
-        const ranks = allMonthScores.map(s => s[b.dataKey]?.rank || 18);
-        avgRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
-      });
-
-      const champion = BUILDINGS.reduce((best, b) => avgRank[b.dataKey] < avgRank[best.dataKey] ? b : best);
-
-      const topImproved = BUILDINGS.map(b => ({
-        b, delta: allMonthScores[0][b.dataKey]?.rank - allMonthScores[allMonthScores.length-1][b.dataKey]?.rank
-      })).sort((a, b) => b.delta - a.delta)[0];
-
-      const bottom6 = BUILDINGS.filter(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank >= 13);
-      const atRisk = bottom6.reduce((worst, b) => {
-        const declineB = allMonthScores[allMonthScores.length-1][b.dataKey]?.rank - allMonthScores[0][b.dataKey]?.rank;
-        const declineW = allMonthScores[allMonthScores.length-1][worst.dataKey]?.rank - allMonthScores[0][worst.dataKey]?.rank;
-        return declineB > declineW ? b : worst;
-      });
-      const atRiskJan = allMonthScores[0][atRisk.dataKey]?.rank;
-      const atRiskMar = allMonthScores[allMonthScores.length-1][atRisk.dataKey]?.rank;
-
-      const nonChamps = BUILDINGS.filter(b => b.dataKey !== champion.dataKey);
-      const variance = {};
-      nonChamps.forEach(b => {
-        const ranks = allMonthScores.map(s => s[b.dataKey]?.rank || 18);
-        const mean = ranks.reduce((a, v) => a + v, 0) / ranks.length;
-        variance[b.dataKey] = ranks.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / ranks.length;
-      });
-      const consistent = nonChamps.reduce((best, b) => variance[b.dataKey] < variance[best.dataKey] ? b : best);
-      const consistRanks = allMonthScores.map(s => s[consistent.dataKey]?.rank || 18);
-
-      const catEmoji = { care:'🏥', census:'📈', collections:'💰', controls:'⚙️', culture:'❤️', compliance:'✅', credibility:'⭐' };
-      const catWinners = {};
-      Object.keys(CATEGORIES).forEach(catKey => {
-        const avgCatRank = {};
-        BUILDINGS.forEach(b => {
-          const ranks = allMonthCatRanks.map(mr => mr[b.dataKey]?.[catKey] || 18);
-          avgCatRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
-        });
-        const winner = BUILDINGS.reduce((best, b) => avgCatRank[b.dataKey] < avgCatRank[best.dataKey] ? b : best);
-        catWinners[catKey] = { building: winner, avg: avgCatRank[winner.dataKey].toFixed(1), surprise: avgRank[winner.dataKey] > 10 };
-      });
-
-      const gcBuildings = BUILDINGS.filter(b => b.region === 'Golden Coast');
-      const olBuildings = BUILDINGS.filter(b => b.region === 'Overland');
-      const topHalfCount = (buildings, scores) => buildings.filter(b => scores[b.dataKey]?.rank <= 9).length;
-      const gcCounts = allMonthScores.map(s => topHalfCount(gcBuildings, s));
-      const olCounts = allMonthScores.map(s => topHalfCount(olBuildings, s));
-      const gcCurrentTop = gcCounts[gcCounts.length-1];
-      const olCurrentTop = olCounts[olCounts.length-1];
-      const gcConsistent = gcCounts.every(c => c === gcCounts[0]);
-      const olConsistent = olCounts.every(c => c === olCounts[0]);
-      const gcBest = gcBuildings.reduce((best, b) => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank < allMonthScores[allMonthScores.length-1][best.dataKey]?.rank ? b : best);
-      const olBest = olBuildings.reduce((best, b) => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank < allMonthScores[allMonthScores.length-1][best.dataKey]?.rank ? b : best);
-      const gcCurrentRanks = gcBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank || 18).sort((a,b)=>a-b);
-      const olCurrentRanks = olBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank || 18).sort((a,b)=>a-b);
-
-      const portAvg = allMonthScores.map((scores, i) => {
-        const vals = BUILDINGS.map(b => scores[b.dataKey]?.total || 0);
-        return { month: months[i].split(' ')[0], avg: (vals.reduce((a, v) => a + v, 0) / vals.length).toFixed(2) };
-      });
-      const topHalfTotal = BUILDINGS.filter(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank <= 9).length;
-
-      container.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin-bottom:4px;">
-          <div style="border-radius:10px;padding:14px 16px;border:0.5px solid rgba(184,134,11,0.35);background:rgba(184,134,11,0.07);">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#f5c842;margin-bottom:6px;">Q1 CHAMPION</div>
-            <div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">${champion.name}</div>
-            <div style="font-size:12px;color:var(--slate-400);">Avg rank ${avgRank[champion.dataKey].toFixed(1)} all quarter</div>
-          </div>
-          <div style="border-radius:10px;padding:14px 16px;border:0.5px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.07);">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:6px;">MOST IMPROVED</div>
-            <div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">${topImproved.b.name}</div>
-            <div style="font-size:12px;color:var(--slate-400);">↑ ${topImproved.delta} spots since January</div>
-          </div>
-          <div style="border-radius:10px;padding:14px 16px;border:0.5px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.07);">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:6px;">MOST AT RISK</div>
-            <div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">${atRisk.name}</div>
-            <div style="font-size:12px;color:var(--slate-400);">Jan #${atRiskJan} → Mar #${atRiskMar} · legal claims in March</div>
-          </div>
-          <div style="border-radius:10px;padding:14px 16px;border:0.5px solid var(--white-10);background:var(--white-05);">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--slate-300);margin-bottom:6px;">MOST CONSISTENT</div>
-            <div style="font-size:15px;font-weight:600;color:var(--slate-100);margin-bottom:3px;">${consistent.name}</div>
-            <div style="font-size:12px;color:var(--slate-400);">${consistRanks.map(r => '#'+r).join(' → ')} all quarter</div>
-          </div>
-        </div>
-
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:1.25rem 0 0.65rem;">CATEGORY LEADERS — Q1 2026</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;">
-          ${Object.entries(CATEGORIES).map(([catKey, cat]) => {
-            const w = catWinners[catKey];
-            return `<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:8px;padding:10px 12px;">
-              <div style="font-size:11px;color:var(--slate-400);margin-bottom:4px;">${catEmoji[catKey]} ${cat.name} <span style="color:var(--slate-500)">(${(cat.weight*100).toFixed(0)}%)</span></div>
-              <div style="font-size:12px;font-weight:600;color:var(--slate-100);line-height:1.3;">${w.building.name}</div>
-              <div style="font-size:11px;color:var(--gold);margin-top:2px;">avg rank ${w.avg}</div>
-              ${w.surprise ? `<div style="display:inline-block;font-size:10px;background:rgba(167,139,250,0.15);color:#a78bfa;border:0.5px solid rgba(167,139,250,0.3);border-radius:4px;padding:1px 5px;margin-top:4px;">overall rank #${Math.round(avgRank[w.building.dataKey])}</div>` : ''}
-            </div>`;
-          }).join('')}
-        </div>
-
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:1.25rem 0 0.65rem;">REGIONAL COMPARISON</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:14px 16px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;color:#38bdf8;margin-bottom:10px;">GOLDEN COAST — ${gcBuildings.length} buildings</div>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">${gcCurrentRanks.map(r => `<div style="width:10px;height:10px;border-radius:50%;background:${r<=9?'#4ade80':'#f87171'}" title="#${r}"></div>`).join('')}</div>
-            <div style="font-size:28px;font-weight:600;color:var(--slate-100);line-height:1;margin-bottom:3px;">${gcCurrentTop} <span style="font-size:16px;font-weight:400;">of ${gcBuildings.length}</span></div>
-            <div style="font-size:12px;color:var(--slate-400);margin-bottom:10px;">buildings in top half</div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Consistent all quarter</span><span style="color:var(--slate-200);font-weight:600;">${gcConsistent ? gcCounts[0]+' each month' : gcCounts.join(' → ')}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Best building</span><span style="color:var(--slate-200);font-weight:600;">${gcBest.name} #${allMonthScores[allMonthScores.length-1][gcBest.dataKey]?.rank}</span></div>
-          </div>
-          <div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:14px 16px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;color:#a78bfa;margin-bottom:10px;">OVERLAND — ${olBuildings.length} buildings</div>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">${olCurrentRanks.map(r => `<div style="width:10px;height:10px;border-radius:50%;background:${r<=9?'#4ade80':'#f87171'}" title="#${r}"></div>`).join('')}</div>
-            <div style="font-size:28px;font-weight:600;color:var(--slate-100);line-height:1;margin-bottom:3px;">${olCurrentTop} <span style="font-size:16px;font-weight:400;">of ${olBuildings.length}</span></div>
-            <div style="font-size:12px;color:var(--slate-400);margin-bottom:10px;">buildings in top half</div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Consistent all quarter</span><span style="color:var(--slate-200);font-weight:600;">${olConsistent ? olCounts[0]+' each month' : olCounts.join(' → ')}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Best building</span><span style="color:var(--slate-200);font-weight:600;">${olBest.name} #${allMonthScores[allMonthScores.length-1][olBest.dataKey]?.rank}</span></div>
-          </div>
-        </div>
-        <div style="margin-top:10px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--slate-400);">
-          <span style="color:#a78bfa;font-weight:600;">Regional gap</span> — Golden Coast has held a ${gcCurrentTop}-of-${gcBuildings.length} top-half advantage over Overland all quarter. This is a structural pattern, not a monthly fluctuation.
-        </div>
-
-        `;
-    }
-    }
-
     function renderMonthlyStory() {
       const container = document.getElementById('monthlyStoryContent');
       const ranked = getRanked();
