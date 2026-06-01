@@ -363,7 +363,7 @@
       <button class="tab" data-tab="methodology">📋 Methodology</button>
     </div>
     
-    <div id="regatraReportBar" style="display:none;margin-bottom:1rem;"><button id="q1ReviewToggle" onclick="toggleQ1Review()" style="width:100%;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);color:#f5c842;padding:0.75rem 1.25rem;border-radius:10px;cursor:pointer;font-size:0.9rem;font-weight:600;text-align:left;display:flex;justify-content:space-between;align-items:center;"><span>&#9956; The Regatta Report — Season summary, category leaders &amp; regional breakdown</span><span id="q1ReviewArrow">&#9662;</span></button></div>
+    <div id="regatraReportBar" style="display:none;margin-bottom:1rem;"><button id="q1ReviewToggle" onclick="toggleQ1Review()" style="width:100%;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);color:#f5c842;padding:0.75rem 1.25rem;border-radius:10px;cursor:pointer;font-size:0.9rem;font-weight:600;text-align:left;display:flex;justify-content:space-between;align-items:center;"><span>&#9956; The Regatta Report — Season summary, category leaders &amp; regional breakdown</span><span id="q1ReviewArrow">&#9662;</span></button><div id="q1ReviewContent" style="display:none;margin-top:1rem;"></div></div>
     <div id="searchFilterBar" style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
       <input type="text" id="searchInput" placeholder="🔍 Search buildings..." oninput="filterBuildings()" style="flex:1;min-width:200px;padding:0.6rem 1rem;border-radius:8px;border:1px solid var(--white-20);background:var(--white-05);color:var(--slate-100);font-size:0.9rem;">
       <select id="regionFilter" onchange="filterBuildings()" style="padding:0.6rem 1rem;border-radius:8px;border:1px solid var(--white-20);background:var(--white-05);color:var(--slate-100);font-size:0.9rem;">
@@ -1170,10 +1170,11 @@ function toggleQ1Review() {
     }
 
     function toggleQ1Review() {
-      const panel = document.getElementById('q1ReviewPanel');
+      const content = document.getElementById('q1ReviewContent');
       const arrow = document.getElementById('q1ReviewArrow');
-      const isOpen = panel.style.display !== 'none';
-      panel.style.display = isOpen ? 'none' : 'block';
+      if (!content) return;
+      const isOpen = content.style.display !== 'none';
+      content.style.display = isOpen ? 'none' : 'block';
       if (arrow) arrow.innerHTML = isOpen ? '&#9662;' : '&#9652;';
     }
 
@@ -1201,12 +1202,11 @@ function toggleQ1Review() {
     }
 
     function renderQ1Review() {
-      const panel = document.getElementById('q1ReviewPanel');
+      const bar = document.getElementById('regatraReportBar');
       const container = document.getElementById('q1ReviewContent');
-      const btn = document.getElementById('q1ReviewToggle');
-      if (!panel || !container) return;
-      if (allData.length < 2) { if(btn) btn.style.display='none'; return; }
-      const bar = document.getElementById('regatraReportBar'); if(bar) bar.style.display='block';
+      if (!bar || !container) return;
+      if (allData.length < 2) { bar.style.display='none'; return; }
+      bar.style.display='block';
       const allMonthScores = allData.map(d => calculateRankBasedScores(d));
       const allMonthCatRanks = allData.map(d => getCategoryRanksByCategory(d));
       const months = allData.map(d => d.month);
