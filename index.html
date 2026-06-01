@@ -342,18 +342,13 @@
         
         <select id="monthSelect"></select>
         <div class="month-badge" id="currentMonth">Loading...</div>
-        <button id="q1ReviewToggle" onclick="toggleQ1Review()" style="display:none;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#f5c842;padding:0.5rem 1rem;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;" onmouseover="this.style.background='rgba(251,191,36,0.25)'" onmouseout="this.style.background='rgba(251,191,36,0.15)'">⛵ Regatta Report ▾</button>
-        <button id="q1ReviewToggle" onclick="toggleQ1Review()" style="display:none;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#f5c842;padding:0.5rem 1rem;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;" onmouseover="this.style.background='rgba(251,191,36,0.25)'" onmouseout="this.style.background='rgba(251,191,36,0.15)'">🏆 Q1 Review ▾</button>
+        <button id="q1ReviewToggle" onclick="toggleQ1Review()" style="display:none;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#f5c842;padding:0.5rem 1rem;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;">&#9956; Regatta Report &#9662;</button>
+        
       </div>
     </div>
   </div>
   <div class="container">
-    <div id="q1ReviewPanel" style="display:none;margin-bottom:1rem;">
-      <div class="card" style="background:linear-gradient(135deg,rgba(251,191,36,0.08) 0%,rgba(251,191,36,0.02) 100%);border:1px solid rgba(251,191,36,0.25);">
-        <div class="card-title">🏆 Q1 2026 Quarter Review</div>
-        <div id="q1ReviewContent"></div>
-      </div>
-    </div>
+    
     <div class="tabs">
       <button class="tab active" data-tab="podium">⛵ The Fleet</button>
       <button class="tab" data-tab="race">🏁 The Race</button>
@@ -456,9 +451,9 @@
     
     <div id="trends" class="tab-content">
       <div class="card">
-        <div class="card-title">📈 Rank Trajectory <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Lower = Better)</span></div>
+        <div class="card-title">📈 Rank Trajectory <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(lower = better)</span></div>
         <div id="bumpLegend" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;font-size:0.75rem;"></div>
-        <div class="chart-wrapper" style="height:520px"><canvas id="trendsChart" role="img" aria-label="Bump chart showing rank trajectories for all 18 facilities across months">Rank trajectories over time.</canvas></div>
+        <div class="chart-wrapper" style="height:520px"><canvas id="trendsChart" role="img" aria-label="Bump chart showing rank trajectories for all facilities across months">Rank trajectories over time.</canvas></div>
       </div>
       <div class="card">
         <div class="card-title">📊 Rank Heatmap</div>
@@ -934,7 +929,7 @@
     
     function updateAllDisplays() { 
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
-      renderQ1Review(); renderQ1Review(); renderMoversStrip(); renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
+      renderQ1Review(); renderMoversStrip(); renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
       initCompareSelects();
       const bs = document.getElementById('buildingSelect'); 
       if (bs.value) renderBuildingDetail(bs.value); 
@@ -1174,82 +1169,12 @@ function toggleQ1Review() {
       btn.innerHTML = isOpen ? '🏆 Q1 Review ▾' : '🏆 Q1 Review ▴';
     }
 
-
-      const allMonthScores = allData.map(d => calculateRankBasedScores(d));
-      const allMonthCatRanks = allData.map(d => getCategoryRanksByCategory(d));
-      const months = allData.map(d => d.month);
-
-      const avgRank = {};
-      BUILDINGS.forEach(b => {
-        const ranks = allMonthScores.map(s => s[b.dataKey]?.rank || 18);
-        avgRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
-      });
-
-      const champion = BUILDINGS.reduce((best, b) => avgRank[b.dataKey] < avgRank[best.dataKey] ? b : best);
-
-      const topImproved = BUILDINGS.map(b => ({
-        b, delta: allMonthScores[0][b.dataKey]?.rank - allMonthScores[allMonthScores.length-1][b.dataKey]?.rank
-      })).sort((a, b) => b.delta - a.delta)[0];
-
-      const bottom6 = BUILDINGS.filter(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank >= 13);
-      const atRisk = bottom6.reduce((worst, b) => {
-        const declineB = allMonthScores[allMonthScores.length-1][b.dataKey]?.rank - allMonthScores[0][b.dataKey]?.rank;
-        const declineW = allMonthScores[allMonthScores.length-1][worst.dataKey]?.rank - allMonthScores[0][worst.dataKey]?.rank;
-        return declineB > declineW ? b : worst;
-      });
-      const atRiskJan = allMonthScores[0][atRisk.dataKey]?.rank;
-      const atRiskMar = allMonthScores[allMonthScores.length-1][atRisk.dataKey]?.rank;
-
-      const nonChamps = BUILDINGS.filter(b => b.dataKey !== champion.dataKey);
-      const variance = {};
-      nonChamps.forEach(b => {
-        const ranks = allMonthScores.map(s => s[b.dataKey]?.rank || 18);
-        const mean = ranks.reduce((a, v) => a + v, 0) / ranks.length;
-        variance[b.dataKey] = ranks.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / ranks.length;
-      });
-      const consistent = nonChamps.reduce((best, b) => variance[b.dataKey] < variance[best.dataKey] ? b : best);
-      const consistRanks = allMonthScores.map(s => s[consistent.dataKey]?.rank || 18);
-
-      const catEmoji = { care:'🏥', census:'📈', collections:'💰', controls:'⚙️', culture:'❤️', compliance:'✅', credibility:'⭐' };
-      const catWinners = {};
-      Object.keys(CATEGORIES).forEach(catKey => {
-        const avgCatRank = {};
-        BUILDINGS.forEach(b => {
-          const ranks = allMonthCatRanks.map(mr => mr[b.dataKey]?.[catKey] || 18);
-          avgCatRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
-        });
-        const winner = BUILDINGS.reduce((best, b) => avgCatRank[b.dataKey] < avgCatRank[best.dataKey] ? b : best);
-        catWinners[catKey] = { building: winner, avg: avgCatRank[winner.dataKey].toFixed(1), surprise: avgRank[winner.dataKey] > 10 };
-      });
-
-      const gcBuildings = BUILDINGS.filter(b => b.region === 'Golden Coast');
-      const olBuildings = BUILDINGS.filter(b => b.region === 'Overland');
-      const topHalfCount = (buildings, scores) => buildings.filter(b => scores[b.dataKey]?.rank <= 9).length;
-      const gcCounts = allMonthScores.map(s => topHalfCount(gcBuildings, s));
-      const olCounts = allMonthScores.map(s => topHalfCount(olBuildings, s));
-      const gcCurrentTop = gcCounts[gcCounts.length-1];
-      const olCurrentTop = olCounts[olCounts.length-1];
-      const gcConsistent = gcCounts.every(c => c === gcCounts[0]);
-      const olConsistent = olCounts.every(c => c === olCounts[0]);
-      const gcBest = gcBuildings.reduce((best, b) => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank < allMonthScores[allMonthScores.length-1][best.dataKey]?.rank ? b : best);
-      const olBest = olBuildings.reduce((best, b) => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank < allMonthScores[allMonthScores.length-1][best.dataKey]?.rank ? b : best);
-      const gcCurrentRanks = gcBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank || 18).sort((a,b)=>a-b);
-      const olCurrentRanks = olBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank || 18).sort((a,b)=>a-b);
-
-      const portAvg = allMonthScores.map((scores, i) => {
-        const vals = BUILDINGS.map(b => scores[b.dataKey]?.total || 0);
-        return { month: months[i].split(' ')[0], avg: (vals.reduce((a, v) => a + v, 0) / vals.length).toFixed(2) };
-      });
-      const topHalfTotal = BUILDINGS.filter(b => allMonthScores[allMonthScores.length-1][b.dataKey]?.rank <= 9).length;
-
-      
-
     function toggleQ1Review() {
       const panel = document.getElementById('q1ReviewPanel');
       const btn = document.getElementById('q1ReviewToggle');
       const isOpen = panel.style.display !== 'none';
       panel.style.display = isOpen ? 'none' : 'block';
-      btn.innerHTML = isOpen ? '&#9boat; Regatta Report &#9662;' : '&#9boat; Regatta Report &#9652;';
+      btn.innerHTML = isOpen ? '&#9956; Regatta Report &#9662;' : '&#9956; Regatta Report &#9652;';
     }
 
     function renderMoversStrip() {
@@ -1282,39 +1207,28 @@ function toggleQ1Review() {
       if (!panel || !container) return;
       if (allData.length < 2) { if(btn) btn.style.display='none'; return; }
       if(btn) btn.style.display='inline-flex';
-
       const allMonthScores = allData.map(d => calculateRankBasedScores(d));
       const allMonthCatRanks = allData.map(d => getCategoryRanksByCategory(d));
       const months = allData.map(d => d.month);
       const latestMonth = months[months.length-1];
-
       const avgRank = {};
       BUILDINGS.forEach(b => {
         const ranks = allMonthScores.map(s => s[b.dataKey] ? s[b.dataKey].rank : 18);
         avgRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
       });
-
       const champion = BUILDINGS.reduce((best, b) => avgRank[b.dataKey] < avgRank[best.dataKey] ? b : best);
-
       const topImproved = BUILDINGS.map(b => ({
         b: b, delta: (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18)
-      })).sort((a, b) => b.delta - a.delta);
-      const climbers = topImproved.filter(m => m.delta > 0).slice(0, 3);
-
+      })).sort((a, b) => b.delta - a.delta)[0];
       const bottom6 = BUILDINGS.filter(b => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) >= 13);
       const atRisk = bottom6.reduce((worst, b) => {
-        const declineB = (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) - (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18);
-        const declineW = (allMonthScores[allMonthScores.length-1][worst.dataKey] ? allMonthScores[allMonthScores.length-1][worst.dataKey].rank : 18) - (allMonthScores[0][worst.dataKey] ? allMonthScores[0][worst.dataKey].rank : 18);
-        return declineB > declineW ? b : worst;
+        const dB = (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) - (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18);
+        const dW = (allMonthScores[allMonthScores.length-1][worst.dataKey] ? allMonthScores[allMonthScores.length-1][worst.dataKey].rank : 18) - (allMonthScores[0][worst.dataKey] ? allMonthScores[0][worst.dataKey].rank : 18);
+        return dB > dW ? b : worst;
       });
       const atRiskJan = allMonthScores[0][atRisk.dataKey] ? allMonthScores[0][atRisk.dataKey].rank : 18;
       const atRiskNow = allMonthScores[allMonthScores.length-1][atRisk.dataKey] ? allMonthScores[allMonthScores.length-1][atRisk.dataKey].rank : 18;
-
-      const staticBottom = BUILDINGS.filter(b => {
-        const ranks = allMonthScores.map(s => s[b.dataKey] ? s[b.dataKey].rank : 18);
-        return ranks.every(r => r >= 13);
-      });
-
+      const staticBottom = BUILDINGS.filter(b => allMonthScores.every(s => s[b.dataKey] && s[b.dataKey].rank >= 13));
       const catEmoji = { care:'&#x1F3E5;', census:'&#x1F4C8;', collections:'&#x1F4B0;', controls:'&#x2699;&#xFE0F;', culture:'&#x2764;&#xFE0F;', compliance:'&#x2705;', credibility:'&#x2B50;' };
       const catWinners = {};
       Object.keys(CATEGORIES).forEach(function(catKey) {
@@ -1326,7 +1240,6 @@ function toggleQ1Review() {
         const winner = BUILDINGS.reduce((best, b) => avgCatRank[b.dataKey] < avgCatRank[best.dataKey] ? b : best);
         catWinners[catKey] = { building: winner, avg: avgCatRank[winner.dataKey].toFixed(1), surprise: avgRank[winner.dataKey] > 10 };
       });
-
       const gcBuildings = BUILDINGS.filter(b => b.region === 'Golden Coast');
       const olBuildings = BUILDINGS.filter(b => b.region === 'Overland');
       const getTopHalf = function(buildings, scores) { return buildings.filter(b => scores[b.dataKey] && scores[b.dataKey].rank <= 9).length; };
@@ -1340,10 +1253,16 @@ function toggleQ1Review() {
       const olBest = olBuildings.reduce((best, b) => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) < (allMonthScores[allMonthScores.length-1][best.dataKey] ? allMonthScores[allMonthScores.length-1][best.dataKey].rank : 18) ? b : best);
       const gcDots = gcBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18).sort((a,b)=>a-b).map(r => '<div style="width:9px;height:9px;border-radius:50%;display:inline-block;margin:2px;background:' + (r<=9?'#4ade80':'#f87171') + '"></div>').join('');
       const olDots = olBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18).sort((a,b)=>a-b).map(r => '<div style="width:9px;height:9px;border-radius:50%;display:inline-block;margin:2px;background:' + (r<=9?'#4ade80':'#f87171') + '"></div>').join('');
-
+      const catWinnersHTML = Object.entries(CATEGORIES).map(function(entry) {
+        const catKey = entry[0]; const cat = entry[1]; const w = catWinners[catKey];
+        const surpriseBadge = w.surprise ? '<div style="display:inline-block;font-size:10px;background:rgba(167,139,250,0.15);color:#a78bfa;border:0.5px solid rgba(167,139,250,0.3);border-radius:4px;padding:1px 5px;margin-top:3px;">overall #' + Math.round(avgRank[w.building.dataKey]) + '</div>' : '';
+        return '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:8px;padding:9px 11px;">' +
+          '<div style="font-size:11px;color:var(--slate-400);margin-bottom:3px;">' + catEmoji[catKey] + ' ' + cat.name + '</div>' +
+          '<div style="font-size:12px;font-weight:600;color:var(--slate-100);">' + w.building.name + '</div>' +
+          surpriseBadge + '</div>';
+      }).join('');
       const sortedBuildings = [...BUILDINGS].sort((a,b) => (allMonthScores[allMonthScores.length-1][a.dataKey] ? allMonthScores[allMonthScores.length-1][a.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18));
       const prevScores = allMonthScores.length > 1 ? allMonthScores[allMonthScores.length-2] : null;
-
       function rankRow(b) {
         const rank = allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18;
         const prevRank = prevScores && prevScores[b.dataKey] ? prevScores[b.dataKey].rank : rank;
@@ -1354,76 +1273,55 @@ function toggleQ1Review() {
           '<span style="flex:1;color:var(--slate-200);">' + b.name + '</span>' +
           arrow + '</div>';
       }
-
       const half = Math.ceil(sortedBuildings.length / 2);
       const top9 = sortedBuildings.slice(0, half);
       const bot9 = sortedBuildings.slice(half);
-
-      const catWinnersHTML = Object.entries(CATEGORIES).map(function(entry) {
-        const catKey = entry[0]; const cat = entry[1];
-        const w = catWinners[catKey];
-        const surpriseBadge = w.surprise ? '<div style="display:inline-block;font-size:10px;background:rgba(167,139,250,0.15);color:#a78bfa;border:0.5px solid rgba(167,139,250,0.3);border-radius:4px;padding:1px 5px;margin-top:3px;">overall #' + Math.round(avgRank[w.building.dataKey]) + '</div>' : '';
-        return '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:8px;padding:9px 11px;">' +
-          '<div style="font-size:11px;color:var(--slate-400);margin-bottom:3px;">' + catEmoji[catKey] + ' ' + cat.name + '</div>' +
-          '<div style="font-size:12px;font-weight:600;color:var(--slate-100);">' + w.building.name + '</div>' +
-          surpriseBadge + '</div>';
-      }).join('');
-
-      const podiumNames = sortedBuildings.slice(0,3).map((b,i) => ['&#x1F947;','&#x1F948;','&#x1F949;'][i] + ' ' + b.name).join('&nbsp;&nbsp;&bull;&nbsp;&nbsp;');
-      const dataRange = months[0].split(' ')[0] + ' &#8211; ' + latestMonth;
-
+      const gcBestRank = allMonthScores[allMonthScores.length-1][gcBest.dataKey] ? allMonthScores[allMonthScores.length-1][gcBest.dataKey].rank : 18;
+      const olBestRank = allMonthScores[allMonthScores.length-1][olBest.dataKey] ? allMonthScores[allMonthScores.length-1][olBest.dataKey].rank : 18;
       container.innerHTML =
-        '<div style="font-size:12px;color:var(--slate-400);margin-bottom:1rem;">' + dataRange + ' &nbsp;&middot;&nbsp; ' + months.length + ' months &nbsp;&middot;&nbsp; 18 facilities</div>' +
-
+        '<div style="font-size:12px;color:var(--slate-400);margin-bottom:1rem;">' + months[0].split(' ')[0] + ' &#8211; ' + latestMonth + ' &nbsp;&#183;&nbsp; ' + months.length + ' months &nbsp;&#183;&nbsp; 18 facilities</div>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem;">' +
           '<div style="background:rgba(184,134,11,0.08);border:0.5px solid rgba(184,134,11,0.3);border-radius:10px;padding:12px 14px;">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f5c842;margin-bottom:5px;">SEASON LEADER</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + champion.name + '</div>' +
-            '<div style="font-size:11px;color:var(--slate-400);">Avg rank ' + avgRank[champion.dataKey].toFixed(1) + ' all season</div>' +
-          '</div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">Avg rank ' + avgRank[champion.dataKey].toFixed(1) + ' all season</div></div>' +
           '<div style="background:rgba(74,222,128,0.07);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:5px;">MOST IMPROVED</div>' +
-            '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + (climbers[0] ? climbers[0].b.name : '&#8212;') + '</div>' +
-            '<div style="font-size:11px;color:var(--slate-400);">&#8593;' + (climbers[0] ? climbers[0].delta : 0) + ' spots since ' + months[0].split(' ')[0] + '</div>' +
-          '</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + (topImproved ? topImproved.b.name : '') + '</div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">&#8593;' + (topImproved ? topImproved.delta : 0) + ' spots since ' + months[0].split(' ')[0] + '</div></div>' +
           '<div style="background:rgba(248,113,113,0.07);border:0.5px solid rgba(248,113,113,0.25);border-radius:10px;padding:12px 14px;">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:5px;">MOST AT RISK</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + atRisk.name + '</div>' +
-            '<div style="font-size:11px;color:var(--slate-400);">#' + atRiskJan + ' &#8594; #' + atRiskNow + ' this season</div>' +
-          '</div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">#' + atRiskJan + ' &#8594; #' + atRiskNow + ' this season</div></div>' +
           '<div style="background:var(--white-05);border:0.5px solid var(--white-10);border-radius:10px;padding:12px 14px;">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--slate-300);margin-bottom:5px;">STATIC BOTTOM</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + staticBottom.length + ' facilities</div>' +
-            '<div style="font-size:11px;color:var(--slate-400);">Bottom half every month</div>' +
-          '</div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">Bottom half every month</div></div>' +
         '</div>' +
-
         '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:0 0 0.6rem;">CATEGORY LEADERS</div>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:7px;margin-bottom:1.5rem;">' + catWinnersHTML + '</div>' +
-
         '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:0 0 0.6rem;">CURRENT STANDINGS</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem;">' +
           '<div><div style="font-size:11px;color:var(--slate-400);margin-bottom:6px;">Top half</div>' + top9.map(b => rankRow(b)).join('') + '</div>' +
           '<div><div style="font-size:11px;color:var(--slate-400);margin-bottom:6px;">Bottom half</div>' + bot9.map(b => rankRow(b)).join('') + '</div>' +
         '</div>' +
-
         '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:0 0 0.6rem;">REGIONAL BREAKDOWN</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
           '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:12px 14px;">' +
-            '<div style="font-size:10px;font-weight:700;letter-spacing:0.05em;color:#38bdf8;margin-bottom:8px;">GOLDEN COAST &mdash; ' + gcBuildings.length + ' facilities</div>' +
+            '<div style="font-size:10px;font-weight:700;letter-spacing:0.05em;color:#38bdf8;margin-bottom:8px;">GOLDEN COAST &#8212; ' + gcBuildings.length + ' facilities</div>' +
             '<div style="margin-bottom:8px;">' + gcDots + '</div>' +
             '<div style="font-size:24px;font-weight:600;color:var(--slate-100);line-height:1;margin-bottom:2px;">' + gcCurrentTop + ' <span style="font-size:14px;font-weight:400;">of ' + gcBuildings.length + '</span></div>' +
             '<div style="font-size:11px;color:var(--slate-400);margin-bottom:8px;">in top half</div>' +
             '<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">All season</span><span style="color:var(--slate-200);font-weight:600;">' + (gcConsistent ? gcCounts[0]+' each month' : gcCounts.join(' &#8594; ')) + '</span></div>' +
-            '<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Top facility</span><span style="color:var(--slate-200);font-weight:600;">' + gcBest.name + ' #' + (allMonthScores[allMonthScores.length-1][gcBest.dataKey] ? allMonthScores[allMonthScores.length-1][gcBest.dataKey].rank : '&#8212;') + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Top facility</span><span style="color:var(--slate-200);font-weight:600;">' + gcBest.name + ' #' + gcBestRank + '</span></div>' +
           '</div>' +
           '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:12px 14px;">' +
-            '<div style="font-size:10px;font-weight:700;letter-spacing:0.05em;color:#a78bfa;margin-bottom:8px;">OVERLAND &mdash; ' + olBuildings.length + ' facilities</div>' +
+            '<div style="font-size:10px;font-weight:700;letter-spacing:0.05em;color:#a78bfa;margin-bottom:8px;">OVERLAND &#8212; ' + olBuildings.length + ' facilities</div>' +
             '<div style="margin-bottom:8px;">' + olDots + '</div>' +
             '<div style="font-size:24px;font-weight:600;color:var(--slate-100);line-height:1;margin-bottom:2px;">' + olCurrentTop + ' <span style="font-size:14px;font-weight:400;">of ' + olBuildings.length + '</span></div>' +
             '<div style="font-size:11px;color:var(--slate-400);margin-bottom:8px;">in top half</div>' +
             '<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">All season</span><span style="color:var(--slate-200);font-weight:600;">' + (olConsistent ? olCounts[0]+' each month' : olCounts.join(' &#8594; ')) + '</span></div>' +
-            '<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Top facility</span><span style="color:var(--slate-200);font-weight:600;">' + olBest.name + ' #' + (allMonthScores[allMonthScores.length-1][olBest.dataKey] ? allMonthScores[allMonthScores.length-1][olBest.dataKey].rank : '&#8212;') + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Top facility</span><span style="color:var(--slate-200);font-weight:600;">' + olBest.name + ' #' + olBestRank + '</span></div>' +
           '</div>' +
         '</div>';
     }
@@ -2102,90 +2000,60 @@ function toggleQ1Review() {
     
     function renderTrends() {
       if (allData.length < 2) return;
-
       const months = allData.map(d => d.month.split(' ')[0]);
       const allRanked = allData.map(d => calculateRankBasedScores(d));
-
-      // Sort by latest rank
       const latestScores = allRanked[allRanked.length-1];
       const sortedBuildings = [...BUILDINGS].sort((a,b) =>
         (latestScores[a.dataKey] ? latestScores[a.dataKey].rank : 18) -
         (latestScores[b.dataKey] ? latestScores[b.dataKey].rank : 18)
       );
-
       const colors18 = ['#f5c842','#38bdf8','#cd7f32','#4ade80','#818cf8','#fb923c',
         '#34d399','#f472b6','#a78bfa','#60a5fa','#facc15','#2dd4bf',
         '#f87171','#c084fc','#94a3b8','#e879f9','#6366f1','#fb7185'];
-
-      const isDark = document.body.classList.contains('light-mode') ? false : true;
+      const isDark = !document.body.classList.contains('light-mode');
       const textColor = isDark ? '#94a3b8' : '#64748b';
       const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-
-      // Build datasets
       const datasets = sortedBuildings.map((b, i) => {
         const ranks = allRanked.map(s => s[b.dataKey] ? s[b.dataKey].rank : null);
         const firstRank = ranks.find(r => r !== null) || 18;
         const lastRank = [...ranks].reverse().find(r => r !== null) || 18;
         const isNotable = firstRank <= 3 || lastRank <= 3 || Math.abs(firstRank - lastRank) >= 4;
         return {
-          label: b.name,
-          data: ranks,
-          borderColor: colors18[i],
-          backgroundColor: colors18[i],
+          label: b.name, data: ranks,
+          borderColor: colors18[i], backgroundColor: colors18[i],
           borderWidth: isNotable ? 2.5 : 1,
-          pointRadius: isNotable ? 5 : 3,
-          pointHoverRadius: 7,
-          tension: 0.3,
-          borderDash: isNotable ? [] : [4, 3],
+          pointRadius: isNotable ? 5 : 3, pointHoverRadius: 7,
+          tension: 0.3, borderDash: isNotable ? [] : [4, 3],
         };
       });
-
-      // Chart
       const ctx = document.getElementById('trendsChart').getContext('2d');
       if (charts.trends) charts.trends.destroy();
       charts.trends = new Chart(ctx, {
-        type: 'line',
-        data: { labels: months, datasets },
+        type: 'line', data: { labels: months, datasets },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': #' + ctx.raw } }
-          },
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.dataset.label + ': #' + c.raw } } },
           scales: {
-            y: {
-              reverse: true,
-              min: 0.5, max: 18.5,
+            y: { reverse: true, min: 0.5, max: 18.5,
               ticks: { stepSize: 1, color: textColor, font: { size: 11 }, callback: v => '#' + v },
-              grid: { color: gridColor }
-            },
-            x: {
-              ticks: { color: textColor, font: { size: 12 } },
-              grid: { color: gridColor }
-            }
+              grid: { color: gridColor } },
+            x: { ticks: { color: textColor, font: { size: 12 } }, grid: { color: gridColor } }
           }
         }
       });
-
-      // Legend
       const legend = document.getElementById('bumpLegend');
       if (legend) {
         legend.innerHTML = sortedBuildings.map((b, i) => {
           const firstR = allRanked[0][b.dataKey] ? allRanked[0][b.dataKey].rank : 18;
           const lastR = allRanked[allRanked.length-1][b.dataKey] ? allRanked[allRanked.length-1][b.dataKey].rank : 18;
           const delta = firstR - lastR;
-          const arrow = delta > 2 ? ' &#8593;' : delta < -2 ? ' &#8595;' : '';
-          return '<div style="display:flex;align-items:center;gap:4px;">' +
-            '<div style="width:10px;height:10px;border-radius:2px;background:' + colors18[i] + '"></div>' +
+          const arrow = delta > 2 ? ' ↑' : delta < -2 ? ' ↓' : '';
+          return '<div style="display:flex;align-items:center;gap:4px;"><div style="width:10px;height:10px;border-radius:2px;background:' + colors18[i] + '"></div>' +
             '<span style="color:var(--slate-300);font-size:11px;">#' + lastR + ' ' + b.name + arrow + '</span></div>';
         }).join('');
       }
-
-      // Heatmap
       const heatmap = document.getElementById('rankHeatmap');
       if (!heatmap) return;
-
       function rankStyle(r) {
         if (r <= 3) return 'background:#14532d;color:#bbf7d0';
         if (r <= 6) return 'background:#166534;color:#86efac';
@@ -2194,18 +2062,16 @@ function toggleQ1Review() {
         if (r <= 15) return 'background:#9a3412;color:#fed7aa';
         return 'background:#7f1d1d;color:#fecaca';
       }
-
       let html = '<table style="border-collapse:collapse;width:100%;font-size:12px;">';
       html += '<thead><tr><th style="text-align:left;padding:6px 10px;color:var(--slate-400);font-weight:600;min-width:180px;">Facility</th>';
       months.forEach(m => { html += '<th style="text-align:center;padding:6px 8px;color:var(--slate-400);font-weight:600;min-width:52px;">' + m + '</th>'; });
       html += '<th style="text-align:center;padding:6px 8px;color:var(--slate-400);font-weight:600;min-width:60px;">Change</th></tr></thead><tbody>';
-
       sortedBuildings.forEach((b, bi) => {
         const rowBg = bi % 2 === 0 ? 'var(--white-05)' : 'transparent';
         html += '<tr style="background:' + rowBg + '">';
         html += '<td style="padding:5px 10px;color:var(--slate-200);">' + b.name + '</td>';
-        const ranks = allRanked.map(s => s[b.dataKey] ? s[b.dataKey].rank : null);
-        ranks.forEach(r => {
+        allRanked.forEach(scores => {
+          const r = scores[b.dataKey] ? scores[b.dataKey].rank : null;
           if (r === null) {
             html += '<td style="padding:4px 8px;text-align:center;"><div style="width:36px;height:26px;border-radius:4px;background:var(--white-10);margin:0 auto;"></div></td>';
           } else {
@@ -2215,16 +2081,14 @@ function toggleQ1Review() {
         const firstR = allRanked[0][b.dataKey] ? allRanked[0][b.dataKey].rank : 18;
         const lastR = allRanked[allRanked.length-1][b.dataKey] ? allRanked[allRanked.length-1][b.dataKey].rank : 18;
         const delta = firstR - lastR;
-        const arrow = delta > 0 ? '<span style="color:#4ade80;font-weight:600;">&#8593;' + delta + '</span>' :
-                      delta < 0 ? '<span style="color:#f87171;font-weight:600;">&#8595;' + Math.abs(delta) + '</span>' :
-                      '<span style="color:var(--slate-500);">&#8212;</span>';
+        const arrow = delta > 0 ? '<span style="color:#4ade80;font-weight:600;">↑' + delta + '</span>' :
+                      delta < 0 ? '<span style="color:#f87171;font-weight:600;">↓' + Math.abs(delta) + '</span>' :
+                      '<span style="color:var(--slate-500);">—</span>';
         html += '<td style="text-align:center;">' + arrow + '</td></tr>';
       });
-
       html += '</tbody></table>';
       heatmap.innerHTML = html;
     }
-
 
     function initSimulator() {
       const dataKey = document.getElementById('simBuildingSelect').value;
