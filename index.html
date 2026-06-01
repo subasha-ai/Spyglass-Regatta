@@ -933,9 +933,9 @@
       if (!currentData) return; 
       const ranked = getRanked(); 
       document.getElementById('podiumContent').innerHTML = `<div class="podium-container">
-        <div class="podium-place place-2" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[1].dataKey}')"><div class="podium-avatar">2</div><div class="podium-name">${ranked[1].name}</div><div class="podium-score">${ranked[1].score.toFixed(2)} pts</div></div>
-        <div class="podium-place place-1" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[0].dataKey}')"><div class="podium-avatar">1</div><div class="podium-name">${ranked[0].name}</div><div class="podium-score">${ranked[0].score.toFixed(2)} pts</div></div>
-        <div class="podium-place place-3" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[2].dataKey}')"><div class="podium-avatar">3</div><div class="podium-name">${ranked[2].name}</div><div class="podium-score">${ranked[2].score.toFixed(2)} pts</div></div>
+        <div class="podium-place place-2" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[1].dataKey}')"><div class="podium-avatar" style="background:#94a3b8;color:#0f172a;">2</div><div class="podium-name">${ranked[1].name}</div><div class="podium-score">${ranked[1].score.toFixed(2)} pts</div></div>
+        <div class="podium-place place-1" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[0].dataKey}')"><div class="podium-avatar" style="background:var(--gold);color:var(--navy-dark);">1</div><div class="podium-name">${ranked[0].name}</div><div class="podium-score">${ranked[0].score.toFixed(2)} pts</div></div>
+        <div class="podium-place place-3" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[2].dataKey}')"><div class="podium-avatar" style="background:#cd7f32;color:#1c0a00;">3</div><div class="podium-name">${ranked[2].name}</div><div class="podium-score">${ranked[2].score.toFixed(2)} pts</div></div>
       </div>`; 
     }
     
