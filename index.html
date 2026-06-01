@@ -89,7 +89,7 @@
     .place-2 .podium-avatar { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: #4a4a4a; }
     .place-2 .podium-block { width: 110px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; border-radius: 10px 10px 0 0; }
     .place-3 .podium-avatar { background: linear-gradient(135deg, #cd7f32, #daa06d); color: #5c3d1e; }
-    .place-3 .podium-block { background: linear-gradient(135deg, #cd7f32, #8b4513); height: 65px; }
+    .place-3 .podium-block { background: linear-gradient(135deg, #cd7f32, #8b4513); height: 80px; }
     .rankings-list { display: flex; flex-direction: column; gap: 0.5rem; }
     .rank-item { display: grid; grid-template-columns: 45px 1fr 80px 70px; align-items: center; padding: 0.875rem 1rem; background: var(--white-05); border: 1px solid var(--white-10); border-radius: 12px; gap: 1rem; transition: all 0.2s; }
     .rank-item:hover { background: var(--white-10); transform: translateX(4px); border-color: var(--navy); }
@@ -342,7 +342,6 @@
         
         <select id="monthSelect"></select>
         <div class="month-badge" id="currentMonth">Loading...</div>
-        <button id="q1ReviewToggle" onclick="toggleQ1Review()" style="display:none;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#f5c842;padding:0.5rem 1rem;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;">&#9956; Regatta Report &#9662;</button>
         
       </div>
     </div>
@@ -364,6 +363,7 @@
       <button class="tab" data-tab="methodology">📋 Methodology</button>
     </div>
     
+    <div id="regatraReportBar" style="display:none;margin-bottom:1rem;"><button id="q1ReviewToggle" onclick="toggleQ1Review()" style="width:100%;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);color:#f5c842;padding:0.75rem 1.25rem;border-radius:10px;cursor:pointer;font-size:0.9rem;font-weight:600;text-align:left;display:flex;justify-content:space-between;align-items:center;"><span>&#9956; The Regatta Report — Season summary, category leaders &amp; regional breakdown</span><span id="q1ReviewArrow">&#9662;</span></button></div>
     <div id="searchFilterBar" style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
       <input type="text" id="searchInput" placeholder="🔍 Search buildings..." oninput="filterBuildings()" style="flex:1;min-width:200px;padding:0.6rem 1rem;border-radius:8px;border:1px solid var(--white-20);background:var(--white-05);color:var(--slate-100);font-size:0.9rem;">
       <select id="regionFilter" onchange="filterBuildings()" style="padding:0.6rem 1rem;border-radius:8px;border:1px solid var(--white-20);background:var(--white-05);color:var(--slate-100);font-size:0.9rem;">
@@ -1171,10 +1171,10 @@ function toggleQ1Review() {
 
     function toggleQ1Review() {
       const panel = document.getElementById('q1ReviewPanel');
-      const btn = document.getElementById('q1ReviewToggle');
+      const arrow = document.getElementById('q1ReviewArrow');
       const isOpen = panel.style.display !== 'none';
       panel.style.display = isOpen ? 'none' : 'block';
-      btn.innerHTML = isOpen ? '&#9956; Regatta Report &#9662;' : '&#9956; Regatta Report &#9652;';
+      if (arrow) arrow.innerHTML = isOpen ? '&#9662;' : '&#9652;';
     }
 
     function renderMoversStrip() {
@@ -1206,7 +1206,7 @@ function toggleQ1Review() {
       const btn = document.getElementById('q1ReviewToggle');
       if (!panel || !container) return;
       if (allData.length < 2) { if(btn) btn.style.display='none'; return; }
-      if(btn) btn.style.display='inline-flex';
+      const bar = document.getElementById('regatraReportBar'); if(bar) bar.style.display='block';
       const allMonthScores = allData.map(d => calculateRankBasedScores(d));
       const allMonthCatRanks = allData.map(d => getCategoryRanksByCategory(d));
       const months = allData.map(d => d.month);
