@@ -1267,9 +1267,6 @@ function toggleQ1Review() {
           '<span style="flex:1;color:var(--slate-200);">' + b.name + '</span>' +
           arrow + '</div>';
       }
-      const half = Math.ceil(sortedBuildings.length / 2);
-      const top9 = sortedBuildings.slice(0, half);
-      const bot9 = sortedBuildings.slice(half);
       const gcBestRank = allMonthScores[allMonthScores.length-1][gcBest.dataKey] ? allMonthScores[allMonthScores.length-1][gcBest.dataKey].rank : 18;
       const olBestRank = allMonthScores[allMonthScores.length-1][olBest.dataKey] ? allMonthScores[allMonthScores.length-1][olBest.dataKey].rank : 18;
       container.innerHTML =
@@ -1294,11 +1291,7 @@ function toggleQ1Review() {
         '</div>' +
         '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:0 0 0.6rem;">CATEGORY LEADERS</div>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:7px;margin-bottom:1.5rem;">' + catWinnersHTML + '</div>' +
-        '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:0 0 0.6rem;">CURRENT STANDINGS</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem;">' +
-          '<div><div style="font-size:11px;color:var(--slate-400);margin-bottom:6px;">Top half</div>' + top9.map(b => rankRow(b)).join('') + '</div>' +
-          '<div><div style="font-size:11px;color:var(--slate-400);margin-bottom:6px;">Bottom half</div>' + bot9.map(b => rankRow(b)).join('') + '</div>' +
-        '</div>' +
+
         '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:0 0 0.6rem;">REGIONAL BREAKDOWN</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
           '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:12px 14px;">' +
