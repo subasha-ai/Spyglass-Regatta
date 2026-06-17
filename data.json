@@ -22,8 +22,8 @@
       "googleRating": 4.3,
       "yelpRating": 4.4,
       "legalClaims": 0,
-      "_score": 7.88,
-      "_rank": 9
+      "_score": 7.82,
+      "_rank": 8
     },
     "Camino Ridge Post Acute": {
       "healthInspections": 194.0,
@@ -47,7 +47,7 @@
       "googleRating": 4.6,
       "yelpRating": 2.3,
       "legalClaims": 0,
-      "_score": 9.55,
+      "_score": 9.49,
       "_rank": 14
     },
     "Los Altos Post Acute": {
@@ -97,7 +97,7 @@
       "googleRating": 4.2,
       "yelpRating": 3.0,
       "legalClaims": 0,
-      "_score": 7.6,
+      "_score": 7.54,
       "_rank": 7
     },
     "Pacific Coast Manor": {
@@ -147,7 +147,7 @@
       "googleRating": 4.8,
       "yelpRating": 3.7,
       "legalClaims": 0,
-      "_score": 6.82,
+      "_score": 6.76,
       "_rank": 4
     },
     "Manresa HC": {
@@ -164,7 +164,7 @@
       "labor": 39.5,
       "otdt": 1.7,
       "rehabProductivity": 81.7,
-      "turnover": 27.6,
+      "turnover": 37.6,
       "workerSafety": 49.0,
       "admissionPacket": 100.0,
       "arbitration": 82.4,
@@ -172,8 +172,8 @@
       "googleRating": 4.3,
       "yelpRating": 5.0,
       "legalClaims": 0,
-      "_score": 7.73,
-      "_rank": 8
+      "_score": 8.09,
+      "_rank": 10
     },
     "Morgan Hill HC": {
       "healthInspections": 71.0,
@@ -222,8 +222,8 @@
       "googleRating": 4.6,
       "yelpRating": 4.0,
       "legalClaims": 1,
-      "_score": 8.0,
-      "_rank": 10
+      "_score": 7.94,
+      "_rank": 9
     },
     "Eden HC": {
       "healthInspections": 144.8,
@@ -289,6 +289,7 @@
       "labor": 41.42,
       "otdt": 7.4,
       "rehabProductivity": 81.3,
+      "turnover": null,
       "workerSafety": 49.0,
       "admissionPacket": 91.7,
       "arbitration": 75.0,
@@ -346,7 +347,7 @@
       "googleRating": 3.9,
       "yelpRating": 4.8,
       "legalClaims": 0,
-      "_score": 6.77,
+      "_score": 6.71,
       "_rank": 3
     },
     "Bridgewood PA": {
@@ -473,7 +474,7 @@
       "googleRating": 4.25,
       "yelpRating": 4.7,
       "legalClaims": 0,
-      "_score": 8.02,
+      "_score": 7.96,
       "_rank": 9
     },
     "Camino Ridge Post Acute": {
@@ -498,7 +499,7 @@
       "googleRating": 4.6,
       "yelpRating": 3.1,
       "legalClaims": 0,
-      "_score": 10.22,
+      "_score": 10.16,
       "_rank": 15
     },
     "Los Altos Post Acute": {
@@ -548,7 +549,7 @@
       "googleRating": 4.3,
       "yelpRating": 3.0,
       "legalClaims": 0,
-      "_score": 7.5,
+      "_score": 7.44,
       "_rank": 7
     },
     "Pacific Coast Manor": {
@@ -598,7 +599,7 @@
       "googleRating": 4.8,
       "yelpRating": 3.7,
       "legalClaims": 0,
-      "_score": 6.49,
+      "_score": 6.43,
       "_rank": 3
     },
     "Manresa HC": {
@@ -615,7 +616,7 @@
       "labor": 38.39,
       "otdt": 1.9,
       "rehabProductivity": 84.7,
-      "turnover": 27.6,
+      "turnover": 37.6,
       "workerSafety": 68.5,
       "admissionPacket": 100.0,
       "arbitration": 85.3,
@@ -623,7 +624,7 @@
       "googleRating": 4.45,
       "yelpRating": 5.0,
       "legalClaims": 0,
-      "_score": 7.07,
+      "_score": 7.43,
       "_rank": 6
     },
     "Morgan Hill HC": {
@@ -673,7 +674,7 @@
       "googleRating": 4.6,
       "yelpRating": 4.0,
       "legalClaims": 1,
-      "_score": 7.97,
+      "_score": 7.91,
       "_rank": 8
     },
     "Eden HC": {
@@ -740,6 +741,7 @@
       "labor": 38.39,
       "otdt": 6.85,
       "rehabProductivity": 82.0,
+      "turnover": null,
       "workerSafety": 74.5,
       "admissionPacket": 91.7,
       "arbitration": 77.1,
@@ -797,7 +799,7 @@
       "googleRating": 3.95,
       "yelpRating": 4.8,
       "legalClaims": 0,
-      "_score": 6.73,
+      "_score": 6.67,
       "_rank": 4
     },
     "Bridgewood PA": {
@@ -924,7 +926,7 @@
       "googleRating": 4.23,
       "yelpRating": 4.73,
       "legalClaims": 0,
-      "_score": 7.75,
+      "_score": 7.69,
       "_rank": 7
     },
     "Camino Ridge Post Acute": {
@@ -949,7 +951,7 @@
       "googleRating": 4.6,
       "yelpRating": 3.33,
       "legalClaims": 0,
-      "_score": 10.58,
+      "_score": 10.52,
       "_rank": 15
     },
     "Los Altos Post Acute": {
@@ -999,8 +1001,8 @@
       "googleRating": 4.33,
       "yelpRating": 3.23,
       "legalClaims": 0,
-      "_score": 7.27,
-      "_rank": 5
+      "_score": 7.21,
+      "_rank": 4
     },
     "Pacific Coast Manor": {
       "healthInspections": 32.67,
@@ -1049,7 +1051,7 @@
       "googleRating": 4.77,
       "yelpRating": 3.7,
       "legalClaims": 0,
-      "_score": 6.34,
+      "_score": 6.28,
       "_rank": 3
     },
     "Manresa HC": {
@@ -1066,7 +1068,7 @@
       "labor": 37.17,
       "otdt": 2.03,
       "rehabProductivity": 83.77,
-      "turnover": 27.6,
+      "turnover": 37.6,
       "workerSafety": 79.0,
       "admissionPacket": 100.0,
       "arbitration": 86.87,
@@ -1074,8 +1076,8 @@
       "googleRating": 4.53,
       "yelpRating": 5.0,
       "legalClaims": 0,
-      "_score": 7.07,
-      "_rank": 4
+      "_score": 7.43,
+      "_rank": 6
     },
     "Morgan Hill HC": {
       "healthInspections": 78.33,
@@ -1248,8 +1250,8 @@
       "googleRating": 3.93,
       "yelpRating": 4.8,
       "legalClaims": 0,
-      "_score": 7.33,
-      "_rank": 6
+      "_score": 7.27,
+      "_rank": 5
     },
     "Bridgewood PA": {
       "healthInspections": 95.33,
@@ -1323,7 +1325,7 @@
       "googleRating": 4.7,
       "yelpRating": 4.07,
       "legalClaims": 2,
-      "_score": 11.91,
+      "_score": 11.86,
       "_rank": 18
     },
     "Blue Oak": {
@@ -1363,6 +1365,8 @@
       "skilledMix": 43.54,
       "badDebt": 1.21,
       "dso": 51.29,
+      "noi": 16.84,
+      "labor": 38.96,
       "otdt": 3.65,
       "rehabProductivity": 86.33,
       "turnover": 34.88,
@@ -1386,6 +1390,8 @@
       "skilledMix": 42.8,
       "badDebt": 1.5,
       "dso": 56.37,
+      "noi": 11.32,
+      "labor": 40.82,
       "otdt": 6.85,
       "rehabProductivity": 83.38,
       "turnover": 38.18,
@@ -1409,6 +1415,8 @@
       "skilledMix": 48.49,
       "badDebt": 1.5,
       "dso": 52.5,
+      "noi": 14.26,
+      "labor": 37.75,
       "otdt": 6.12,
       "rehabProductivity": 87.72,
       "turnover": 47.08,
@@ -1432,6 +1440,8 @@
       "skilledMix": 54.6,
       "badDebt": 1.58,
       "dso": 55.02,
+      "noi": 14.43,
+      "labor": 37.66,
       "otdt": 6.95,
       "rehabProductivity": 89.17,
       "turnover": 36.22,
@@ -1455,6 +1465,8 @@
       "skilledMix": 67.98,
       "badDebt": 1.25,
       "dso": 44.26,
+      "noi": 20.84,
+      "labor": 34.3,
       "otdt": 4.05,
       "rehabProductivity": 84.08,
       "turnover": 44.52,
@@ -1478,6 +1490,8 @@
       "skilledMix": 46.59,
       "badDebt": 1.25,
       "dso": 63.48,
+      "noi": 18.92,
+      "labor": 35.45,
       "otdt": 3.25,
       "rehabProductivity": 89.0,
       "turnover": 33.1,
@@ -1501,6 +1515,8 @@
       "skilledMix": 21.4,
       "badDebt": 1.25,
       "dso": 42.15,
+      "noi": 20.12,
+      "labor": 36.2,
       "otdt": 2.02,
       "rehabProductivity": 81.55,
       "turnover": 28.73,
@@ -1524,6 +1540,8 @@
       "skilledMix": 12.04,
       "badDebt": 1.75,
       "dso": 79.33,
+      "noi": 9.64,
+      "labor": 43.08,
       "otdt": 6.12,
       "rehabProductivity": 82.85,
       "turnover": 40.35,
@@ -1547,6 +1565,8 @@
       "skilledMix": 55.72,
       "badDebt": 2.0,
       "dso": 45.06,
+      "noi": 23.87,
+      "labor": 35.47,
       "otdt": 4.5,
       "rehabProductivity": 89.51,
       "turnover": 34.15,
@@ -1570,6 +1590,8 @@
       "skilledMix": 54.32,
       "badDebt": 4.0,
       "dso": 96.21,
+      "noi": 14.21,
+      "labor": 40.72,
       "otdt": 7.83,
       "rehabProductivity": 83.67,
       "turnover": 26.5,
@@ -1593,6 +1615,8 @@
       "skilledMix": 48.22,
       "badDebt": 1.12,
       "dso": 36.5,
+      "noi": 17.37,
+      "labor": 40.45,
       "otdt": 6.33,
       "rehabProductivity": 83.45,
       "turnover": 40.05,
@@ -1616,6 +1640,8 @@
       "skilledMix": 33.48,
       "badDebt": 1.5,
       "dso": 93.41,
+      "noi": 18.33,
+      "labor": 37.07,
       "otdt": 6.05,
       "rehabProductivity": 82.88,
       "workerSafety": 83.38,
@@ -1638,6 +1664,8 @@
       "skilledMix": 44.28,
       "badDebt": 3.0,
       "dso": 64.41,
+      "noi": 24.55,
+      "labor": 31.61,
       "otdt": 4.78,
       "rehabProductivity": 87.22,
       "turnover": 47.03,
@@ -1661,6 +1689,8 @@
       "skilledMix": 43.52,
       "badDebt": 1.25,
       "dso": 51.62,
+      "noi": 20.34,
+      "labor": 33.54,
       "otdt": 3.0,
       "rehabProductivity": 87.85,
       "turnover": 38.15,
@@ -1684,6 +1714,8 @@
       "skilledMix": 23.86,
       "badDebt": 2.99,
       "dso": 41.88,
+      "noi": 22.8,
+      "labor": 33.19,
       "otdt": 6.6,
       "rehabProductivity": 81.05,
       "turnover": 36.93,
@@ -1707,6 +1739,8 @@
       "skilledMix": 26.48,
       "badDebt": 2.25,
       "dso": 62.22,
+      "noi": 20.1,
+      "labor": 34.98,
       "otdt": 5.43,
       "rehabProductivity": 76.42,
       "turnover": 48.15,
@@ -1730,6 +1764,8 @@
       "skilledMix": 40.26,
       "badDebt": 1.88,
       "dso": 55.45,
+      "noi": 8.47,
+      "labor": 41.2,
       "otdt": 3.95,
       "rehabProductivity": 80.2,
       "turnover": 43.88,
@@ -1739,7 +1775,7 @@
       "substandardQoc": 0,
       "googleRating": 4.7,
       "yelpRating": 4.07,
-      "legalClaims": 2,
+      "legalClaims": 4,
       "_score": 11.95,
       "_rank": 18
     },
@@ -1753,6 +1789,8 @@
       "skilledMix": 29.66,
       "badDebt": 1.5,
       "dso": 29.33,
+      "noi": 15.86,
+      "labor": 42.29,
       "otdt": 6.9,
       "rehabProductivity": 80.25,
       "turnover": 20.98,
