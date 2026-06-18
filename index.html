@@ -2403,6 +2403,61 @@ function toggleQ1Review() {
       charts.regional = new Chart(ctx, { type: 'bar', data: { labels: catKeys.map(k => CATEGORIES[k].name), datasets: [{ label: 'Golden Coast', data: gcAvg, backgroundColor: '#f59e0b', borderRadius: 6 },{ label: 'Overland', data: olAvg, backgroundColor: '#a855f7', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { y: { beginAtZero: true, max: maxVal }}} }); 
     }
     
+    function getWorkingDraggingHTML(dataKey) {
+      if (allData.length < 2) return '';
+      const firstData = allData[0].buildingData[dataKey];
+      const currentBData = currentData.buildingData[dataKey];
+      if (!firstData || !currentBData) return '';
+
+      const allMetrics = [];
+      Object.values(CATEGORIES).forEach(cat => {
+        cat.metrics.forEach(m => {
+          const firstVal = firstData[m.key];
+          const currVal = currentBData[m.key];
+          if (firstVal === null || firstVal === undefined || currVal === null || currVal === undefined) return;
+          if (firstVal === currVal) return;
+          const improved = m.higher ? currVal > firstVal : currVal < firstVal;
+          const delta = Math.abs(currVal - firstVal);
+          allMetrics.push({ key: m.key, label: m.label, higher: m.higher, firstVal, currVal, improved, delta });
+        });
+      });
+
+      const working = allMetrics.filter(m => m.improved).sort((a,b) => b.delta - a.delta).slice(0,3);
+      const dragging = allMetrics.filter(m => !m.improved).sort((a,b) => b.delta - a.delta).slice(0,3);
+
+      if (working.length === 0 && dragging.length === 0) return '';
+
+      function fmtVal(key, val) {
+        if (val === null || val === undefined) return 'N/A';
+        const pctKeys = ['rehospitalization','dischargeFunctional','occupancy','medicareCensus','skilledMix','badDebt','noi','labor','otdt','rehabProductivity','turnover','admissionPacket','arbitration'];
+        if (pctKeys.includes(key)) return val.toFixed(1) + '%';
+        return val.toFixed(1);
+      }
+
+      function rowHTML(m, isWorking) {
+        const arrow = isWorking ? '&#8593;' : '&#8595;';
+        const color = isWorking ? '#4ade80' : '#f87171';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--white-10);font-size:12px;">' +
+          '<span style="color:var(--slate-300);">' + m.label + '</span>' +
+          '<span style="color:' + color + ';font-weight:600;">' + fmtVal(m.key, m.firstVal) + ' &rarr; ' + fmtVal(m.key, m.currVal) + ' ' + arrow + '</span>' +
+        '</div>';
+      }
+
+      const firstMonth = allData[0].month.split(' ')[0];
+      const currMonth = currentData.month.split(' ')[0];
+
+      return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;">' +
+        '<div style="background:rgba(74,222,128,0.06);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;">' +
+          '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:8px;">WORKING (' + firstMonth + ' &rarr; ' + currMonth + ')</div>' +
+          (working.length ? working.map(m => rowHTML(m, true)).join('') : '<div style="font-size:12px;color:var(--slate-500);">No significant gains</div>') +
+        '</div>' +
+        '<div style="background:rgba(248,113,113,0.06);border:0.5px solid rgba(248,113,113,0.25);border-radius:10px;padding:12px 14px;">' +
+          '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:8px;">DRAGGING (' + firstMonth + ' &rarr; ' + currMonth + ')</div>' +
+          (dragging.length ? dragging.map(m => rowHTML(m, false)).join('') : '<div style="font-size:12px;color:var(--slate-500);">No significant declines</div>') +
+        '</div>' +
+      '</div>';
+    }
+
     function renderBuildingDetail(dataKey) { 
       if (!dataKey || !currentData) { document.getElementById('buildingContent').innerHTML = '<div class="no-data" style="padding:2rem"><p>Select a building</p></div>'; return; } 
       const building = BUILDINGS.find(b => b.dataKey === dataKey); 
@@ -2419,6 +2474,7 @@ function toggleQ1Review() {
           <div style="text-align:right"><div class="detail-rank">Rank #${buildingData.rank}</div><div style="font-size:1.5rem;font-weight:800;margin-top:0.5rem;background:linear-gradient(90deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${buildingData.score.toFixed(2)} pts</div></div>
         </div>
         ${movementHTML}
+        ${getWorkingDraggingHTML(dataKey)}
         ${Object.entries(CATEGORIES).map(([k, cat]) => { 
           const catScore = buildingData.categoryScores[k]; 
           const catRank = catRanks[dataKey][k];
