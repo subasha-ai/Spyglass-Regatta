@@ -2472,7 +2472,8 @@ function toggleQ1Review() {
         return pctKeys.includes(metricKey) ? val.toFixed(1) : val.toFixed(1);
       }
       const parts = allData.map(d => {
-        const v = d.buildingData[dataKey] ? d.buildingData[dataKey][metricKey] : null;
+        const bData = d.buildingData[dataKey];
+        const v = bData && bData._raw ? bData._raw[metricKey] : null;
         const f = fmt(v);
         if (f === null) return null;
         return { label: d.month.split(' ')[0], val: f };
