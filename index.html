@@ -2469,7 +2469,8 @@ function toggleQ1Review() {
       const pctKeys = ['rehospitalization','dischargeFunctional','occupancy','medicareCensus','skilledMix','badDebt','noi','labor','otdt','rehabProductivity','turnover','admissionPacket','arbitration'];
       function fmt(val) {
         if (val === null || val === undefined) return null;
-        return pctKeys.includes(metricKey) ? val.toFixed(1) : val.toFixed(1);
+        // Show full precision, trimming trailing zeros
+        return parseFloat(val.toFixed(2)).toString();
       }
       const parts = allData.map(d => {
         const bData = d.buildingData[dataKey];
