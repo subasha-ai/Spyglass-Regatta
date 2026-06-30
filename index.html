@@ -2464,6 +2464,25 @@ function toggleQ1Review() {
       '</div>';
     }
 
+    function getMonthlyTrail(dataKey, metricKey) {
+      if (allData.length < 2) return '';
+      const pctKeys = ['rehospitalization','dischargeFunctional','occupancy','medicareCensus','skilledMix','badDebt','noi','labor','otdt','rehabProductivity','turnover','admissionPacket','arbitration'];
+      function fmt(val) {
+        if (val === null || val === undefined) return null;
+        return pctKeys.includes(metricKey) ? val.toFixed(1) : val.toFixed(1);
+      }
+      const parts = allData.map(d => {
+        const v = d.buildingData[dataKey] ? d.buildingData[dataKey][metricKey] : null;
+        const f = fmt(v);
+        if (f === null) return null;
+        return { label: d.month.split(' ')[0], val: f };
+      }).filter(x => x !== null);
+      if (parts.length === 0) return '';
+      return '<div style="font-size:10px;color:var(--slate-500);margin-top:3px;line-height:1.4;">' +
+        parts.map(p => p.label + ' ' + p.val).join(' &#8594; ') +
+      '</div>';
+    }
+
     function renderBuildingDetail(dataKey) { 
       if (!dataKey || !currentData) { document.getElementById('buildingContent').innerHTML = '<div class="no-data" style="padding:2rem"><p>Select a building</p></div>'; return; } 
       const building = BUILDINGS.find(b => b.dataKey === dataKey); 
@@ -2496,7 +2515,7 @@ function toggleQ1Review() {
               </span>
             </div>
             <div class="metrics-grid">
-              ${cat.metrics.map(m => `<div class="metric-item" style="cursor:pointer" onclick="openMetricModal('${m.key}', '${m.label}', ${m.higher})"><div class="metric-label">${m.label} <span style="color:var(--gold)">(Rank #${buildingData.metricRanks[m.key] || 'N/A'})</span></div><div class="metric-value">${buildingData.metrics[m.key] !== null && buildingData.metrics[m.key] !== undefined ? buildingData.metrics[m.key] : 'N/A'}</div></div>`).join('')}
+              ${cat.metrics.map(m => `<div class="metric-item" style="cursor:pointer" onclick="openMetricModal('${m.key}', '${m.label}', ${m.higher})"><div class="metric-label">${m.label} <span style="color:var(--gold)">(Rank #${buildingData.metricRanks[m.key] || 'N/A'})</span></div><div class="metric-value">${buildingData.metrics[m.key] !== null && buildingData.metrics[m.key] !== undefined ? buildingData.metrics[m.key] : 'N/A'}</div>${getMonthlyTrail(dataKey, m.key)}</div>`).join('')}
             </div>
           </div>`; 
         }).join('')}
