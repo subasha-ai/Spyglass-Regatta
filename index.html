@@ -797,8 +797,8 @@
       
       let rankIdx = 0;
       while (rankIdx < sortedBuildings.length) {
-        const currentScore = sortedBuildings[rankIdx].score;
-        const tiedItems = sortedBuildings.filter(b => Math.abs(b.score - currentScore) < 0.001);
+        const currentScore = Math.round(sortedBuildings[rankIdx].score * 100) / 100;
+        const tiedItems = sortedBuildings.filter(b => Math.round(b.score * 100) / 100 === currentScore);
         tiedItems.forEach(item => { scores[item.dataKey].rank = rankIdx + 1; });
         rankIdx += tiedItems.length;
       }
