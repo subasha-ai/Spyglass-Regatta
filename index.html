@@ -795,7 +795,13 @@
       const sortedBuildings = availableBuildings.map(b => ({ dataKey: b.dataKey, score: scores[b.dataKey].total }))
         .sort((a, b) => a.score - b.score);
       
-      sortedBuildings.forEach((b, idx) => { scores[b.dataKey].rank = idx + 1; });
+      let rankIdx = 0;
+      while (rankIdx < sortedBuildings.length) {
+        const currentScore = sortedBuildings[rankIdx].score;
+        const tiedItems = sortedBuildings.filter(b => Math.abs(b.score - currentScore) < 0.001);
+        tiedItems.forEach(item => { scores[item.dataKey].rank = rankIdx + 1; });
+        rankIdx += tiedItems.length;
+      }
       
       return scores;
     }
