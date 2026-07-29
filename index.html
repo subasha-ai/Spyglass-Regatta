@@ -1268,7 +1268,7 @@ function toggleQ1Review() {
       const champion = BUILDINGS.reduce((best, b) => avgRank[b.dataKey] < avgRank[best.dataKey] ? b : best);
       const allImproved = BUILDINGS.map(b => ({
         b: b, delta: (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18)
-      })).sort((a, b) => b.delta - a.delta);
+      })).sort((a, b) => b.delta - a.delta || (allMonthScores[allMonthScores.length-1][a.b.dataKey] ? allMonthScores[allMonthScores.length-1][a.b.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.b.dataKey] ? allMonthScores[allMonthScores.length-1][b.b.dataKey].rank : 18));
       const topImproved = allImproved[0];
       const tiedImproved = allImproved.filter(x => x.delta > 0 && x.delta === topImproved.delta);
       const bottom6 = BUILDINGS.filter(b => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) >= 13);
