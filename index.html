@@ -1266,9 +1266,11 @@ function toggleQ1Review() {
         avgRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
       });
       const champion = BUILDINGS.reduce((best, b) => avgRank[b.dataKey] < avgRank[best.dataKey] ? b : best);
-      const topImproved = BUILDINGS.map(b => ({
+      const allImproved = BUILDINGS.map(b => ({
         b: b, delta: (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18)
-      })).sort((a, b) => b.delta - a.delta)[0];
+      })).sort((a, b) => b.delta - a.delta);
+      const topImproved = allImproved[0];
+      const tiedImproved = allImproved.filter(x => x.delta > 0 && x.delta === topImproved.delta);
       const bottom6 = BUILDINGS.filter(b => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) >= 13);
       const atRisk = bottom6.reduce((worst, b) => {
         const dB = (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) - (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18);
@@ -1334,8 +1336,8 @@ function toggleQ1Review() {
           '<div style="background:rgba(74,222,128,0.07);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;" onclick="toggleMostImproved(event)">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:5px;">MOST IMPROVED</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + (topImproved ? topImproved.b.name : '') + '</div>' +
-            '<div style="font-size:11px;color:var(--slate-400);">&#8593;' + (topImproved ? topImproved.delta : 0) + ' spots since ' + months[0].split(' ')[0] + '</div>' +
-            '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(74,222,128,0.2);font-size:11px;color:#4ade80;">' +
+            '<div style="font-size:11px;color:var(--slate-400);">&#8593;' + (topImproved ? topImproved.delta : 0) + ' spots since ' + months[0].split(' ')[0] + (tiedImproved.length > 1 ? ' (tied with ' + tiedImproved.filter(x => x.b.name !== topImproved.b.name).map(x => x.b.name.split(' ')[0]).join(', ') + ')' : '') + '</div>' +
+   '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(74,222,128,0.2);font-size:11px;color:#4ade80;">' +
               '<span>See all buildings</span><span id="improvedArrow">&#9662;</span>' +
             '</div>' +
             '<div id="improvedList" style="display:none;margin-top:10px;">' +
