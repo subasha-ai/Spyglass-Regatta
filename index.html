@@ -1090,6 +1090,7 @@ Keep it concise and actionable. No fluff. Leadership style.`;
       const trendColor = trajectory === 'improving' ? '#4ade80' : trajectory === 'declining' ? '#f87171' : '#fbbf24';
       const projectionText = projectedRank < currentRank ? `↑ #${projectedRank}` : projectedRank > currentRank ? `↓ #${projectedRank}` : `→ #${projectedRank}`;
       
+      const improvedListHTML = buildImprovedListHTML();
       container.innerHTML = `
         <div style="margin-bottom:1.5rem;">
           <div style="font-size:1.5rem;font-weight:700;color:#f1f5f9;margin-bottom:0.5rem;">${name}</div>
@@ -1201,6 +1202,51 @@ function toggleQ1Review() {
         (topFaller ? '<span style="color:#f87171;font-weight:600;">&#8595; ' + topFaller.name + ' ' + topFaller.change + ' spots</span>' : '');
     }
 
+
+      function buildImprovedListHTML() {
+        if (allData.length < 2) return '';
+        const firstScores = calculateRankBasedScores(allData[0]);
+        const lastScores = calculateRankBasedScores(allData[allData.length - 1]);
+        const firstMonth = allData[0].month.split(' ')[0];
+        const lastMonth = allData[allData.length - 1].month.split(' ')[0];
+
+        const movers = BUILDINGS.map(b => ({
+          name: b.name,
+          firstRank: firstScores[b.dataKey] ? firstScores[b.dataKey].rank : 18,
+          lastRank: lastScores[b.dataKey] ? lastScores[b.dataKey].rank : 18,
+          delta: (firstScores[b.dataKey] ? firstScores[b.dataKey].rank : 18) - (lastScores[b.dataKey] ? lastScores[b.dataKey].rank : 18)
+        })).sort((a, b) => b.delta - a.delta);
+
+        const climbers = movers.filter(m => m.delta > 0);
+        const flat = movers.filter(m => m.delta === 0);
+        const decliners = movers.filter(m => m.delta < 0);
+
+        function row(m) {
+          const arrow = m.delta > 0 ? '<span style="color:#4ade80;font-weight:700;">&#8593;' + m.delta + '</span>' :
+                        m.delta < 0 ? '<span style="color:#f87171;font-weight:700;">&#8595;' + Math.abs(m.delta) + '</span>' :
+                        '<span style="color:var(--slate-500);">&#8212;</span>';
+          return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid rgba(255,255,255,0.06);font-size:12px;">' +
+            '<span style="flex:1;color:var(--slate-300);">' + m.name + '</span>' +
+            '<span style="font-size:11px;color:var(--slate-500);min-width:70px;text-align:right;">#' + m.firstRank + ' &#8594; #' + m.lastRank + '</span>' +
+            arrow + '</div>';
+        }
+
+        let html = climbers.map(row).join('');
+        if (flat.length) html += '<div style="height:0.5px;background:rgba(255,255,255,0.06);margin:6px 0;"></div>' + flat.map(row).join('');
+        if (decliners.length) html += '<div style="height:0.5px;background:rgba(255,255,255,0.06);margin:6px 0;"></div>' + decliners.map(row).join('');
+        return html;
+      }
+
+      function toggleMostImproved(e) {
+        e.stopPropagation();
+        const list = document.getElementById('improvedList');
+        const arrow = document.getElementById('improvedArrow');
+        if (!list) return;
+        const isOpen = list.style.display !== 'none';
+        list.style.display = isOpen ? 'none' : 'block';
+        if (arrow) arrow.innerHTML = isOpen ? '&#9662;' : '&#9652;';
+      }
+
     function renderQ1Review() {
       const bar = document.getElementById('regatraReportBar');
       const container = document.getElementById('q1ReviewContent');
@@ -1282,10 +1328,17 @@ function toggleQ1Review() {
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f5c842;margin-bottom:5px;">SEASON LEADER</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + champion.name + '</div>' +
             '<div style="font-size:11px;color:var(--slate-400);">Avg rank ' + avgRank[champion.dataKey].toFixed(1) + ' all season</div></div>' +
-          '<div style="background:rgba(74,222,128,0.07);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;">' +
+          '<div style="background:rgba(74,222,128,0.07);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;" onclick="toggleMostImproved(event)">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:5px;">MOST IMPROVED</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + (topImproved ? topImproved.b.name : '') + '</div>' +
-            '<div style="font-size:11px;color:var(--slate-400);">&#8593;' + (topImproved ? topImproved.delta : 0) + ' spots since ' + months[0].split(' ')[0] + '</div></div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">&#8593;' + (topImproved ? topImproved.delta : 0) + ' spots since ' + months[0].split(' ')[0] + '</div>' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(74,222,128,0.2);font-size:11px;color:#4ade80;">' +
+              '<span>See all buildings</span><span id="improvedArrow">&#9662;</span>' +
+            '</div>' +
+            '<div id="improvedList" style="display:none;margin-top:10px;">' +
+              improvedListHTML +
+            '</div>' +
+          '</div>' +
           '<div style="background:rgba(248,113,113,0.07);border:0.5px solid rgba(248,113,113,0.25);border-radius:10px;padding:12px 14px;">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:5px;">MOST AT RISK</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + atRisk.name + '</div>' +
