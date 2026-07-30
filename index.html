@@ -1840,22 +1840,24 @@ function toggleQ1Review() {
       const prevMap = {};
       prevRanked.forEach(r => prevMap[r.dataKey] = r);
 
-      function catColor(rank) {
-        if (rank <= 3) return '#1a3a2a';
-        if (rank <= 6) return '#2a3a1a';
-        if (rank <= 9) return '#3a3a0a';
-        if (rank <= 12) return '#3a2a0a';
-        if (rank <= 15) return '#3a1a0a';
-        return '#3a0a0a';
+      function catBadgeBg(rank) {
+        if (rank <= 3) return '#14532d';
+        if (rank <= 6) return '#166534';
+        if (rank <= 9) return '#713f12';
+        if (rank <= 12) return '#7c2d12';
+        if (rank <= 15) return '#7f1d1d';
+        return '#450a0a';
       }
-      function catTextColor(rank) {
+      function catBadgeText(rank) {
         if (rank <= 3) return '#4ade80';
         if (rank <= 6) return '#86efac';
         if (rank <= 9) return '#fde047';
-        if (rank <= 12) return '#fb923c';
-        if (rank <= 15) return '#f87171';
-        return '#ef4444';
+        if (rank <= 12) return '#fdba74';
+        if (rank <= 15) return '#fca5a5';
+        return '#f87171';
       }
+      function catColor(rank) { return 'transparent'; }
+      function catTextColor(rank) { return catBadgeText(rank); }
       function trendArrow(curr, prev) {
         if (!prev) return '';
         if (prev > curr) return '<span style="color:#4ade80;font-size:9px;">↑</span>';
@@ -1889,15 +1891,15 @@ function toggleQ1Review() {
         // Overall rank
         const overallColor = catTextColor(b.rank);
         const prevOverall = prev ? prev.rank : null;
-        html += '<td style="text-align:center;padding:7px 6px;border-bottom:0.5px solid rgba(255,255,255,0.05);"><span style="font-weight:700;color:' + overallColor + ';">#' + b.rank + '</span> ' + trendArrow(b.rank, prevOverall) + '</td>';
+        html += '<td style="text-align:center;padding:7px 6px;border-bottom:0.5px solid rgba(255,255,255,0.05);"><span style="display:inline-flex;align-items:center;gap:3px;background:' + catBadgeBg(b.rank) + ';color:' + catBadgeText(b.rank) + ';font-weight:700;font-size:11px;padding:3px 8px;border-radius:5px;">#' + b.rank + '</span> ' + trendArrow(b.rank, prevOverall) + '</td>';
         // Category ranks
         catKeys.forEach(catKey => {
           const catRank = getCatRankForBuilding(b.dataKey, catKey);
           const prevCatRank = prev ? getCatRankForBuilding(prev.dataKey, catKey) : null;
           const bg2 = catColor(catRank);
           const tc = catTextColor(catRank);
-          html += '<td style="text-align:center;padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.05);background:' + bg2 + ';border-radius:4px;">';
-          html += '<span style="font-weight:700;color:' + tc + ';">#' + catRank + '</span> ' + trendArrow(catRank, prevCatRank);
+          html += '<td style="text-align:center;padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.05);">';
+          html += '<span style="display:inline-flex;align-items:center;gap:3px;background:' + catBadgeBg(catRank) + ';color:' + catBadgeText(catRank) + ';font-weight:700;font-size:11px;padding:3px 8px;border-radius:5px;">#' + catRank + '</span> ' + trendArrow(catRank, prevCatRank);
           html += '</td>';
         });
         html += '</tr>';
@@ -2094,22 +2096,24 @@ function toggleQ1Review() {
       const prevMap = {};
       prevRanked.forEach(r => prevMap[r.dataKey] = r);
 
-      function catColor(rank) {
-        if (rank <= 3) return '#1a3a2a';
-        if (rank <= 6) return '#2a3a1a';
-        if (rank <= 9) return '#3a3a0a';
-        if (rank <= 12) return '#3a2a0a';
-        if (rank <= 15) return '#3a1a0a';
-        return '#3a0a0a';
+      function catBadgeBg(rank) {
+        if (rank <= 3) return '#14532d';
+        if (rank <= 6) return '#166534';
+        if (rank <= 9) return '#713f12';
+        if (rank <= 12) return '#7c2d12';
+        if (rank <= 15) return '#7f1d1d';
+        return '#450a0a';
       }
-      function catTextColor(rank) {
+      function catBadgeText(rank) {
         if (rank <= 3) return '#4ade80';
         if (rank <= 6) return '#86efac';
         if (rank <= 9) return '#fde047';
-        if (rank <= 12) return '#fb923c';
-        if (rank <= 15) return '#f87171';
-        return '#ef4444';
+        if (rank <= 12) return '#fdba74';
+        if (rank <= 15) return '#fca5a5';
+        return '#f87171';
       }
+      function catColor(rank) { return 'transparent'; }
+      function catTextColor(rank) { return catBadgeText(rank); }
       function trendArrow(curr, prev) {
         if (!prev) return '';
         if (prev > curr) return '<span style="color:#4ade80;font-size:9px;">↑</span>';
@@ -2143,15 +2147,15 @@ function toggleQ1Review() {
         // Overall rank
         const overallColor = catTextColor(b.rank);
         const prevOverall = prev ? prev.rank : null;
-        html += '<td style="text-align:center;padding:7px 6px;border-bottom:0.5px solid rgba(255,255,255,0.05);"><span style="font-weight:700;color:' + overallColor + ';">#' + b.rank + '</span> ' + trendArrow(b.rank, prevOverall) + '</td>';
+        html += '<td style="text-align:center;padding:7px 6px;border-bottom:0.5px solid rgba(255,255,255,0.05);"><span style="display:inline-flex;align-items:center;gap:3px;background:' + catBadgeBg(b.rank) + ';color:' + catBadgeText(b.rank) + ';font-weight:700;font-size:11px;padding:3px 8px;border-radius:5px;">#' + b.rank + '</span> ' + trendArrow(b.rank, prevOverall) + '</td>';
         // Category ranks
         catKeys.forEach(catKey => {
           const catRank = getCatRankForBuilding(b.dataKey, catKey);
           const prevCatRank = prev ? getCatRankForBuilding(prev.dataKey, catKey) : null;
           const bg2 = catColor(catRank);
           const tc = catTextColor(catRank);
-          html += '<td style="text-align:center;padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.05);background:' + bg2 + ';border-radius:4px;">';
-          html += '<span style="font-weight:700;color:' + tc + ';">#' + catRank + '</span> ' + trendArrow(catRank, prevCatRank);
+          html += '<td style="text-align:center;padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.05);">';
+          html += '<span style="display:inline-flex;align-items:center;gap:3px;background:' + catBadgeBg(catRank) + ';color:' + catBadgeText(catRank) + ';font-weight:700;font-size:11px;padding:3px 8px;border-radius:5px;">#' + catRank + '</span> ' + trendArrow(catRank, prevCatRank);
           html += '</td>';
         });
         html += '</tr>';
