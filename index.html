@@ -929,7 +929,7 @@
     
     function updateAllDisplays() { 
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
-      renderQ1Review(); renderMoversStrip(); renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
+      renderQ1Review(); renderMoversStrip(); renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats(); renderCategoryHeatmapStandalone();
       initCompareSelects();
       const bs = document.getElementById('buildingSelect'); 
       if (bs.value) renderBuildingDetail(bs.value); 
@@ -1810,6 +1810,13 @@ function toggleQ1Review() {
     let catSortState = {}; // track sort state per category
     
 
+
+    function renderCategoryHeatmapStandalone() {
+      const container = document.getElementById('categoryHeatmapContent');
+      if (!container || !currentData) return;
+      container.innerHTML = buildCategoryHeatmap();
+    }
+
     function buildCategoryHeatmap() {
       if (!currentData || allData.length < 2) return '';
       const ranked = getRanked();
@@ -2045,6 +2052,13 @@ function toggleQ1Review() {
         ).join('');
     }
     
+
+
+    function renderCategoryHeatmapStandalone() {
+      const container = document.getElementById('categoryHeatmapContent');
+      if (!container || !currentData) return;
+      container.innerHTML = buildCategoryHeatmap();
+    }
 
     function buildCategoryHeatmap() {
       if (!currentData || allData.length < 2) return '';
