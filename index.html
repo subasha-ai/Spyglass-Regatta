@@ -1809,11 +1809,88 @@ function toggleQ1Review() {
     
     let catSortState = {}; // track sort state per category
     
+
+    function buildCategoryHeatmap() {
+      if (!currentData || allData.length < 2) return '';
+      const ranked = getRanked();
+      const bottom6 = [...ranked];
+      const prevData = allData[allData.length - 2];
+      const prevRanked = getRanked(prevData);
+      const prevMap = {};
+      prevRanked.forEach(r => prevMap[r.dataKey] = r);
+
+      function catColor(rank) {
+        if (rank <= 3) return '#1a3a2a';
+        if (rank <= 6) return '#2a3a1a';
+        if (rank <= 9) return '#3a3a0a';
+        if (rank <= 12) return '#3a2a0a';
+        if (rank <= 15) return '#3a1a0a';
+        return '#3a0a0a';
+      }
+      function catTextColor(rank) {
+        if (rank <= 3) return '#4ade80';
+        if (rank <= 6) return '#86efac';
+        if (rank <= 9) return '#fde047';
+        if (rank <= 12) return '#fb923c';
+        if (rank <= 15) return '#f87171';
+        return '#ef4444';
+      }
+      function trendArrow(curr, prev) {
+        if (!prev) return '';
+        if (prev > curr) return '<span style="color:#4ade80;font-size:9px;">↑</span>';
+        if (prev < curr) return '<span style="color:#f87171;font-size:9px;">↓</span>';
+        return '<span style="color:#64748b;font-size:9px;">—</span>';
+      }
+
+      const catKeys = Object.keys(CATEGORIES);
+      const catLabels = { care:'Care', census:'Census', collections:'Collections', controls:'Controls', culture:'Culture', compliance:'Compliance', credibility:'Credibility' };
+
+      let html = '<div style="background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin-bottom:1.5rem;">';
+      html += '<div style="font-size:12px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:4px;">ALL BUILDINGS — CATEGORY BREAKDOWN</div>';
+      html += '<div style="font-size:11px;color:#64748b;margin-bottom:1rem;">Category ranks for the lowest-ranked buildings. Color = rank position. Arrow = vs previous month.</div>';
+      html += '<div style="overflow-x:auto;">';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+
+      // Header
+      html += '<thead><tr>';
+      html += '<th style="text-align:left;padding:6px 10px;color:#64748b;font-weight:500;min-width:160px;border-bottom:0.5px solid rgba(255,255,255,0.1);">Facility</th>';
+      html += '<th style="text-align:center;padding:6px 6px;color:#64748b;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.1);">Overall</th>';
+      catKeys.forEach(k => {
+        html += '<th style="text-align:center;padding:6px 8px;color:#64748b;font-weight:500;min-width:90px;border-bottom:0.5px solid rgba(255,255,255,0.1);">' + catLabels[k] + '<br><span style="font-size:10px;font-weight:400;">(' + (CATEGORIES[k].weight*100).toFixed(0) + '%)</span></th>';
+      });
+      html += '</tr></thead><tbody>';
+
+      bottom6.forEach((b, i) => {
+        const prev = prevMap[b.dataKey];
+        const bg = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+        html += '<tr style="background:' + bg + ';">';
+        html += '<td style="padding:7px 10px;color:#e2e8f0;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.05);">' + b.name + '</td>';
+        // Overall rank
+        const overallColor = catTextColor(b.rank);
+        const prevOverall = prev ? prev.rank : null;
+        html += '<td style="text-align:center;padding:7px 6px;border-bottom:0.5px solid rgba(255,255,255,0.05);"><span style="font-weight:700;color:' + overallColor + ';">#' + b.rank + '</span> ' + trendArrow(b.rank, prevOverall) + '</td>';
+        // Category ranks
+        catKeys.forEach(catKey => {
+          const catRank = getCatRankForBuilding(b.dataKey, catKey);
+          const prevCatRank = prev ? getCatRankForBuilding(prev.dataKey, catKey) : null;
+          const bg2 = catColor(catRank);
+          const tc = catTextColor(catRank);
+          html += '<td style="text-align:center;padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.05);background:' + bg2 + ';border-radius:4px;">';
+          html += '<span style="font-weight:700;color:' + tc + ';">#' + catRank + '</span> ' + trendArrow(catRank, prevCatRank);
+          html += '</td>';
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table></div></div>';
+      return html;
+    }
+
     function renderCategoryRankings() { 
       if (!currentData) return; 
       const ranked = getRanked(); 
       
-      let html = '';
+      let html = buildCategoryHeatmap();
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
         const sortKey = catSortState[catKey]?.sortKey || null;
         const sortDir = catSortState[catKey]?.sortDir || 'asc';
@@ -1968,6 +2045,83 @@ function toggleQ1Review() {
         ).join('');
     }
     
+
+    function buildCategoryHeatmap() {
+      if (!currentData || allData.length < 2) return '';
+      const ranked = getRanked();
+      const bottom6 = [...ranked];
+      const prevData = allData[allData.length - 2];
+      const prevRanked = getRanked(prevData);
+      const prevMap = {};
+      prevRanked.forEach(r => prevMap[r.dataKey] = r);
+
+      function catColor(rank) {
+        if (rank <= 3) return '#1a3a2a';
+        if (rank <= 6) return '#2a3a1a';
+        if (rank <= 9) return '#3a3a0a';
+        if (rank <= 12) return '#3a2a0a';
+        if (rank <= 15) return '#3a1a0a';
+        return '#3a0a0a';
+      }
+      function catTextColor(rank) {
+        if (rank <= 3) return '#4ade80';
+        if (rank <= 6) return '#86efac';
+        if (rank <= 9) return '#fde047';
+        if (rank <= 12) return '#fb923c';
+        if (rank <= 15) return '#f87171';
+        return '#ef4444';
+      }
+      function trendArrow(curr, prev) {
+        if (!prev) return '';
+        if (prev > curr) return '<span style="color:#4ade80;font-size:9px;">↑</span>';
+        if (prev < curr) return '<span style="color:#f87171;font-size:9px;">↓</span>';
+        return '<span style="color:#64748b;font-size:9px;">—</span>';
+      }
+
+      const catKeys = Object.keys(CATEGORIES);
+      const catLabels = { care:'Care', census:'Census', collections:'Collections', controls:'Controls', culture:'Culture', compliance:'Compliance', credibility:'Credibility' };
+
+      let html = '<div style="background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin-bottom:1.5rem;">';
+      html += '<div style="font-size:12px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:4px;">ALL BUILDINGS — CATEGORY BREAKDOWN</div>';
+      html += '<div style="font-size:11px;color:#64748b;margin-bottom:1rem;">Category ranks for the lowest-ranked buildings. Color = rank position. Arrow = vs previous month.</div>';
+      html += '<div style="overflow-x:auto;">';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+
+      // Header
+      html += '<thead><tr>';
+      html += '<th style="text-align:left;padding:6px 10px;color:#64748b;font-weight:500;min-width:160px;border-bottom:0.5px solid rgba(255,255,255,0.1);">Facility</th>';
+      html += '<th style="text-align:center;padding:6px 6px;color:#64748b;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.1);">Overall</th>';
+      catKeys.forEach(k => {
+        html += '<th style="text-align:center;padding:6px 8px;color:#64748b;font-weight:500;min-width:90px;border-bottom:0.5px solid rgba(255,255,255,0.1);">' + catLabels[k] + '<br><span style="font-size:10px;font-weight:400;">(' + (CATEGORIES[k].weight*100).toFixed(0) + '%)</span></th>';
+      });
+      html += '</tr></thead><tbody>';
+
+      bottom6.forEach((b, i) => {
+        const prev = prevMap[b.dataKey];
+        const bg = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+        html += '<tr style="background:' + bg + ';">';
+        html += '<td style="padding:7px 10px;color:#e2e8f0;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.05);">' + b.name + '</td>';
+        // Overall rank
+        const overallColor = catTextColor(b.rank);
+        const prevOverall = prev ? prev.rank : null;
+        html += '<td style="text-align:center;padding:7px 6px;border-bottom:0.5px solid rgba(255,255,255,0.05);"><span style="font-weight:700;color:' + overallColor + ';">#' + b.rank + '</span> ' + trendArrow(b.rank, prevOverall) + '</td>';
+        // Category ranks
+        catKeys.forEach(catKey => {
+          const catRank = getCatRankForBuilding(b.dataKey, catKey);
+          const prevCatRank = prev ? getCatRankForBuilding(prev.dataKey, catKey) : null;
+          const bg2 = catColor(catRank);
+          const tc = catTextColor(catRank);
+          html += '<td style="text-align:center;padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.05);background:' + bg2 + ';border-radius:4px;">';
+          html += '<span style="font-weight:700;color:' + tc + ';">#' + catRank + '</span> ' + trendArrow(catRank, prevCatRank);
+          html += '</td>';
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table></div></div>';
+      return html;
+    }
+
     function renderCategoryRankings() {
       const catKey = document.getElementById('categorySelect').value;
       const metricKey = document.getElementById('metricSelect').value;
