@@ -1839,6 +1839,7 @@ function toggleQ1Review() {
       const prevRanked = getRanked(prevData);
       const prevMap = {};
       prevRanked.forEach(r => prevMap[r.dataKey] = r);
+      const prevCatRanks = getCategoryRanksByCategory(prevData);
 
       function catBadgeBg(rank) {
         if (rank <= 3) return '#14532d';
@@ -1890,12 +1891,12 @@ function toggleQ1Review() {
         html += '<td style="padding:7px 10px;color:#e2e8f0;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.05);">' + b.name + '</td>';
         // Overall rank
         const overallColor = catTextColor(b.rank);
-        const prevOverall = prev ? prev.rank : null;
+        const prevOverall = prevMap[b.dataKey] ? prevMap[b.dataKey].rank : null;
         html += '<td style="text-align:center;padding:7px 6px;border-bottom:0.5px solid rgba(255,255,255,0.05);"><span style="display:inline-flex;align-items:center;gap:3px;background:' + catBadgeBg(b.rank) + ';color:' + catBadgeText(b.rank) + ';font-weight:700;font-size:11px;padding:3px 8px;border-radius:5px;">#' + b.rank + '</span> ' + trendArrow(b.rank, prevOverall) + '</td>';
         // Category ranks
         catKeys.forEach(catKey => {
           const catRank = getCatRankForBuilding(b.dataKey, catKey);
-          const prevCatRank = prev ? getCatRankForBuilding(prev.dataKey, catKey) : null;
+          const prevCatRank = prevCatRanks[b.dataKey] ? prevCatRanks[b.dataKey][catKey] : null;
           const bg2 = catColor(catRank);
           const tc = catTextColor(catRank);
           html += '<td style="text-align:center;padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.05);">';
@@ -2095,6 +2096,7 @@ function toggleQ1Review() {
       const prevRanked = getRanked(prevData);
       const prevMap = {};
       prevRanked.forEach(r => prevMap[r.dataKey] = r);
+      const prevCatRanks = getCategoryRanksByCategory(prevData);
 
       function catBadgeBg(rank) {
         if (rank <= 3) return '#14532d';
@@ -2146,12 +2148,12 @@ function toggleQ1Review() {
         html += '<td style="padding:7px 10px;color:#e2e8f0;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.05);">' + b.name + '</td>';
         // Overall rank
         const overallColor = catTextColor(b.rank);
-        const prevOverall = prev ? prev.rank : null;
+        const prevOverall = prevMap[b.dataKey] ? prevMap[b.dataKey].rank : null;
         html += '<td style="text-align:center;padding:7px 6px;border-bottom:0.5px solid rgba(255,255,255,0.05);"><span style="display:inline-flex;align-items:center;gap:3px;background:' + catBadgeBg(b.rank) + ';color:' + catBadgeText(b.rank) + ';font-weight:700;font-size:11px;padding:3px 8px;border-radius:5px;">#' + b.rank + '</span> ' + trendArrow(b.rank, prevOverall) + '</td>';
         // Category ranks
         catKeys.forEach(catKey => {
           const catRank = getCatRankForBuilding(b.dataKey, catKey);
-          const prevCatRank = prev ? getCatRankForBuilding(prev.dataKey, catKey) : null;
+          const prevCatRank = prevCatRanks[b.dataKey] ? prevCatRanks[b.dataKey][catKey] : null;
           const bg2 = catColor(catRank);
           const tc = catTextColor(catRank);
           html += '<td style="text-align:center;padding:7px 8px;border-bottom:0.5px solid rgba(255,255,255,0.05);">';
