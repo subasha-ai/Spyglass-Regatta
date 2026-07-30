@@ -398,6 +398,9 @@
     </div>
     
     <div id="categories" class="tab-content">
+      <div class="card" style="margin-bottom:1rem;">
+        <div id="categoryHeatmapContent"></div>
+      </div>
       <div class="card">
         <div class="card-title">📊 Category Rankings</div>
         <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select a category and metric to see all buildings ranked #1-#18</p>
@@ -1813,13 +1816,24 @@ function toggleQ1Review() {
 
     function renderCategoryHeatmapStandalone() {
       const container = document.getElementById('categoryHeatmapContent');
-      if (!container || !currentData) return;
-      container.innerHTML = buildCategoryHeatmap();
+      if (!container) return;
+      if (!currentData || !allData || allData.length < 2) {
+        container.innerHTML = '';
+        return;
+      }
+      try {
+        const html = buildCategoryHeatmap();
+        container.innerHTML = html || '';
+      } catch(e) {
+        console.error('Category heatmap error:', e);
+        container.innerHTML = '<div style="color:#f87171;padding:1rem;font-size:12px;">Heatmap error: ' + e.message + '</div>';
+      }
     }
 
     function buildCategoryHeatmap() {
-      if (!currentData || allData.length < 2) return '';
+      if (!currentData || !allData || allData.length < 2) return '';
       const ranked = getRanked();
+      if (!ranked || ranked.length === 0) return '';
       const bottom6 = [...ranked];
       const prevData = allData[allData.length - 2];
       const prevRanked = getRanked(prevData);
@@ -2056,13 +2070,24 @@ function toggleQ1Review() {
 
     function renderCategoryHeatmapStandalone() {
       const container = document.getElementById('categoryHeatmapContent');
-      if (!container || !currentData) return;
-      container.innerHTML = buildCategoryHeatmap();
+      if (!container) return;
+      if (!currentData || !allData || allData.length < 2) {
+        container.innerHTML = '';
+        return;
+      }
+      try {
+        const html = buildCategoryHeatmap();
+        container.innerHTML = html || '';
+      } catch(e) {
+        console.error('Category heatmap error:', e);
+        container.innerHTML = '<div style="color:#f87171;padding:1rem;font-size:12px;">Heatmap error: ' + e.message + '</div>';
+      }
     }
 
     function buildCategoryHeatmap() {
-      if (!currentData || allData.length < 2) return '';
+      if (!currentData || !allData || allData.length < 2) return '';
       const ranked = getRanked();
+      if (!ranked || ranked.length === 0) return '';
       const bottom6 = [...ranked];
       const prevData = allData[allData.length - 2];
       const prevRanked = getRanked(prevData);
