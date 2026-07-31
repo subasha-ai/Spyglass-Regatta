@@ -1919,7 +1919,7 @@ function toggleQ1Review() {
       if (!currentData) return; 
       const ranked = getRanked(); 
       
-      let html = buildCategoryHeatmap();
+      let html = '';
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
         const sortKey = catSortState[catKey]?.sortKey || null;
         const sortDir = catSortState[catKey]?.sortDir || 'asc';
@@ -2086,108 +2086,6 @@ function toggleQ1Review() {
 
 
 
-    function buildCategoryHeatmap() {
-      if (!currentData || !allData || allData.length < 2) return '';
-      const ranked = getRanked();
-      if (!ranked || ranked.length === 0) return '';
-      const bottom6 = [...ranked];
-      const prevData = allData[allData.length - 2];
-      const prevRanked = getRanked(prevData);
-      const prevMap = {};
-      prevRanked.forEach(r => prevMap[r.dataKey] = r);
-      const prevCatRanks = getCategoryRanksByCategory(prevData);
-
-      function catBadgeBg(rank) {
-        if (rank <= 3) return '#14532d';
-        if (rank <= 6) return '#166534';
-        if (rank <= 9) return '#713f12';
-        if (rank <= 12) return '#7c2d12';
-        if (rank <= 15) return '#7f1d1d';
-        return '#450a0a';
-      }
-      function catBadgeText(rank) {
-        if (rank <= 3) return '#4ade80';
-        if (rank <= 6) return '#86efac';
-        if (rank <= 9) return '#fde047';
-        if (rank <= 12) return '#fdba74';
-        if (rank <= 15) return '#fca5a5';
-        return '#f87171';
-      }
-      function catColor(rank) { return 'transparent'; }
-      function catTextColor(rank) { return catBadgeText(rank); }
-      function trendArrow(curr, prev) {
-        if (!prev) return '';
-        if (prev > curr) return '<span style="color:#4ade80;font-size:9px;">↑</span>';
-        if (prev < curr) return '<span style="color:#f87171;font-size:9px;">↓</span>';
-        return '<span style="color:#64748b;font-size:9px;">—</span>';
-      }
-
-      const catKeys = Object.keys(CATEGORIES);
-      const catLabels = { care:'Care', census:'Census', collections:'Collections', controls:'Controls', culture:'Culture', compliance:'Compliance', credibility:'Credibility' };
-
-      let html = '<div style="background:rgba(255,255,255,0.03);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin-bottom:1.5rem;">';
-      html += '<div style="font-size:12px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:4px;">ALL BUILDINGS — CATEGORY BREAKDOWN</div>';
-      html += '<div style="font-size:11px;color:#64748b;margin-bottom:1rem;">Category ranks for the lowest-ranked buildings. Color = rank position. Arrow = vs previous month.</div>';
-      html += '<div style="overflow-x:auto;">';
-      html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
-
-      // Header
-      html += '<thead><tr>';
-      html += '<th style="text-align:left;padding:6px 10px;color:#64748b;font-weight:500;min-width:160px;border-bottom:0.5px solid rgba(255,255,255,0.1);">Facility</th>';
-      html += '<th style="text-align:center;padding:6px 6px;color:#64748b;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.1);">Overall</th>';
-      catKeys.forEach(k => {
-        html += '<th style="text-align:center;padding:6px 8px;color:#64748b;font-weight:500;min-width:90px;border-bottom:0.5px solid rgba(255,255,255,0.1);">' + catLabels[k] + '<br><span style="font-size:10px;font-weight:400;">(' + (CATEGORIES[k].weight*100).toFixed(0) + '%)</span></th>';
-      });
-      html += '</tr></thead><tbody>';
-
-      bottom6.forEach((b, i) => {
-        const prev = prevMap[b.dataKey];
-        const bg = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
-        html += '<tr style="background:' + bg + ';">';
-        html += '<td style="padding:7px 10px;color:#e2e8f0;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.05);">' + b.name + '</td>';
-        // Overall rank
-        const overallColor = catTextColor(b.rank);
-        const prevOverall = prevMap[b.dataKey] ? prevMap[b.dataKey].rank : null;
-        html += '<td style="text-align:center;padding:7px 6px;border-bottom:0.5px solid rgba(255,255,255,0.05);"><span style="display:inline-flex;align-items:center;gap:3px;background:' + catBadgeBg(b.rank) + ';color:' + catBadgeText(b.rank) + ';font-weight:700;font-size:11px;padding:3px 8px;border-radius:5px;">#' + b.rank + '</span> ' + trendArrow(b.rank, prevOverall) + '</td>';
-        // Category ranks
-        catKeys.forEach(catKey => {
-          const catRank = getCatRankForBuilding(b.dataKey, catKey);
-          const prevCatRank = prevCatRanks[b.dataKey] ? prevCatRanks[b.dataKey][catKey] : null;
-          const bg2 = catColor(catRank);
-          const tc = catTextColor(catRank);
-          // Build tooltip content for this category
-          const catMetrics = CATEGORIES[catKey].metrics;
-          const prevMetricRanks = {};
-          if (prevData && prevData.buildingData[b.dataKey]) {
-            const prevScoresAll = calculateRankBasedScores(prevData);
-            if (prevScoresAll[b.dataKey]) {
-              Object.assign(prevMetricRanks, prevScoresAll[b.dataKey].metricRanks || {});
-            }
-          }
-          const currScoresAll = calculateRankBasedScores(currentData);
-          const currMetricRanks = currScoresAll[b.dataKey] ? currScoresAll[b.dataKey].metricRanks || {} : {};
-          const metricLabels = { healthInspections:'Health Inspections', qmRating:'QM Rating', rehospitalization:'Rehospitalization %', dischargeFunctional:'Discharge Functional %', occupancy:'Occupancy %', medicareCensus:'Medicare Census %', skilledMix:'Skilled Mix #', badDebt:'Bad Debt %', dso:'DSO', noi:'NOI %', labor:'Labor %', otdt:'OT/DT %', rehabProductivity:'Rehab Productivity %', turnover:'Turnover %', workerSafety:'Worker Safety', admissionPacket:'Admission Packet %', arbitration:'Arbitration %', substandardQoc:'Substandard QoC', googleRating:'Google Rating', yelpRating:'Yelp Rating', legalClaims:'Legal Claims #' };
-          let tooltipRows = catMetrics.map(m => {
-            const cr = currMetricRanks[m.key] || '—';
-            const pr = prevMetricRanks[m.key];
-            const arr = pr && cr !== '—' ? (pr > cr ? '↑' : pr < cr ? '↓' : '—') : '—';
-            const arrColor = arr === '↑' ? '#4ade80' : arr === '↓' ? '#f87171' : '#64748b';
-            return '<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:0.5px solid rgba(255,255,255,0.06);"><span style="color:#94a3b8;">' + (metricLabels[m.key]||m.key) + '</span><span style="font-weight:600;color:#e2e8f0;">#' + cr + ' <span style="color:' + arrColor + ';">' + arr + '</span></span></div>';
-          }).join('');
-          const tooltipId = 'tip_' + b.dataKey.replace(/[^a-z0-9]/gi,'_') + '_' + catKey;
-                    html += '<span style="display:inline-flex;align-items:center;gap:3px;background:' + catBadgeBg(catRank) + ';color:' + catBadgeText(catRank) + ';font-weight:700;font-size:11px;padding:3px 8px;border-radius:5px;cursor:default;">#' + catRank + '</span> ' + trendArrow(catRank, prevCatRank);
-          html += '<div id="' + tooltipId + '" style="display:none;position:absolute;z-index:100;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1e293b;border:0.5px solid rgba(255,255,255,0.15);border-radius:8px;padding:10px 12px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,0.4);text-align:left;">';
-          html += '<div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:0.06em;margin-bottom:6px;">' + catKey.toUpperCase() + ' METRICS</div>';
-          html += tooltipRows;
-          html += '</div>';
-          html += '</td>';
-        });
-        html += '</tr>';
-      });
-
-      html += '</tbody></table></div></div>';
-      return html;
-    }
 
     function renderCategoryRankings() {
       const catKey = document.getElementById('categorySelect').value;
