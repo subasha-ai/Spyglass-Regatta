@@ -1841,7 +1841,10 @@ function toggleQ1Review() {
 
     function buildCategoryHeatmap() {
       const table = document.getElementById('catHeatmapTable');
-      if (!table || !currentData || !allData || allData.length < 2) return;
+      const debugDiv = document.getElementById('categoryHeatmapContent');
+      if (!table) { if(debugDiv) debugDiv.insertAdjacentHTML('afterbegin','<div style="color:#f87171;padding:8px;">Error: table not found</div>'); return; }
+      if (!currentData) { table.innerHTML = '<tbody><tr><td style="color:#f87171;padding:8px;">Error: no currentData</td></tr></tbody>'; return; }
+      if (!allData || allData.length < 2) { table.innerHTML = '<tbody><tr><td style="color:#f87171;padding:8px;">Error: allData length=' + (allData ? allData.length : 'null') + '</td></tr></tbody>'; return; }
       const ranked = getRanked();
       if (!ranked || ranked.length === 0) return;
       const prevData = allData[allData.length - 2];
