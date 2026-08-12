@@ -2702,6 +2702,2465 @@ function toggleQ1Review() {
       // Get rank movement analysis
       const movementHTML = getRankMovementAnalysis(dataKey, buildingData);
       
+      document.getElementById('buildingContent').innerHTML = `<div class="card" style="margin-top:1rem;">
+        <div class="method-title">📁 Data Sources, Frequency & Lag</div>
+        <p class="method-text" style="margin-bottom:1.5rem;">All metrics are updated monthly and scored as a year-to-date average unless noted. Substandard QoC and Legal Claims use the current month value only (not averaged).</p>
+
+        <style>
+          .dsrc-table { width:100%; border-collapse:collapse; font-size:13px; }
+          .dsrc-table th { text-align:left; padding:8px 12px; color:#64748b; font-weight:600; font-size:11px; border-bottom:1px solid rgba(255,255,255,0.12); }
+          .dsrc-table td { padding:9px 12px; border-bottom:0.5px solid rgba(255,255,255,0.07); vertical-align:top; }
+          .dsrc-table tr:last-child td { border-bottom:none; }
+          .dsrc-metric { font-weight:600; color:#e2e8f0; }
+          .dsrc-cat { font-size:10px; font-weight:700; letter-spacing:0.05em; padding:2px 7px; border-radius:4px; margin-bottom:4px; display:inline-block; }
+          .lag-min { color:#4ade80; } .lag-mod { color:#fde047; } .lag-heavy { color:#f87171; } .lag-unk { color:#94a3b8; }
+          .freq-pill { display:inline-flex; align-items:center; gap:4px; font-size:12px; color:#94a3b8; }
+          .dsrc-table tr:hover td { background:rgba(255,255,255,0.02); }
+          .cat-header td { background:rgba(255,255,255,0.04); padding:6px 12px; }
+          .cat-label { font-size:11px; font-weight:700; letter-spacing:0.06em; color:#94a3b8; }
+        </style>
+
+        <div style="overflow-x:auto;">
+        <table class="dsrc-table">
+          <thead><tr>
+            <th style="min-width:180px;">Data Metric</th>
+            <th style="min-width:120px;">Update Frequency</th>
+            <th style="min-width:200px;">Source Material</th>
+            <th style="min-width:220px;">Data Lag Status</th>
+          </tr></thead>
+          <tbody>
+
+          <!-- CARE -->
+          <tr class="cat-header"><td colspan="4"><span class="cat-label">🏥 CARE — 26% of total score</span></td></tr>
+          <tr><td><div class="dsrc-metric">Health Inspections</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>SNF Provider Preview Report (IQIES)</td><td><span class="lag-min">⚡ Minimal Lag</span> — Updated as states upload forms</td></tr>
+          <tr><td><div class="dsrc-metric">QM Star Rating</div></td><td><span class="freq-pill">📅 Quarterly</span></td><td>SNF Provider Preview Report (IQIES)</td><td><span class="lag-mod">⚠️ Moderate Lag</span> — Quarterly clinical lookback windows</td></tr>
+          <tr><td><div class="dsrc-metric">Rehospitalization %</div></td><td><span class="freq-pill">📅 Quarterly</span></td><td>5 Star Preview Report</td><td><span class="lag-heavy">🔴 Heavy Lag</span> — 6 to 18-month delay for claims clearance</td></tr>
+          <tr><td><div class="dsrc-metric">Discharge Functional %</div></td><td><span class="freq-pill">📅 Quarterly</span></td><td>SNF QRP Report (MDS Section GG)</td><td><span class="lag-heavy">🔴 Heavy Lag</span> — 6 to 18-month delay, rolling 12-month target windows</td></tr>
+
+          <!-- CENSUS -->
+          <tr class="cat-header"><td colspan="4"><span class="cat-label">📊 CENSUS — 20% of total score</span></td></tr>
+          <tr><td><div class="dsrc-metric">Occupancy %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements & Megadata</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+          <tr><td><div class="dsrc-metric">Medicare Census %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>PCC — Census vs Budget Report</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+          <tr><td><div class="dsrc-metric">Skilled Mix #</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Megadata</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+
+          <!-- COLLECTIONS -->
+          <tr class="cat-header"><td colspan="4"><span class="cat-label">💰 COLLECTIONS — 10% of total score</span></td></tr>
+          <tr><td><div class="dsrc-metric">Bad Debt %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month financials</td></tr>
+          <tr><td><div class="dsrc-metric">DSO</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>AR Trends Report</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month AR data</td></tr>
+
+          <!-- CONTROLS -->
+          <tr class="cat-header"><td colspan="4"><span class="cat-label">⚙️ CONTROLS — 14% of total score</span></td></tr>
+          <tr><td><div class="dsrc-metric">NOI %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month financials</td></tr>
+          <tr><td><div class="dsrc-metric">Labor %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month financials</td></tr>
+          <tr><td><div class="dsrc-metric">OT/DT %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Megadata</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+          <tr><td><div class="dsrc-metric">Rehab Productivity %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Nethealth</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+
+          <!-- CULTURE -->
+          <tr class="cat-header"><td colspan="4"><span class="cat-label">❤️ CULTURE — 12% of total score</span></td></tr>
+          <tr><td><div class="dsrc-metric">Turnover %</div></td><td><span class="freq-pill">📅 Quarterly</span></td><td>Care Compare</td><td><span class="lag-mod">⚠️ Moderate Lag</span> — Updated quarterly by CMS</td></tr>
+          <tr><td><div class="dsrc-metric">Worker Safety Score</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Pending confirmation</td><td><span class="lag-unk">❓ Source TBD</span></td></tr>
+
+          <!-- COMPLIANCE -->
+          <tr class="cat-header"><td colspan="4"><span class="cat-label">✅ COMPLIANCE — 10% of total score</span></td></tr>
+          <tr><td><div class="dsrc-metric">Admission Packet %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>SharePoint Spreadsheet</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+          <tr><td><div class="dsrc-metric">Arbitration %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>SharePoint Spreadsheet</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+          <tr><td><div class="dsrc-metric">Substandard QoC <span style="font-size:10px;background:rgba(251,191,36,0.15);color:#f5c842;padding:1px 5px;border-radius:3px;margin-left:4px;">current month only</span></div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>IQIES — Form CMS 2567</td><td><span class="lag-min">⚡ Minimal Lag</span> — Active deficiencies, not averaged</td></tr>
+
+          <!-- CREDIBILITY -->
+          <tr class="cat-header"><td colspan="4"><span class="cat-label">⭐ CREDIBILITY — 8% of total score</span></td></tr>
+          <tr><td><div class="dsrc-metric">Google Rating</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Google Business</td><td><span class="lag-min">⚡ Minimal Lag</span> — Live ratings</td></tr>
+          <tr><td><div class="dsrc-metric">Yelp Rating</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Yelp</td><td><span class="lag-min">⚡ Minimal Lag</span> — Live ratings</td></tr>
+          <tr><td><div class="dsrc-metric">Legal Claims # <span style="font-size:10px;background:rgba(251,191,36,0.15);color:#f5c842;padding:1px 5px;border-radius:3px;margin-left:4px;">current month only</span></div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Shomer Insurance Group</td><td><span class="lag-min">⚡ Minimal Lag</span> — Currently open claims, not averaged</td></tr>
+
+          </tbody>
+        </table>
+        </div>
+      </div>
+  </div>
+  
+  <div id="mainContent" style="display:none;">
+  <div class="bg-pattern"></div>
+  <div class="header">
+    <div class="header-content">
+      <div class="logo">
+        <div class="logo-icon">
+          <div class="logo-box"><img src="icon-192.png" alt="Spyglass Regatta"></div>
+        </div>
+        <div class="logo-text">
+          <h1>The Spyglass Regatta</h1>
+          <p>Performance • Rankings • Excellence</p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        
+        <select id="monthSelect"></select>
+        <div class="month-badge" id="currentMonth">Loading...</div>
+        
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    
+    <div class="tabs">
+      <button class="tab active" data-tab="podium">⛵ The Fleet</button>
+      <button class="tab" data-tab="race">🏁 The Race</button>
+      <button class="tab" style="display:none" data-tab="radar">🎯 Radar</button>
+      <button class="tab" style="display:none" data-tab="heatmap">🔥 Heat Map</button>
+      <button class="tab" data-tab="categories">📊 Category Rankings</button>
+      <button class="tab" data-tab="building">🏢 Building Detail</button>
+      <button class="tab" data-tab="regional">🗺️ Regional</button>
+      <button class="tab" data-tab="trends">📈 Trends</button>
+      <button class="tab" data-tab="simulator">🧭 The Compass</button>
+      <button class="tab" style="display:none" data-tab="compare">⚖️ Compare</button>
+      <button class="tab" data-tab="insights">📖 Insights</button>
+      <button class="tab" data-tab="methodology">📋 Methodology</button>
+    </div>
+    
+    <div id="regatraReportBar" style="display:none;margin-bottom:1rem;"><button id="q1ReviewToggle" onclick="toggleQ1Review()" style="width:100%;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);color:#f5c842;padding:0.75rem 1.25rem;border-radius:10px;cursor:pointer;font-size:0.9rem;font-weight:600;text-align:left;display:flex;justify-content:space-between;align-items:center;"><span>&#9956; The Regatta Report — Season summary, category leaders &amp; regional breakdown</span><span id="q1ReviewArrow">&#9662;</span></button><div id="q1ReviewContent" style="display:none;margin-top:1rem;"></div></div>
+    <div id="searchFilterBar" style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+      <input type="text" id="searchInput" placeholder="🔍 Search buildings..." oninput="filterBuildings()" style="flex:1;min-width:200px;padding:0.6rem 1rem;border-radius:8px;border:1px solid var(--white-20);background:var(--white-05);color:var(--slate-100);font-size:0.9rem;">
+      <select id="regionFilter" onchange="filterBuildings()" style="padding:0.6rem 1rem;border-radius:8px;border:1px solid var(--white-20);background:var(--white-05);color:var(--slate-100);font-size:0.9rem;">
+        <option value="">All Regions</option>
+        <option value="Golden Coast">Golden Coast</option>
+        <option value="Overland">Overland</option>
+      </select>
+    </div>
+    
+    <div id="podium" class="tab-content active">
+      <div id="monthlyHighlights" class="card" style="display:none;background:linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(245,158,11,0.05) 100%);border:1px solid rgba(251,191,36,0.3);">
+        
+        <div id="highlightsContent"></div>
+      </div>
+      
+      <div class="card"><div class="card-title">🏆 Top Performers <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Lowest Score Wins)</span></div><div id="podiumContent"><div class="loading">Loading data...</div></div></div>
+      <div class="card"><div class="card-title">Complete Rankings</div><div id="moversStrip" style="display:none;padding:0.5rem 0 0.75rem;border-bottom:1px solid var(--white-10);margin-bottom:0.5rem;font-size:0.85rem;display:flex;gap:1.5rem;flex-wrap:wrap;"></div><div id="quickRankings"></div></div>
+    </div>
+    
+    <div id="radar" class="tab-content">
+      <div class="filter-row">
+        <select id="radarSelect1"><option value="">Select Building 1</option></select>
+        <select id="radarSelect2"><option value="">Select Building 2 (optional)</option></select>
+        <select id="radarSelect3"><option value="">Select Building 3 (optional)</option></select>
+      </div>
+      <div class="card">
+        <div class="card-title">🎯 Category Comparison <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Higher = Better Performance)</span></div>
+        <div class="radar-wrapper"><canvas id="radarChart"></canvas></div>
+      </div>
+    </div>
+    
+    <div id="heatmap" class="tab-content">
+      <div class="card">
+        <div class="card-title">🔥 Weighted Rank Heat Map</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Weighted rank contribution per category (green = low/good, red = high/needs work)</p>
+        <div class="heatmap-container"><table class="heatmap" id="heatmapTable"></table></div>
+      </div>
+    </div>
+    
+    <div id="categories" class="tab-content">
+      <div class="card" style="margin-bottom:1rem;">
+        <div id="categoryHeatmapContent">
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;color:#94a3b8;margin-bottom:0.75rem;">ALL BUILDINGS — CATEGORY BREAKDOWN <span style="font-weight:400;color:#475569;">(hover a cell to see metric breakdown)</span></div>
+        <div style="overflow-x:auto;">
+          <table id="catHeatmapTable" style="width:100%;border-collapse:collapse;font-size:12px;"></table>
+        </div>
+      </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Category Rankings</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select a category and metric to see all buildings ranked #1-#18</p>
+        <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+          <select id="categorySelect" onchange="updateMetricSelect()" style="flex:1;min-width:200px;padding:0.75rem;border-radius:8px;background:var(--white-05);border:1px solid var(--white-10);color:var(--slate-200);font-size:1rem;">
+            <option value="">Select Category</option>
+          </select>
+          <select id="metricSelect" onchange="renderCategoryRankings()" style="flex:1;min-width:200px;padding:0.75rem;border-radius:8px;background:var(--white-05);border:1px solid var(--white-10);color:var(--slate-200);font-size:1rem;">
+            <option value="">Select Metric</option>
+          </select>
+        </div>
+        <div id="categoryRankingsContent"></div>
+      </div>
+    </div>
+    
+    <div id="building" class="tab-content">
+      <div class="filter-row" style="display:flex;gap:1rem;align-items:center;">
+        <select id="buildingSelect" style="flex:1;"><option value="">Select a Building</option></select>
+        <button id="shareBtn" onclick="copyShareLink()" style="background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.6rem 1rem;border-radius:8px;cursor:pointer;font-size:0.85rem;white-space:nowrap;" onmouseover="this.style.background='var(--white-20)'" onmouseout="this.style.background='var(--white-10)'">🔗 Share</button>
+      </div>
+      <div id="buildingContent"></div>
+    </div>
+    
+    <div id="regional" class="tab-content">
+      <div class="filter-row"><select id="regionalMonthSelect"></select></div>
+      <div class="grid-2">
+        <div class="region-card">
+          <div class="region-header"><span class="region-badge region-gc">Golden Coast</span><span style="font-weight:600;color:var(--slate-300)">9 Buildings</span></div>
+          <div class="region-stats" id="gcStats"></div><div id="gcTopBuildings"></div>
+        </div>
+        <div class="region-card">
+          <div class="region-header"><span class="region-badge region-ol">Overland</span><span style="font-weight:600;color:var(--slate-300)">9 Buildings</span></div>
+          <div class="region-stats" id="olStats"></div><div id="olTopBuildings"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1.5rem">
+        <div class="card-title">Category Comparison: Golden Coast vs Overland <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(Lower = Better)</span></div>
+        <div class="chart-wrapper" style="height:300px"><canvas id="regionalChart"></canvas></div>
+        <div class="legend-inline">
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Golden Coast</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div> Overland</div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="trends" class="tab-content">
+      <div class="card">
+        <div class="card-title">📈 Rank Trajectory <span style="font-size:0.8rem;color:var(--slate-400);font-weight:normal">(lower = better)</span></div>
+        <div id="bumpLegend" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;font-size:0.75rem;"></div>
+        <div class="chart-wrapper" style="height:520px"><canvas id="trendsChart" role="img" aria-label="Bump chart showing rank trajectories for all facilities across months">Rank trajectories over time.</canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Rank Heatmap</div>
+        <div id="rankHeatmap" style="overflow-x:auto;"></div>
+      </div>
+    </div>
+    
+    <div id="simulator" class="tab-content">
+      <div class="card">
+        <div class="card-title">🧭 The Compass</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Chart your course to better rankings. Adjust metric values to see how changes would affect your building's position in the regatta!</p>
+        <div style="display:flex;gap:1rem;margin-bottom:1rem;">
+          <button id="simModeMetrics" onclick="setSimMode('metrics')" class="sim-mode-btn active" style="flex:1;padding:0.75rem;border-radius:8px;font-weight:600;cursor:pointer;border:1px solid var(--gold);background:rgba(251,191,36,0.2);color:var(--gold);">📊 Adjust Metrics</button>
+          <button id="simModeWeights" onclick="setSimMode('weights')" class="sim-mode-btn" style="flex:1;padding:0.75rem;border-radius:8px;font-weight:600;cursor:pointer;border:1px solid var(--white-20);background:var(--white-05);color:var(--slate-300);">⚖️ Adjust Weights</button>
+        </div>
+        <div id="simMetricsMode">
+          <div class="filter-row">
+            <select id="simBuildingSelect" onchange="initSimulator()"><option value="">Select a Building</option></select>
+            <button onclick="resetSimulator()" style="background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">↺ Reset Course</button>
+          </div>
+        </div>
+        <div id="simWeightsMode" style="display:none;">
+          <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.85rem">Drag sliders to see how different category weights would change rankings. Total must equal 100%.</p>
+          <div id="weightSliders"></div>
+          <button onclick="resetWeights()" style="margin-top:1rem;background:var(--white-10);border:1px solid var(--white-20);color:var(--slate-300);padding:0.75rem 1.5rem;border-radius:10px;font-weight:600;cursor:pointer;">↺ Reset to Default Weights</button>
+        </div>
+      </div>
+      <div id="simResults" style="display:none;">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">📍 Current vs New Bearing</div>
+            <div id="simComparison"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">🌊 Course Changes</div>
+            <div id="simImpact"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">⚓ Adjust Your Heading</div>
+          <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Change values below to chart a new course. Results update automatically.</p>
+          <div id="simMetricInputs"></div>
+        </div>
+      </div>
+      <div id="weightResults" style="display:none;">
+        <div class="card">
+          <div class="card-title">📊 Rankings with Adjusted Weights</div>
+          <div id="weightRankingsComparison"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="compare" class="tab-content">
+      <div class="card">
+        <div class="card-title">⚖️ Side-by-Side Compare</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select two buildings to compare their performance head-to-head across all metrics.</p>
+        <div class="filter-row" style="display:grid;grid-template-columns:1fr 60px 1fr;gap:1rem;align-items:center;">
+          <select id="compareBuilding1" onchange="renderCompare()"><option value="">Select Building 1</option></select>
+          <div style="text-align:center;color:var(--gold);font-weight:700;font-size:1.1rem;">VS</div>
+          <select id="compareBuilding2" onchange="renderCompare()"><option value="">Select Building 2</option></select>
+        </div>
+      </div>
+      <div id="compareResults" style="display:none;">
+        <div class="card">
+          <div id="compareScoreSummary"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 Metric-by-Metric Breakdown</div>
+          <div id="compareMetrics"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🏅 Category Scores</div>
+          <div id="compareCategories"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="race" class="tab-content">
+      <div class="card" style="margin-bottom:1.5rem;position:relative;">
+        <div id="raceHeader" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:1rem;position:sticky;top:0;background:inherit;padding:0.75rem 0;z-index:10;border-bottom:1px solid var(--white-10);">
+          <div class="card-title" style="margin:0;">⛵ The Regatta</div>
+          <div id="raceControls" style="display:flex;gap:0.75rem;align-items:center;">
+            <span id="raceStatus" style="color:var(--slate-400);font-size:0.85rem;"></span>
+            <button id="raceBtn" onclick="animateRace()" style="background:linear-gradient(135deg,#1e3a5f,#2d4a6f);border:1px solid var(--gold);color:var(--gold);padding:0.5rem 1.25rem;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">▶️ Start Race</button>
+          </div>
+        </div>
+        <div id="bumpChart" style="position:relative;min-height:500px;"></div>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1rem;">
+        <div class="card spotlight-card" id="mostImprovedCard" style="cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;" onclick="toggleSpotlightDetail('mostImproved')">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+            <span style="font-size:1.5rem;">🚀</span>
+            <span style="font-weight:700;color:var(--slate-200);">Most Improved</span>
+          </div>
+          <div id="mostImprovedSummary" style="font-size:1.25rem;font-weight:800;color:var(--gold);"></div>
+          <div id="mostImprovedDetail" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--white-10);font-size:0.9rem;"></div>
+        </div>
+        
+        <div class="card spotlight-card" id="oneToWatchCard" style="cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;" onclick="toggleSpotlightDetail('oneToWatch')">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+            <span style="font-size:1.5rem;">🎯</span>
+            <span style="font-weight:700;color:var(--slate-200);">One to Watch</span>
+          </div>
+          <div id="oneToWatchSummary" style="font-size:1.25rem;font-weight:800;color:var(--gold);"></div>
+          <div id="oneToWatchDetail" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--white-10);font-size:0.9rem;"></div>
+        </div>
+        
+        <div class="card spotlight-card" id="regionalWinnerCard" style="cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;" onclick="toggleSpotlightDetail('regionalWinner')">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+            <span style="font-size:1.5rem;">🏅</span>
+            <span style="font-weight:700;color:var(--slate-200);">Regional Standings</span>
+          </div>
+          <div id="regionalWinnerSummary" style="font-size:1.25rem;font-weight:800;color:var(--gold);"></div>
+          <div id="regionalWinnerDetail" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--white-10);font-size:0.9rem;"></div>
+        </div>
+        
+        <div class="card spotlight-card" id="categoryChampionsCard" style="cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;" onclick="toggleSpotlightDetail('categoryChampions')">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+            <span style="font-size:1.5rem;">⭐</span>
+            <span style="font-weight:700;color:var(--slate-200);">Category Champions</span>
+          </div>
+          <div id="categoryChampionsSummary" style="font-size:1.1rem;font-weight:600;color:var(--gold);"></div>
+          <div id="categoryChampionsDetail" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--white-10);font-size:0.9rem;"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="insights" class="tab-content">
+      <div class="card">
+        <div class="card-title">📖 Monthly Story</div>
+        <div id="monthlyStoryContent" style="color:var(--slate-200);line-height:1.8;font-size:1.05rem;"></div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">📊 Metric Spotlight</div>
+        <div id="metricSpotlightContent" style="color:var(--slate-200);"></div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">🔮 AI Trajectory</div>
+        <p style="color:var(--slate-400);margin-bottom:1rem;font-size:0.9rem">Select a building to see projected ranking and key opportunities</p>
+        <select id="trajectoryBuildingSelect" onchange="showTrajectoryForBuilding()" style="width:100%;max-width:350px;padding:0.75rem;border-radius:8px;background:var(--white-05);border:1px solid var(--white-10);color:var(--slate-200);font-size:1rem;margin-bottom:1rem;">
+          <option value="">Select a building...</option>
+        </select>
+        <div id="trajectoryContent"></div>
+      </div>
+    </div>
+    
+    <div id="methodology" class="tab-content">
+      <div class="card">
+        <div class="method-section">
+          <div class="method-title">📐 How Scoring Works</div>
+          <p class="method-text">Each building is ranked #1–18 for every metric. Ranks are weighted and summed. <strong>Lowest total score wins</strong> (like golf).</p>
+          <div class="formula-box">Score = Σ (Rank × Metric Weight × Category Weight)</div>
+        </div>
+        <div class="method-section">
+          <div class="method-title">🔢 The Process</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;">
+            <div style="background:var(--white-05);padding:1rem;border-radius:10px;"><div style="font-size:1.25rem;color:var(--gold);font-weight:700;margin-bottom:0.5rem;">1. Rank</div><div style="color:var(--slate-300);font-size:0.9rem;">For each metric, rank all buildings. Best = #1. Ties share ranks.</div></div>
+            <div style="background:var(--white-05);padding:1rem;border-radius:10px;"><div style="font-size:1.25rem;color:var(--gold);font-weight:700;margin-bottom:0.5rem;">2. Weight</div><div style="color:var(--slate-300);font-size:0.9rem;">Multiply rank by metric weight and category weight.</div></div>
+            <div style="background:var(--white-05);padding:1rem;border-radius:10px;"><div style="font-size:1.25rem;color:var(--gold);font-weight:700;margin-bottom:0.5rem;">3. Sum</div><div style="color:var(--slate-300);font-size:0.9rem;">Add all weighted ranks across all 21 metrics.</div></div>
+            <div style="background:var(--white-05);padding:1rem;border-radius:10px;"><div style="font-size:1.25rem;color:var(--gold);font-weight:700;margin-bottom:0.5rem;">4. Rank</div><div style="color:var(--slate-300);font-size:0.9rem;">Lowest total score = #1 overall.</div></div>
+          </div>
+          <p class="method-text" style="margin-top:1rem;font-size:0.85rem;color:var(--slate-400);">Best possible: 1.00 (rank #1 in everything) · Worst possible: 18.00</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="method-title">📊 Categories & Metrics</div>
+        <p class="method-text" style="margin-bottom:1rem;">7 categories, 21 metrics. Each metric shows its weight within the category and direction (↑ higher is better, ↓ lower is better).</p>
+        <div class="category-grid">
+          <div class="category-card"><div class="category-header"><span class="category-name">🏥 Care</span><span class="category-weight">26%</span></div><div class="metric-row"><span class="metric-name">Health Inspections</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">QM Rating</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Rehospitalization %</span><span><span class="metric-weight">25%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Discharge Functional %</span><span><span class="metric-weight">25%</span><span class="metric-direction higher-better">↑</span></span></div></div>
+          <div class="category-card"><div class="category-header"><span class="category-name">📈 Census</span><span class="category-weight">20%</span></div><div class="metric-row"><span class="metric-name">Occupancy %</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Medicare Census %</span><span><span class="metric-weight">40%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Skilled Mix #</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div></div>
+          <div class="category-card"><div class="category-header"><span class="category-name">💰 Collections</span><span class="category-weight">10%</span></div><div class="metric-row"><span class="metric-name">Bad Debt %</span><span><span class="metric-weight">70%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">DSO</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div></div>
+          <div class="category-card"><div class="category-header"><span class="category-name">⚙️ Controls</span><span class="category-weight">14%</span></div><div class="metric-row"><span class="metric-name">NOI %</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Labor %</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">OT/DT %</span><span><span class="metric-weight">25%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Rehab Productivity %</span><span><span class="metric-weight">15%</span><span class="metric-direction higher-better">↑</span></span></div></div>
+          <div class="category-card"><div class="category-header"><span class="category-name">👥 Culture</span><span class="category-weight">12%</span></div><div class="metric-row"><span class="metric-name">Turnover %</span><span><span class="metric-weight">50%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Worker Safety</span><span><span class="metric-weight">50%</span><span class="metric-direction higher-better">↑</span></span></div></div>
+          <div class="category-card"><div class="category-header"><span class="category-name">✅ Compliance</span><span class="category-weight">10%</span></div><div class="metric-row"><span class="metric-name">Admission Packet %</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Arbitration %</span><span><span class="metric-weight">40%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Substandard QoC</span><span><span class="metric-weight">40%</span><span class="metric-direction lower-better">↓</span></span></div></div>
+          <div class="category-card"><div class="category-header"><span class="category-name">⭐ Credibility</span><span class="category-weight">8%</span></div><div class="metric-row"><span class="metric-name">Google Rating</span><span><span class="metric-weight">10%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Yelp Rating</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Legal Claims</span><span><span class="metric-weight">70%</span><span class="metric-direction lower-better">↓</span></span></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="method-section" style="margin-bottom:0">
+          <div class="method-title">⚠️ Missing Data</div>
+          <p class="method-text" style="margin-bottom:0">If all buildings are missing a metric, it's excluded from scoring. If only some buildings are missing data, they receive rank 9 (middle) for that metric.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metric Deep Dive Modal -->
+  <div id="metricModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;overflow-y:auto;">
+    <div style="max-width:800px;margin:2rem auto;background:var(--slate-800);border-radius:16px;border:1px solid var(--white-10);padding:1.5rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h3 id="metricModalTitle" style="color:var(--slate-100);margin:0;font-size:1.25rem;"></h3>
+        <button onclick="closeMetricModal()" style="background:none;border:none;color:var(--slate-400);font-size:1.5rem;cursor:pointer;">&times;</button>
+      </div>
+      <div id="metricModalContent"></div>
+    </div>
+  </div>
+
+  <!-- Watch List Modal -->
+  
+
+  <!-- AI Trajectory Modal -->
+  <div id="aiTrajectoryModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto;">
+    <div style="max-width:550px;margin:2rem auto;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:16px;border:1px solid rgba(251,191,36,0.3);padding:1.5rem;box-shadow:0 0 40px rgba(251,191,36,0.15);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h3 style="color:#fbbf24;margin:0;font-size:1.25rem;display:flex;align-items:center;gap:0.5rem;">🔮 AI Trajectory</h3>
+        <button onclick="closeAITrajectory()" style="background:none;border:none;color:#94a3b8;font-size:1.5rem;cursor:pointer;">&times;</button>
+      </div>
+      <div id="aiTrajectoryContent" style="color:#e2e8f0;">
+        <div style="text-align:center;padding:2rem;">
+          <div class="loading-spinner" style="border:3px solid rgba(251,191,36,0.3);border-top-color:#fbbf24;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 1rem;"></div>
+          <p style="color:#94a3b8;">Analyzing trajectory...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BUILDINGS = [
+      { name: "Belmont Healthcare Center", region: "Overland", dataKey: "Belmont HC" },
+      { name: "Blue Oak Post-Acute", region: "Overland", dataKey: "Blue Oak" },
+      { name: "Bridgewood Post-Acute", region: "Overland", dataKey: "Bridgewood PA" },
+      { name: "Camino Ridge Post-Acute", region: "Golden Coast", dataKey: "Camino Ridge Post Acute" },
+      { name: "Capital Post-Acute", region: "Overland", dataKey: "Capital PA" },
+      { name: "Cedarwood Post-Acute", region: "Overland", dataKey: "Cedarwood PA" },
+      { name: "Eden Healthcare Center", region: "Overland", dataKey: "Eden HC" },
+      { name: "Gilroy Healthcare Center", region: "Golden Coast", dataKey: "Gilroy HC" },
+      { name: "Golden Harbor Healthcare Center", region: "Overland", dataKey: "Golden Harbor HC" },
+      { name: "Los Altos Post-Acute", region: "Golden Coast", dataKey: "Los Altos Post Acute" },
+      { name: "Manresa Healthcare Center", region: "Golden Coast", dataKey: "Manresa HC" },
+      { name: "Morgan Hill Healthcare Center", region: "Golden Coast", dataKey: "Morgan Hill HC" },
+      { name: "Mountain View Healthcare Center", region: "Golden Coast", dataKey: "Mountain View HC" },
+      { name: "Pacific Coast Manor", region: "Golden Coast", dataKey: "Pacific Coast Manor" },
+      { name: "Pacific Hills Post-Acute", region: "Golden Coast", dataKey: "PAC Hills Post Acute" },
+      { name: "Palo Alto Post-Acute", region: "Golden Coast", dataKey: "Palo Alto Post Acute" },
+      { name: "The Win Post-Acute", region: "Golden Coast", dataKey: "The Win Post Acute" },
+      { name: "West Shore Post-Acute", region: "Overland", dataKey: "West Shore PA" }
+    ];
+    
+    const CATEGORIES = {
+      care: { name: "Care", weight: 0.26, metrics: [
+        { key: "healthInspections", label: "Health Inspections", weight: 0.30, higher: false },
+        { key: "qmRating", label: "QM Rating", weight: 0.20, higher: true },
+        { key: "rehospitalization", label: "Rehospitalization %", weight: 0.25, higher: false },
+        { key: "dischargeFunctional", label: "Discharge Functional %", weight: 0.25, higher: true }
+      ]},
+      census: { name: "Census", weight: 0.20, metrics: [
+        { key: "occupancy", label: "Occupancy %", weight: 0.30, higher: true },
+        { key: "medicareCensus", label: "Medicare Census %", weight: 0.40, higher: true },
+        { key: "skilledMix", label: "Skilled Mix #", weight: 0.30, higher: true }
+      ]},
+      collections: { name: "Collections", weight: 0.10, metrics: [
+        { key: "badDebt", label: "Bad Debt %", weight: 0.70, higher: false },
+        { key: "dso", label: "DSO", weight: 0.30, higher: false }
+      ]},
+      controls: { name: "Controls", weight: 0.14, metrics: [
+        { key: "noi", label: "NOI %", weight: 0.30, higher: true },
+        { key: "labor", label: "Labor %", weight: 0.30, higher: false },
+        { key: "otdt", label: "OT/DT %", weight: 0.25, higher: false },
+        { key: "rehabProductivity", label: "Rehab Productivity %", weight: 0.15, higher: true }
+      ]},
+      culture: { name: "Culture", weight: 0.12, metrics: [
+        { key: "turnover", label: "Turnover %", weight: 0.50, higher: false },
+        { key: "workerSafety", label: "Worker Safety", weight: 0.50, higher: true }
+      ]},
+      compliance: { name: "Compliance", weight: 0.10, metrics: [
+        { key: "admissionPacket", label: "Admission Packet %", weight: 0.20, higher: true },
+        { key: "arbitration", label: "Arbitration %", weight: 0.40, higher: true },
+        { key: "substandardQoc", label: "Substandard QoC", weight: 0.40, higher: false }
+      ]},
+      credibility: { name: "Credibility", weight: 0.08, metrics: [
+        { key: "googleRating", label: "Google Rating", weight: 0.10, higher: true },
+        { key: "yelpRating", label: "Yelp Rating", weight: 0.20, higher: true },
+        { key: "legalClaims", label: "Legal Claims", weight: 0.70, higher: false }
+      ]}
+    };
+    
+    const COLORS = ['#f59e0b','#10b981','#3b82f6','#14b8a6','#8b5cf6','#ef4444','#84cc16','#06b6d4','#fbbf24','#6366f1','#4ade80','#22d3ee','#a855f7','#f97316','#2dd4bf','#eab308','#0ea5e9'];
+    let allData = [], currentData = null, regionalMonthData = null, charts = {};
+    Chart.defaults.color = '#94a3b8'; Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+
+    document.addEventListener('DOMContentLoaded', initDashboard);
+
+    async function initDashboard() {
+      initTheme(); await loadDataFromJSON(); initTabs(); initSelects(); initMonthSelect(); initRegionalMonthSelect(); updateAllDisplays(); parseURLParams();
+    }
+    
+    async function loadDataFromJSON() {
+      try { 
+        const response = await fetch('data.json'); 
+        const jsonData = await response.json(); 
+        Object.entries(jsonData).forEach(([month, buildingData]) => { allData.push({ month, buildingData }); }); 
+        currentData = allData[allData.length - 1]; 
+        regionalMonthData = allData[allData.length - 1]; 
+      } catch (err) { console.error('Error:', err); }
+    }
+    
+    function calculateRankBasedScores(monthData) {
+      const scores = {};
+      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
+      BUILDINGS.forEach(b => { scores[b.dataKey] = { total: 0, categoryScores: {}, metricRanks: {}, exists: !!monthData.buildingData[b.dataKey] }; });
+      
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        BUILDINGS.forEach(b => { scores[b.dataKey].categoryScores[catKey] = 0; });
+        
+        cat.metrics.forEach(metric => {
+          const values = availableBuildings.map(b => ({
+            dataKey: b.dataKey,
+            value: monthData.buildingData[b.dataKey][metric.key]
+          })).filter(v => v.value !== null && v.value !== undefined);
+          
+          if (values.length === 0) return;
+          
+          values.sort((a, b) => metric.higher ? b.value - a.value : a.value - b.value);
+          
+          const ranks = {};
+          let currentRank = 1;
+          let i = 0;
+          while (i < values.length) {
+            const currentValue = values[i].value;
+            const tiedItems = values.filter(v => v.value === currentValue);
+            tiedItems.forEach(item => { ranks[item.dataKey] = currentRank; });
+            i += tiedItems.length;
+            currentRank = i + 1;
+          }
+          
+          availableBuildings.forEach(b => {
+            if (ranks[b.dataKey] === undefined) {
+              ranks[b.dataKey] = 9; // middle rank for missing
+            }
+          });
+          
+          availableBuildings.forEach(b => {
+            const rank = ranks[b.dataKey];
+            const contribution = rank * metric.weight * cat.weight;
+            scores[b.dataKey].total += contribution;
+            scores[b.dataKey].categoryScores[catKey] += contribution;
+            scores[b.dataKey].metricRanks[metric.key] = rank;
+          });
+        });
+      });
+      
+      const sortedBuildings = availableBuildings.map(b => ({ dataKey: b.dataKey, score: scores[b.dataKey].total }))
+        .sort((a, b) => a.score - b.score);
+      
+      let rankIdx = 0;
+      while (rankIdx < sortedBuildings.length) {
+        const currentScore = Math.round(sortedBuildings[rankIdx].score * 100) / 100;
+        const tiedItems = sortedBuildings.filter(b => Math.round(b.score * 100) / 100 === currentScore);
+        tiedItems.forEach(item => { scores[item.dataKey].rank = rankIdx + 1; });
+        rankIdx += tiedItems.length;
+      }
+      
+      return scores;
+    }
+    
+    function getRanked(monthData = currentData) {
+      if (!monthData) return [];
+      const scores = calculateRankBasedScores(monthData);
+      return BUILDINGS.filter(b => monthData.buildingData[b.dataKey]).map(b => ({
+        name: b.name,
+        dataKey: b.dataKey,
+        region: b.region,
+        score: scores[b.dataKey].total,
+        rank: scores[b.dataKey].rank,
+        categoryScores: scores[b.dataKey].categoryScores,
+        metricRanks: scores[b.dataKey].metricRanks,
+        metrics: monthData.buildingData[b.dataKey]
+      })).sort((a, b) => a.rank - b.rank);
+    }
+    
+    function getSparklineData(dataKey) {
+      // Get historical ranks for a building across all months
+      const ranks = allData.map(monthData => {
+        const scores = calculateRankBasedScores(monthData);
+        return scores[dataKey]?.rank || null;
+      }).filter(r => r !== null);
+      return ranks;
+    }
+    
+    function getSparklineSVG(dataKey) {
+      const ranks = getSparklineData(dataKey);
+      if (ranks.length < 2) return '';
+      
+      const width = 60, height = 24, padding = 4;
+      const maxRank = 18, minRank = 1;
+      const points = ranks.map((rank, i) => {
+        const x = padding + (i / (ranks.length - 1)) * (width - 2 * padding);
+        const y = padding + ((rank - minRank) / (maxRank - minRank)) * (height - 2 * padding);
+        return `${x},${y}`;
+      }).join(' ');
+      
+      const lastRank = ranks[ranks.length - 1];
+      const prevRank = ranks[ranks.length - 2];
+      const trend = prevRank - lastRank; // positive = improved (lower rank)
+      const color = trend > 0 ? '#22c55e' : trend < 0 ? '#ef4444' : '#f59e0b';
+      const lastX = padding + ((ranks.length - 1) / (ranks.length - 1)) * (width - 2 * padding);
+      const lastY = padding + ((lastRank - minRank) / (maxRank - minRank)) * (height - 2 * padding);
+      
+      return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/><circle cx="${lastX}" cy="${lastY}" r="3" fill="${color}"/></svg>`;
+    }
+    
+    function getStreakInfo(dataKey) {
+      const ranks = getSparklineData(dataKey);
+      if (ranks.length < 2) return { streak: 0, direction: null };
+      
+      let streak = 0;
+      let direction = null;
+      
+      // Check for consecutive improvements (lower rank = better)
+      for (let i = ranks.length - 1; i > 0; i--) {
+        const diff = ranks[i - 1] - ranks[i]; // positive = improved this month
+        if (i === ranks.length - 1) {
+          direction = diff > 0 ? 'up' : diff < 0 ? 'down' : null;
+        }
+        if (direction === 'up' && diff > 0) streak++;
+        else if (direction === 'down' && diff < 0) streak++;
+        else break;
+      }
+      
+      return { streak, direction };
+    }
+    
+    function getStreakBadge(dataKey) {
+      const { streak, direction } = getStreakInfo(dataKey);
+      if (streak < 2) return '';
+      
+      if (direction === 'up') {
+        return `<span style="background:#22c55e;color:white;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:8px;white-space:nowrap;">${streak}-month streak</span>`;
+      } else if (direction === 'down') {
+        return `<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:8px;white-space:nowrap;">${streak}-month decline</span>`;
+      }
+      return '';
+    }
+    
+    function getRankChange(dataKey) {
+      if (allData.length < 2) return { change: 0, text: '' };
+      const prevData = allData[allData.length - 2];
+      const currData = allData[allData.length - 1];
+      const prevScores = calculateRankBasedScores(prevData);
+      const currScores = calculateRankBasedScores(currData);
+      const prevRank = prevScores[dataKey]?.rank || 0;
+      const currRank = currScores[dataKey]?.rank || 0;
+      const change = prevRank - currRank; // positive = improved
+      
+      if (change > 0) return { change, text: `<span style="color:#22c55e;font-size:11px;">↑${change}</span>` };
+      if (change < 0) return { change, text: `<span style="color:#ef4444;font-size:11px;">↓${Math.abs(change)}</span>` };
+      return { change: 0, text: `<span style="color:#64748b;font-size:11px;">→</span>` };
+    }
+    
+    function getCategoryRanksByCategory(monthData = currentData) {
+      if (!monthData) return {};
+      const scores = calculateRankBasedScores(monthData);
+      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
+      const catKeys = Object.keys(CATEGORIES);
+      const catRanks = {};
+      
+      catKeys.forEach(catKey => {
+        const sorted = availableBuildings.map(b => ({ dataKey: b.dataKey, score: scores[b.dataKey].categoryScores[catKey] }))
+          .sort((a, b) => a.score - b.score);
+        sorted.forEach((item, idx) => {
+          if (!catRanks[item.dataKey]) catRanks[item.dataKey] = {};
+          catRanks[item.dataKey][catKey] = idx + 1;
+        });
+      });
+      return catRanks;
+    }
+
+    function initMonthSelect() { const select = document.getElementById('monthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { currentData = allData[parseInt(e.target.value)]; updateAllDisplays(); }); }
+    function initRegionalMonthSelect() { const select = document.getElementById('regionalMonthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { regionalMonthData = allData[parseInt(e.target.value)]; renderRegionalStats(); renderRegionalChart(); }); }
+    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); updateSearchBarVisibility(tab.dataset.tab); clearURLParams(); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'simulator') initSimulator(); if (tab.dataset.tab === 'race') renderRaceTab(); if (tab.dataset.tab === 'categories') { initCategoryRankings(); buildCategoryHeatmap(); } if (tab.dataset.tab === 'insights') renderInsightsTab(); } }); }); }
+    function clearURLParams() { window.history.replaceState({}, '', window.location.pathname); }
+    function updateSearchBarVisibility(tabId) { const showOn = ['podium', 'heatmap']; document.getElementById('searchFilterBar').style.display = showOn.includes(tabId) ? 'flex' : 'none'; }
+    function initSelects() { ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3', 'simBuildingSelect'].forEach(id => { const select = document.getElementById(id); BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.dataKey; opt.textContent = b.name; select.appendChild(opt); }); }); document.getElementById('buildingSelect').addEventListener('change', e => { renderBuildingDetail(e.target.value); if (e.target.value) updateURL('building', e.target.value); }); ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); }); }
+    function getFullName(dataKey) { const b = BUILDINGS.find(b => b.dataKey === dataKey); return b ? b.name : dataKey; }
+    function getRankBadgeClass(rank) { if (rank === 1) return 'rank-1'; if (rank === 2) return 'rank-2'; if (rank === 3) return 'rank-3'; if (rank <= 5) return 'rank-top5'; if (rank >= 13) return 'rank-bottom'; return 'rank-mid'; }
+    
+    function updateAllDisplays() { 
+      document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
+      renderQ1Review(); renderMoversStrip(); renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
+      initCompareSelects();
+      const bs = document.getElementById('buildingSelect'); 
+      if (bs.value) renderBuildingDetail(bs.value); 
+    }
+    
+    function renderPodium() { 
+      if (!currentData) return; 
+      const ranked = getRanked(); 
+      document.getElementById('podiumContent').innerHTML = `<div class="podium-container">
+        <div class="podium-place place-2" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[1].dataKey}')"><div class="podium-avatar" style="background:#94a3b8;color:#0f172a;">2</div><div class="podium-name">${ranked[1].name}</div><div class="podium-score">${ranked[1].score.toFixed(2)} pts</div></div>
+        <div class="podium-place place-1" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[0].dataKey}')"><div class="podium-avatar" style="background:var(--gold);color:var(--navy-dark);">1</div><div class="podium-name">${ranked[0].name}</div><div class="podium-score">${ranked[0].score.toFixed(2)} pts</div></div>
+        <div class="podium-place place-3" style="cursor:pointer" onclick="goToBuildingDetail('${ranked[2].dataKey}')"><div class="podium-avatar" style="background:#cd7f32;color:#1c0a00;">3</div><div class="podium-name">${ranked[2].name}</div><div class="podium-score">${ranked[2].score.toFixed(2)} pts</div></div>
+      </div>`; 
+    }
+    
+    function renderQuickRankings() { 
+      if (!currentData) return; 
+      const ranked = getRanked(); 
+      const maxScore = ranked[ranked.length - 1].score;
+      const minScore = ranked[0].score;
+      document.getElementById('quickRankings').innerHTML = `<div class="rankings-list">${ranked.map((r) => {
+        const { streak, direction } = getStreakInfo(r.dataKey);
+        const streakClass = streak >= 2 ? (direction === 'up' ? 'streak-up' : direction === 'down' ? 'streak-down' : '') : '';
+        const sparkline = getSparklineSVG(r.dataKey);
+        const streakBadge = getStreakBadge(r.dataKey);
+        const rankChange = getRankChange(r.dataKey);
+        return `<div class="rank-item ${streakClass}"><span class="rank-num">${r.rank}</span><div style="cursor:pointer;flex:1;" onclick="goToBuildingDetail('${r.dataKey}')"><span class="rank-name">${r.name}${streakBadge}</span><div class="rank-region">${r.region}</div></div>
+        <div style="display:flex;align-items:center;gap:8px;">${sparkline}${rankChange.text}</div>
+        <span class="rank-score">${r.score.toFixed(2)}</span></div>`;
+      }).join('')}</div>`; 
+    }
+    
+    // Watch List Functions
+    
+    
+    
+    
+    
+    // AI Trajectory Functions
+    function openAITrajectory(dataKey) {
+      const modal = document.getElementById('aiTrajectoryModal');
+      const content = document.getElementById('aiTrajectoryContent');
+      
+      // Show loading
+      content.innerHTML = `<div style="text-align:center;padding:2rem;">
+        <div style="border:3px solid rgba(251,191,36,0.3);border-top-color:#fbbf24;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 1rem;"></div>
+        <p style="color:#94a3b8;">Analyzing trajectory...</p>
+      </div>`;
+      modal.style.display = 'block';
+      
+      // Gather building data
+      const building = BUILDINGS.find(b => b.dataKey === dataKey);
+      const buildingName = building ? building.name : dataKey;
+      
+      // Get historical ranks
+      const historyData = allData.map(monthData => {
+        const scores = calculateRankBasedScores(monthData);
+        return {
+          month: monthData.month,
+          rank: scores[dataKey]?.rank || null,
+          score: scores[dataKey]?.total || null
+        };
+      }).filter(d => d.rank !== null);
+      
+      // Get current metrics and ranks
+      const currentScores = calculateRankBasedScores(currentData);
+      const metricRanks = currentScores[dataKey]?.metricRanks || {};
+      const currentRank = currentScores[dataKey]?.rank || 0;
+      const currentMetrics = currentData.buildingData[dataKey] || {};
+      
+      // Find weakest metrics (highest rank = worst)
+      const sortedMetrics = Object.entries(metricRanks)
+        .filter(([k, v]) => v !== null && v !== undefined)
+        .sort((a, b) => b[1] - a[1]);
+      const weakestMetrics = sortedMetrics.slice(0, 3);
+      const strongestMetrics = sortedMetrics.slice(-3).reverse();
+      
+      // Calculate trajectory
+      let trajectory = 'stable';
+      let projectedRank = currentRank;
+      if (historyData.length >= 2) {
+        const rankChanges = [];
+        for (let i = 1; i < historyData.length; i++) {
+          rankChanges.push(historyData[i-1].rank - historyData[i].rank);
+        }
+        const avgChange = rankChanges.reduce((a, b) => a + b, 0) / rankChanges.length;
+        projectedRank = Math.max(1, Math.min(18, Math.round(currentRank - avgChange)));
+        if (avgChange > 0.5) trajectory = 'improving';
+        else if (avgChange < -0.5) trajectory = 'declining';
+      }
+      
+      // Build the prompt for Claude
+      const prompt = buildTrajectoryPrompt(buildingName, dataKey, historyData, currentRank, projectedRank, trajectory, weakestMetrics, strongestMetrics, currentMetrics, metricRanks);
+      
+      // Call Claude API
+      callClaudeAPI(prompt, content, buildingName, currentRank, projectedRank, trajectory, weakestMetrics);
+    }
+    
+    function buildTrajectoryPrompt(name, dataKey, history, currentRank, projectedRank, trajectory, weakest, strongest, metrics, metricRanks) {
+      const historyStr = history.map(h => `${h.month}: #${h.rank}`).join(', ');
+      const weakestStr = weakest.map(([m, r]) => `${getMetricLabel(m)} (ranked #${r})`).join(', ');
+      const strongestStr = strongest.map(([m, r]) => `${getMetricLabel(m)} (ranked #${r})`).join(', ');
+      
+      return `You are analyzing a skilled nursing facility's performance for executive leadership.
+
+Building: ${name}
+Current Rank: #${currentRank} out of 18 buildings
+Rank History: ${historyStr}
+Trajectory: ${trajectory}
+Projected Next Month: #${projectedRank}
+
+Strongest Metrics: ${strongestStr}
+Weakest Metrics: ${weakestStr}
+
+Provide a brief executive insight in this exact format (use plain text, no markdown):
+
+TRAJECTORY: One sentence on where this building is heading if current trends continue.
+
+KEY OPPORTUNITIES: List 1-2 specific metrics they should focus on to improve their ranking, and estimate how many spots they could gain.
+
+Keep it concise and actionable. No fluff. Leadership style.`;
+    }
+    
+    function getMetricLabel(key) {
+      const labels = {
+        healthInspections: 'Health Inspections',
+        qmRating: 'QM Rating',
+        rehospitalization: 'Rehospitalization',
+        dischargeFunctional: 'Discharge Function',
+        occupancy: 'Occupancy',
+        medicareCensus: 'Medicare Census',
+        skilledMix: 'Skilled Mix',
+        badDebt: 'Bad Debt',
+        dso: 'DSO',
+        noi: 'NOI %',
+        labor: 'Labor %',
+        otdt: 'OT/DT',
+        rehabProductivity: 'Rehab Productivity',
+        turnover: 'Turnover',
+        workerSafety: 'Worker Safety',
+        admissionPacket: 'Admission Packet',
+        arbitration: 'Arbitration',
+        substandardQoc: 'Substandard QoC',
+        googleRating: 'Google Rating',
+        yelpRating: 'Yelp Rating',
+        legalClaims: 'Legal Claims'
+      };
+      return labels[key] || key;
+    }
+    
+    async function callClaudeAPI(prompt, container, buildingName, currentRank, projectedRank, trajectory, weakest) {
+      // Use math-based trajectory (no API call)
+      displayFallbackResult(container, buildingName, currentRank, projectedRank, trajectory, weakest);
+    }
+    
+    function displayTrajectoryResult(container, name, currentRank, projectedRank, trajectory, aiText, weakest) {
+      const trendIcon = trajectory === 'improving' ? '📈' : trajectory === 'declining' ? '📉' : '➡️';
+      const trendColor = trajectory === 'improving' ? '#4ade80' : trajectory === 'declining' ? '#f87171' : '#fbbf24';
+      const projectionText = projectedRank < currentRank ? `↑ #${projectedRank}` : projectedRank > currentRank ? `↓ #${projectedRank}` : `→ #${projectedRank}`;
+      
+      container.innerHTML = `
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-size:1.5rem;font-weight:700;color:#f1f5f9;margin-bottom:0.5rem;">${name}</div>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+            <div style="background:rgba(255,255,255,0.1);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;">Current</div>
+              <div style="font-size:1.5rem;font-weight:700;color:#fbbf24;">#${currentRank}</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.1);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;">Trend</div>
+              <div style="font-size:1.5rem;font-weight:700;color:${trendColor};">${trendIcon} ${trajectory}</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.1);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;">Projected</div>
+              <div style="font-size:1.5rem;font-weight:700;color:${trendColor};">${projectionText}</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:1.25rem;">
+          <div style="font-size:0.8rem;color:#fbbf24;text-transform:uppercase;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">✨ AI Analysis</div>
+          <div style="color:#e2e8f0;line-height:1.6;white-space:pre-line;">${aiText}</div>
+        </div>
+      `;
+    }
+    
+    function displayFallbackResult(container, name, currentRank, projectedRank, trajectory, weakest) {
+      const trendIcon = trajectory === 'improving' ? '📈' : trajectory === 'declining' ? '📉' : '➡️';
+      const trendColor = trajectory === 'improving' ? '#4ade80' : trajectory === 'declining' ? '#f87171' : '#fbbf24';
+      const projectionText = projectedRank < currentRank ? `↑ #${projectedRank}` : projectedRank > currentRank ? `↓ #${projectedRank}` : `→ #${projectedRank}`;
+      
+      const weakestList = weakest.map(([m, r]) => `• Improve ${getMetricLabel(m)} (currently #${r})`).join('\n');
+      
+      container.innerHTML = `
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-size:1.5rem;font-weight:700;color:#f1f5f9;margin-bottom:0.5rem;">${name}</div>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+            <div style="background:rgba(255,255,255,0.1);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;">Current</div>
+              <div style="font-size:1.5rem;font-weight:700;color:#fbbf24;">#${currentRank}</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.1);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;">Trend</div>
+              <div style="font-size:1.5rem;font-weight:700;color:${trendColor};">${trendIcon} ${trajectory}</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.1);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:#94a3b8;text-transform:uppercase;">Projected</div>
+              <div style="font-size:1.5rem;font-weight:700;color:${trendColor};">${projectionText}</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:1.25rem;">
+          <div style="font-size:0.8rem;color:#fbbf24;text-transform:uppercase;margin-bottom:0.75rem;">🎯 Key Opportunities</div>
+          <div style="color:#e2e8f0;line-height:1.8;white-space:pre-line;">${weakestList}</div>
+        </div>
+      `;
+    }
+    
+    function closeAITrajectory() {
+      document.getElementById('aiTrajectoryModal').style.display = 'none';
+    }
+    
+    // =====================
+    // INSIGHTS TAB
+    // =====================
+    function renderInsightsTab() {
+      if (!currentData) return;
+      renderMonthlyStory();
+      renderMetricSpotlight();
+      initTrajectorySelect();
+    }
+    
+function toggleQ1Review() {
+      const panel = document.getElementById('q1ReviewPanel');
+      const btn = document.getElementById('q1ReviewToggle');
+      const isOpen = panel.style.display !== 'none';
+      panel.style.display = isOpen ? 'none' : 'block';
+      btn.innerHTML = isOpen ? '🏆 Q1 Review ▾' : '🏆 Q1 Review ▴';
+    }
+
+    function toggleQ1Review() {
+      const content = document.getElementById('q1ReviewContent');
+      const arrow = document.getElementById('q1ReviewArrow');
+      if (!content) return;
+      const isOpen = content.style.display !== 'none';
+      content.style.display = isOpen ? 'none' : 'block';
+      if (arrow) arrow.innerHTML = isOpen ? '&#9662;' : '&#9652;';
+    }
+
+    function renderMoversStrip() {
+      const strip = document.getElementById('moversStrip');
+      if (!strip) return;
+      if (allData.length < 2) { strip.style.display = 'none'; return; }
+      const currentIdx = allData.findIndex(d => d.month === currentData.month);
+      if (currentIdx < 1) { strip.style.display = 'none'; return; }
+      const prevData = allData[currentIdx - 1];
+      const currRanked = getRanked(currentData);
+      const prevRanked = getRanked(prevData);
+      const movers = currRanked.map(c => {
+        const prev = prevRanked.find(p => p.dataKey === c.dataKey);
+        return { name: c.name, change: prev ? prev.rank - c.rank : 0 };
+      }).filter(m => m.change !== 0);
+      const topRiser = movers.filter(m => m.change > 0).sort((a,b) => b.change - a.change)[0];
+      const topFaller = movers.filter(m => m.change < 0).sort((a,b) => a.change - b.change)[0];
+      if (!topRiser && !topFaller) { strip.style.display = 'none'; return; }
+      strip.style.display = 'flex';
+      strip.innerHTML =
+        (topRiser ? '<span style="color:#4ade80;font-weight:600;">&#8593; ' + topRiser.name + ' +' + topRiser.change + ' spots</span>' : '') +
+        (topRiser && topFaller ? '<span style="color:var(--white-20);">|</span>' : '') +
+        (topFaller ? '<span style="color:#f87171;font-weight:600;">&#8595; ' + topFaller.name + ' ' + topFaller.change + ' spots</span>' : '');
+    }
+
+
+      function buildImprovedListHTML() {
+        if (allData.length < 2) return '';
+        const firstScores = calculateRankBasedScores(allData[0]);
+        const lastScores = calculateRankBasedScores(allData[allData.length - 1]);
+        const firstMonth = allData[0].month.split(' ')[0];
+        const lastMonth = allData[allData.length - 1].month.split(' ')[0];
+
+        const movers = BUILDINGS.map(b => ({
+          name: b.name,
+          firstRank: firstScores[b.dataKey] ? firstScores[b.dataKey].rank : 18,
+          lastRank: lastScores[b.dataKey] ? lastScores[b.dataKey].rank : 18,
+          delta: (firstScores[b.dataKey] ? firstScores[b.dataKey].rank : 18) - (lastScores[b.dataKey] ? lastScores[b.dataKey].rank : 18)
+        })).sort((a, b) => b.delta - a.delta);
+
+        const climbers = movers.filter(m => m.delta > 0);
+        const flat = movers.filter(m => m.delta === 0);
+        const decliners = movers.filter(m => m.delta < 0);
+
+        function row(m) {
+          const arrow = m.delta > 0 ? '<span style="color:#4ade80;font-weight:700;">&#8593;' + m.delta + '</span>' :
+                        m.delta < 0 ? '<span style="color:#f87171;font-weight:700;">&#8595;' + Math.abs(m.delta) + '</span>' :
+                        '<span style="color:var(--slate-500);">&#8212;</span>';
+          return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid rgba(255,255,255,0.06);font-size:12px;">' +
+            '<span style="flex:1;color:var(--slate-300);">' + m.name + '</span>' +
+            '<span style="font-size:11px;color:var(--slate-500);min-width:70px;text-align:right;">#' + m.firstRank + ' &#8594; #' + m.lastRank + '</span>' +
+            arrow + '</div>';
+        }
+
+        let html = climbers.map(row).join('');
+        if (flat.length) html += '<div style="height:0.5px;background:rgba(255,255,255,0.06);margin:6px 0;"></div>' + flat.map(row).join('');
+        if (decliners.length) html += '<div style="height:0.5px;background:rgba(255,255,255,0.06);margin:6px 0;"></div>' + decliners.map(row).join('');
+        return html;
+      }
+
+      function toggleMostImproved(e) {
+        e.stopPropagation();
+        const list = document.getElementById('improvedList');
+        const arrow = document.getElementById('improvedArrow');
+        if (!list) return;
+        const isOpen = list.style.display !== 'none';
+        if (!isOpen && !list.dataset.loaded) {
+          list.innerHTML = buildImprovedListHTML();
+          list.dataset.loaded = '1';
+        }
+        list.style.display = isOpen ? 'none' : 'block';
+        if (arrow) arrow.innerHTML = isOpen ? '&#9662;' : '&#9652;';
+      }
+
+    function renderQ1Review() {
+      const bar = document.getElementById('regatraReportBar');
+      const container = document.getElementById('q1ReviewContent');
+      if (!bar || !container) return;
+      if (allData.length < 2) { bar.style.display='none'; return; }
+      bar.style.display='block';
+      const allMonthScores = allData.map(d => calculateRankBasedScores(d));
+      const allMonthCatRanks = allData.map(d => getCategoryRanksByCategory(d));
+      const months = allData.map(d => d.month);
+      const latestMonth = months[months.length-1];
+      const avgRank = {};
+      BUILDINGS.forEach(b => {
+        const ranks = allMonthScores.map(s => s[b.dataKey] ? s[b.dataKey].rank : 18);
+        avgRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
+      });
+      const champion = BUILDINGS.reduce((best, b) => avgRank[b.dataKey] < avgRank[best.dataKey] ? b : best);
+      const allImproved = BUILDINGS.map(b => ({
+        b: b, delta: (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18)
+      })).sort((a, b) => b.delta - a.delta || (allMonthScores[allMonthScores.length-1][a.b.dataKey] ? allMonthScores[allMonthScores.length-1][a.b.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.b.dataKey] ? allMonthScores[allMonthScores.length-1][b.b.dataKey].rank : 18));
+      const topImproved = allImproved[0];
+      const tiedImproved = allImproved.filter(x => x.delta > 0 && x.delta === topImproved.delta);
+      const bottom6 = BUILDINGS.filter(b => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) >= 13);
+      const atRisk = bottom6.reduce((worst, b) => {
+        const dB = (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) - (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18);
+        const dW = (allMonthScores[allMonthScores.length-1][worst.dataKey] ? allMonthScores[allMonthScores.length-1][worst.dataKey].rank : 18) - (allMonthScores[0][worst.dataKey] ? allMonthScores[0][worst.dataKey].rank : 18);
+        return dB > dW ? b : worst;
+      });
+      const atRiskJan = allMonthScores[0][atRisk.dataKey] ? allMonthScores[0][atRisk.dataKey].rank : 18;
+      const atRiskNow = allMonthScores[allMonthScores.length-1][atRisk.dataKey] ? allMonthScores[allMonthScores.length-1][atRisk.dataKey].rank : 18;
+      const staticBottom = BUILDINGS.filter(b => allMonthScores.every(s => s[b.dataKey] && s[b.dataKey].rank >= 13));
+      const catEmoji = { care:'&#x1F3E5;', census:'&#x1F4C8;', collections:'&#x1F4B0;', controls:'&#x2699;&#xFE0F;', culture:'&#x2764;&#xFE0F;', compliance:'&#x2705;', credibility:'&#x2B50;' };
+      const catWinners = {};
+      Object.keys(CATEGORIES).forEach(function(catKey) {
+        const avgCatRank = {};
+        BUILDINGS.forEach(b => {
+          const ranks = allMonthCatRanks.map(mr => mr[b.dataKey] && mr[b.dataKey][catKey] ? mr[b.dataKey][catKey] : 18);
+          avgCatRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
+        });
+        const winner = BUILDINGS.reduce((best, b) => avgCatRank[b.dataKey] < avgCatRank[best.dataKey] ? b : best);
+        catWinners[catKey] = { building: winner, avg: avgCatRank[winner.dataKey].toFixed(1), surprise: avgRank[winner.dataKey] > 10 };
+      });
+      const gcBuildings = BUILDINGS.filter(b => b.region === 'Golden Coast');
+      const olBuildings = BUILDINGS.filter(b => b.region === 'Overland');
+      const getTopHalf = function(buildings, scores) { return buildings.filter(b => scores[b.dataKey] && scores[b.dataKey].rank <= 9).length; };
+      const gcCounts = allMonthScores.map(s => getTopHalf(gcBuildings, s));
+      const olCounts = allMonthScores.map(s => getTopHalf(olBuildings, s));
+      const gcCurrentTop = gcCounts[gcCounts.length-1];
+      const olCurrentTop = olCounts[olCounts.length-1];
+      const gcConsistent = gcCounts.every(c => c === gcCounts[0]);
+      const olConsistent = olCounts.every(c => c === olCounts[0]);
+      const gcBest = gcBuildings.reduce((best, b) => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) < (allMonthScores[allMonthScores.length-1][best.dataKey] ? allMonthScores[allMonthScores.length-1][best.dataKey].rank : 18) ? b : best);
+      const olBest = olBuildings.reduce((best, b) => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) < (allMonthScores[allMonthScores.length-1][best.dataKey] ? allMonthScores[allMonthScores.length-1][best.dataKey].rank : 18) ? b : best);
+      const gcDots = gcBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18).sort((a,b)=>a-b).map(r => '<div style="width:9px;height:9px;border-radius:50%;display:inline-block;margin:2px;background:' + (r<=9?'#4ade80':'#f87171') + '"></div>').join('');
+      const olDots = olBuildings.map(b => allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18).sort((a,b)=>a-b).map(r => '<div style="width:9px;height:9px;border-radius:50%;display:inline-block;margin:2px;background:' + (r<=9?'#4ade80':'#f87171') + '"></div>').join('');
+      const catWinnersHTML = Object.entries(CATEGORIES).map(function(entry) {
+        const catKey = entry[0]; const cat = entry[1]; const w = catWinners[catKey];
+        const surpriseBadge = w.surprise ? '<div style="display:inline-block;font-size:10px;background:rgba(167,139,250,0.15);color:#a78bfa;border:0.5px solid rgba(167,139,250,0.3);border-radius:4px;padding:1px 5px;margin-top:3px;">overall #' + Math.round(avgRank[w.building.dataKey]) + '</div>' : '';
+        return '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:8px;padding:9px 11px;">' +
+          '<div style="font-size:11px;color:var(--slate-400);margin-bottom:3px;">' + catEmoji[catKey] + ' ' + cat.name + '</div>' +
+          '<div style="font-size:12px;font-weight:600;color:var(--slate-100);">' + w.building.name + '</div>' +
+          surpriseBadge + '</div>';
+      }).join('');
+      const sortedBuildings = [...BUILDINGS].sort((a,b) => (allMonthScores[allMonthScores.length-1][a.dataKey] ? allMonthScores[allMonthScores.length-1][a.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18));
+      const prevScores = allMonthScores.length > 1 ? allMonthScores[allMonthScores.length-2] : null;
+      function rankRow(b) {
+        const rank = allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18;
+        const prevRank = prevScores && prevScores[b.dataKey] ? prevScores[b.dataKey].rank : rank;
+        const delta = prevRank - rank;
+        const arrow = delta > 0 ? '<span style="color:#4ade80;font-size:11px;font-weight:600;">&#8593;' + delta + '</span>' : delta < 0 ? '<span style="color:#f87171;font-size:11px;font-weight:600;">&#8595;' + Math.abs(delta) + '</span>' : '<span style="color:var(--slate-500);font-size:11px;">&#8212;</span>';
+        return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--white-10);font-size:12px;">' +
+          '<span style="font-weight:500;color:var(--slate-100);min-width:22px;">#' + rank + '</span>' +
+          '<span style="flex:1;color:var(--slate-200);">' + b.name + '</span>' +
+          arrow + '</div>';
+      }
+      const gcBestRank = allMonthScores[allMonthScores.length-1][gcBest.dataKey] ? allMonthScores[allMonthScores.length-1][gcBest.dataKey].rank : 18;
+      const olBestRank = allMonthScores[allMonthScores.length-1][olBest.dataKey] ? allMonthScores[allMonthScores.length-1][olBest.dataKey].rank : 18;
+      container.innerHTML =
+        '<div style="font-size:12px;color:var(--slate-400);margin-bottom:1rem;">' + months[0].split(' ')[0] + ' &#8211; ' + latestMonth + ' &nbsp;&#183;&nbsp; ' + months.length + ' months &nbsp;&#183;&nbsp; 18 facilities</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem;">' +
+          '<div style="background:rgba(184,134,11,0.08);border:0.5px solid rgba(184,134,11,0.3);border-radius:10px;padding:12px 14px;">' +
+            '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f5c842;margin-bottom:5px;">SEASON LEADER</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + champion.name + '</div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">Avg rank ' + avgRank[champion.dataKey].toFixed(1) + ' all season</div></div>' +
+          '<div style="background:rgba(74,222,128,0.07);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;" onclick="toggleMostImproved(event)">' +
+            '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:5px;">MOST IMPROVED</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + (topImproved ? topImproved.b.name : '') + '</div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">&#8593;' + (topImproved ? topImproved.delta : 0) + ' spots since ' + months[0].split(' ')[0] + (tiedImproved.length > 1 ? ' (tied with ' + tiedImproved.filter(x => x.b.name !== topImproved.b.name).map(x => x.b.name.split(' ')[0]).join(', ') + ')' : '') + '</div>' +
+   '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(74,222,128,0.2);font-size:11px;color:#4ade80;">' +
+              '<span>See all buildings</span><span id="improvedArrow">&#9662;</span>' +
+            '</div>' +
+            '<div id="improvedList" style="display:none;margin-top:10px;">' +
+              '</div>' +
+          '</div>' +
+          '<div style="background:rgba(248,113,113,0.07);border:0.5px solid rgba(248,113,113,0.25);border-radius:10px;padding:12px 14px;">' +
+            '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:5px;">MOST AT RISK</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + atRisk.name + '</div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">#' + atRiskJan + ' &#8594; #' + atRiskNow + ' this season</div></div>' +
+          '<div style="background:var(--white-05);border:0.5px solid var(--white-10);border-radius:10px;padding:12px 14px;">' +
+            '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--slate-300);margin-bottom:5px;">STATIC BOTTOM</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + staticBottom.length + ' facilities</div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">Bottom half every month</div></div>' +
+        '</div>' +
+        '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:0 0 0.6rem;">CATEGORY LEADERS</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:7px;margin-bottom:1.5rem;">' + catWinnersHTML + '</div>' +
+
+        '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:var(--slate-400);margin:0 0 0.6rem;">REGIONAL BREAKDOWN</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+          '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:12px 14px;">' +
+            '<div style="font-size:10px;font-weight:700;letter-spacing:0.05em;color:#38bdf8;margin-bottom:8px;">GOLDEN COAST &#8212; ' + gcBuildings.length + ' facilities</div>' +
+            '<div style="margin-bottom:8px;">' + gcDots + '</div>' +
+            '<div style="font-size:24px;font-weight:600;color:var(--slate-100);line-height:1;margin-bottom:2px;">' + gcCurrentTop + ' <span style="font-size:14px;font-weight:400;">of ' + gcBuildings.length + '</span></div>' +
+            '<div style="font-size:11px;color:var(--slate-400);margin-bottom:8px;">in top half</div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">All season</span><span style="color:var(--slate-200);font-weight:600;">' + (gcConsistent ? gcCounts[0]+' each month' : gcCounts.join(' &#8594; ')) + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Top facility</span><span style="color:var(--slate-200);font-weight:600;">' + gcBest.name + ' #' + gcBestRank + '</span></div>' +
+          '</div>' +
+          '<div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:10px;padding:12px 14px;">' +
+            '<div style="font-size:10px;font-weight:700;letter-spacing:0.05em;color:#a78bfa;margin-bottom:8px;">OVERLAND &#8212; ' + olBuildings.length + ' facilities</div>' +
+            '<div style="margin-bottom:8px;">' + olDots + '</div>' +
+            '<div style="font-size:24px;font-weight:600;color:var(--slate-100);line-height:1;margin-bottom:2px;">' + olCurrentTop + ' <span style="font-size:14px;font-weight:400;">of ' + olBuildings.length + '</span></div>' +
+            '<div style="font-size:11px;color:var(--slate-400);margin-bottom:8px;">in top half</div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">All season</span><span style="color:var(--slate-200);font-weight:600;">' + (olConsistent ? olCounts[0]+' each month' : olCounts.join(' &#8594; ')) + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-top:1px solid var(--white-10);"><span style="color:var(--slate-400);">Top facility</span><span style="color:var(--slate-200);font-weight:600;">' + olBest.name + ' #' + olBestRank + '</span></div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    function renderMonthlyStory() {
+      const container = document.getElementById('monthlyStoryContent');
+      const ranked = getRanked();
+      const months = allData.map(d => d.month);
+      const currentMonth = currentData.month;
+      
+      // Find #1
+      const leader = ranked[0];
+      
+      // Count consecutive months at #1
+      let streak = 1;
+      for (let i = allData.length - 2; i >= 0; i--) {
+        const prevScores = calculateRankBasedScores(allData[i]);
+        const prevRanked = Object.entries(prevScores).sort((a, b) => a[1].total - b[1].total);
+        if (prevRanked[0] && prevRanked[0][0] === leader.dataKey) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+      
+      // Find biggest mover (up)
+      let biggestMover = null;
+      let biggestGain = 0;
+      if (allData.length >= 2) {
+        const prevScores = calculateRankBasedScores(allData[allData.length - 2]);
+        ranked.forEach(r => {
+          const prevRank = prevScores[r.dataKey]?.rank || 9;
+          const gain = prevRank - r.rank;
+          if (gain > biggestGain) {
+            biggestGain = gain;
+            biggestMover = { name: r.name, gain, newRank: r.rank };
+          }
+        });
+      }
+      
+      // Find buildings stuck at bottom
+      const bottom3 = ranked.slice(-3);
+      let stuckAtBottom = [];
+      if (allData.length >= 2) {
+        bottom3.forEach(b => {
+          let consecutiveBottom = 0;
+          for (let i = allData.length - 1; i >= 0; i--) {
+            const monthScores = calculateRankBasedScores(allData[i]);
+            const monthRanked = Object.entries(monthScores).sort((a, b) => a[1].total - b[1].total);
+            const buildingRank = monthRanked.findIndex(([k]) => k === b.dataKey) + 1;
+            if (buildingRank >= 16) {
+              consecutiveBottom++;
+            } else {
+              break;
+            }
+          }
+          if (consecutiveBottom >= 2) {
+            stuckAtBottom.push({ name: b.name, months: consecutiveBottom, rank: b.rank });
+          }
+        });
+      }
+      
+      // Regional race
+      const gcBuildings = ranked.filter(r => r.region === 'Golden Coast');
+      const olBuildings = ranked.filter(r => r.region === 'Overland');
+      const gcTop10 = ranked.slice(0, 10).filter(r => r.region === 'Golden Coast').length;
+      const olTop10 = 10 - gcTop10;
+      const regionLeader = gcTop10 > olTop10 ? 'Golden Coast' : gcTop10 < olTop10 ? 'Overland' : 'Tied';
+      
+      // Build narrative
+      let story = '';
+      
+      // Leader sentence
+      const streakText = streak > 1 ? ` for the ${streak}${streak === 2 ? 'nd' : streak === 3 ? 'rd' : 'th'} straight month` : '';
+      story += `<p style="margin-bottom:1rem;"><strong style="color:var(--gold);">🏆 ${leader.name}</strong> holds the #1 position${streakText} with a score of ${leader.score.toFixed(2)}.</p>`;
+      
+      // Biggest mover
+      if (biggestMover && biggestGain > 0) {
+        story += `<p style="margin-bottom:1rem;"><strong style="color:#4ade80;">📈 ${biggestMover.name}</strong> is the biggest mover, climbing ${biggestGain} spot${biggestGain > 1 ? 's' : ''} to #${biggestMover.newRank}.</p>`;
+      }
+      
+      // Stuck at bottom
+      if (stuckAtBottom.length > 0) {
+        const stuckNames = stuckAtBottom.map(s => `${s.name} (#${s.rank})`).join(', ');
+        story += `<p style="margin-bottom:1rem;"><strong style="color:#f87171;">⚠️ Watch:</strong> ${stuckNames} ${stuckAtBottom.length > 1 ? 'have' : 'has'} been in the bottom 3 for ${stuckAtBottom[0].months}+ months.</p>`;
+      }
+      
+      // Regional race
+      story += `<p><strong style="color:#60a5fa;">🗺️ Regional Race:</strong> ${regionLeader === 'Tied' ? 'Regions are tied' : regionLeader + ' leads'} with ${Math.max(gcTop10, olTop10)} of the top 10 buildings.</p>`;
+      
+      container.innerHTML = story;
+    }
+    
+    function renderMetricSpotlight() {
+      const container = document.getElementById('metricSpotlightContent');
+      
+      if (allData.length < 2) {
+        container.innerHTML = '<p style="color:var(--slate-400);">Need at least 2 months of data for metric spotlight.</p>';
+        return;
+      }
+      
+      const currentScores = calculateRankBasedScores(currentData);
+      const prevScores = calculateRankBasedScores(allData[allData.length - 2]);
+      
+      // Find metric with most rank changes
+      const metricChanges = {};
+      
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        cat.metrics.forEach(metric => {
+          let totalChange = 0;
+          let improvedCount = 0;
+          let declinedCount = 0;
+          
+          BUILDINGS.forEach(b => {
+            const currRank = currentScores[b.dataKey]?.metricRanks?.[metric.key] || 9;
+            const prevRank = prevScores[b.dataKey]?.metricRanks?.[metric.key] || 9;
+            const rankChange = prevRank - currRank;
+            totalChange += Math.abs(rankChange);
+            // Count improved/declined based on actual raw value change, not rank shift
+            const currVal = currentData.buildingData[b.dataKey]?.[metric.key];
+            const prevVal = allData[allData.length - 2].buildingData[b.dataKey]?.[metric.key];
+            if (currVal !== undefined && prevVal !== undefined && currVal !== prevVal) {
+              const valueImproved = metric.higher ? currVal > prevVal : currVal < prevVal;
+              if (valueImproved) improvedCount++;
+              else declinedCount++;
+            }
+          });
+          
+          metricChanges[metric.key] = {
+            label: metric.label,
+            category: cat.name,
+            totalChange,
+            improved: improvedCount,
+            declined: declinedCount
+          };
+        });
+      });
+      
+      // Find most impactful metric
+      const sorted = Object.entries(metricChanges).sort((a, b) => b[1].totalChange - a[1].totalChange);
+      const top = sorted[0];
+      
+      if (top && top[1].totalChange > 0) {
+        container.innerHTML = `
+          <div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:12px;padding:1.25rem;">
+            <div style="font-size:1.2rem;font-weight:700;color:var(--gold);margin-bottom:0.5rem;">📊 ${top[1].label}</div>
+            <div style="color:var(--slate-400);font-size:0.9rem;margin-bottom:1rem;">${top[1].category}</div>
+            <div style="display:flex;gap:2rem;flex-wrap:wrap;">
+              <div>
+                <span style="color:#4ade80;font-size:1.5rem;font-weight:700;">${top[1].improved}</span>
+                <span style="color:var(--slate-400);"> buildings improved their actual value</span>
+              </div>
+              <div>
+                <span style="color:#f87171;font-size:1.5rem;font-weight:700;">${top[1].declined}</span>
+                <span style="color:var(--slate-400);"> buildings declined in actual value</span>
+              </div>
+            </div>
+            <p style="color:var(--slate-300);margin-top:1rem;font-size:0.95rem;">This metric had the most ranking movement this month. Counts reflect buildings whose values actually changed.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = '<p style="color:var(--slate-400);">No significant metric changes this month.</p>';
+      }
+    }
+    
+    function initTrajectorySelect() {
+      const select = document.getElementById('trajectoryBuildingSelect');
+      select.innerHTML = '<option value="">Select a building...</option>' + 
+        BUILDINGS.map(b => `<option value="${b.dataKey}">${b.name}</option>`).join('');
+      document.getElementById('trajectoryContent').innerHTML = '<p style="color:var(--slate-400);">Select a building above to see trajectory analysis.</p>';
+    }
+    
+    function showTrajectoryForBuilding() {
+      const dataKey = document.getElementById('trajectoryBuildingSelect').value;
+      const container = document.getElementById('trajectoryContent');
+      
+      if (!dataKey) {
+        container.innerHTML = '<p style="color:var(--slate-400);">Select a building above to see trajectory analysis.</p>';
+        return;
+      }
+      
+      const building = BUILDINGS.find(b => b.dataKey === dataKey);
+      const buildingName = building ? building.name : dataKey;
+      
+      // Get historical ranks
+      const historyData = allData.map(monthData => {
+        const scores = calculateRankBasedScores(monthData);
+        return {
+          month: monthData.month,
+          rank: scores[dataKey]?.rank || null,
+          score: scores[dataKey]?.total || null
+        };
+      }).filter(d => d.rank !== null);
+      
+      // Get current metrics and ranks
+      const currentScores = calculateRankBasedScores(currentData);
+      const metricRanks = currentScores[dataKey]?.metricRanks || {};
+      const currentRank = currentScores[dataKey]?.rank || 0;
+      
+      // Find weakest metrics (highest rank = worst)
+      const sortedMetrics = Object.entries(metricRanks)
+        .filter(([k, v]) => v !== null && v !== undefined)
+        .sort((a, b) => b[1] - a[1]);
+      const weakestMetrics = sortedMetrics.slice(0, 3);
+      
+      // Calculate trajectory
+      let trajectory = 'stable';
+      let projectedRank = currentRank;
+      if (historyData.length >= 2) {
+        const rankChanges = [];
+        for (let i = 1; i < historyData.length; i++) {
+          rankChanges.push(historyData[i-1].rank - historyData[i].rank);
+        }
+        const avgChange = rankChanges.reduce((a, b) => a + b, 0) / rankChanges.length;
+        projectedRank = Math.max(1, Math.min(18, Math.round(currentRank - avgChange)));
+        if (avgChange > 0.5) trajectory = 'improving';
+        else if (avgChange < -0.5) trajectory = 'declining';
+      }
+      
+      // Display inline (not modal)
+      const trendIcon = trajectory === 'improving' ? '📈' : trajectory === 'declining' ? '📉' : '➡️';
+      const trendColor = trajectory === 'improving' ? '#4ade80' : trajectory === 'declining' ? '#f87171' : '#fbbf24';
+      const projectionText = projectedRank < currentRank ? `↑ #${projectedRank}` : projectedRank > currentRank ? `↓ #${projectedRank}` : `→ #${projectedRank}`;
+      
+      const weakestList = weakestMetrics.map(([m, r]) => `• Improve <strong>${getMetricLabel(m)}</strong> (currently ranked #${r})`).join('<br>');
+      
+      container.innerHTML = `
+        <div style="background:var(--white-05);border:1px solid var(--white-10);border-radius:12px;padding:1.25rem;">
+          <div style="font-size:1.2rem;font-weight:700;color:var(--slate-100);margin-bottom:1rem;">${buildingName}</div>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+            <div style="background:var(--white-05);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:var(--slate-400);text-transform:uppercase;">Current</div>
+              <div style="font-size:1.5rem;font-weight:700;color:var(--gold);">#${currentRank}</div>
+            </div>
+            <div style="background:var(--white-05);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:var(--slate-400);text-transform:uppercase;">Trend</div>
+              <div style="font-size:1.5rem;font-weight:700;color:${trendColor};">${trendIcon} ${trajectory}</div>
+            </div>
+            <div style="background:var(--white-05);padding:0.75rem 1rem;border-radius:10px;">
+              <div style="font-size:0.75rem;color:var(--slate-400);text-transform:uppercase;">Projected</div>
+              <div style="font-size:1.5rem;font-weight:700;color:${trendColor};">${projectionText}</div>
+            </div>
+          </div>
+          <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:1rem;">
+            <div style="font-size:0.8rem;color:#fbbf24;text-transform:uppercase;margin-bottom:0.75rem;">🎯 Key Opportunities</div>
+            <div style="color:var(--slate-200);line-height:1.8;">${weakestList}</div>
+          </div>
+        </div>
+      `;
+    }
+    
+    function goToBuildingDetail(dataKey) {
+      // Switch to Building Detail tab
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelector('[data-tab="building"]').classList.add('active');
+      document.getElementById('building').classList.add('active');
+      updateSearchBarVisibility('building');
+      // Select the building and render
+      document.getElementById('buildingSelect').value = dataKey;
+      renderBuildingDetail(dataKey);
+      // Update URL
+      updateURL('building', dataKey);
+    }
+    
+    function updateURL(tab, building) {
+      const url = new URL(window.location);
+      if (tab) url.searchParams.set('tab', tab);
+      if (building) url.searchParams.set('building', building);
+      else url.searchParams.delete('building');
+      window.history.replaceState({}, '', url);
+    }
+    
+    function parseURLParams() {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      const building = params.get('building');
+      
+      if (building) {
+        // Find matching building
+        const match = BUILDINGS.find(b => b.dataKey === building || b.name.toLowerCase().includes(building.toLowerCase()));
+        if (match) {
+          goToBuildingDetail(match.dataKey);
+          return;
+        }
+      }
+      
+      if (tab) {
+        const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
+        if (tabBtn) tabBtn.click();
+      }
+    }
+    
+    function copyShareLink() {
+      const dataKey = document.getElementById('buildingSelect').value;
+      if (!dataKey) return;
+      const url = `${window.location.origin}${window.location.pathname}?building=${encodeURIComponent(dataKey)}`;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('shareBtn');
+        const original = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        setTimeout(() => btn.innerHTML = original, 2000);
+      });
+    }
+    
+    function initCompareSelects() {
+      const availableBuildings = BUILDINGS.filter(b => currentData.buildingData[b.dataKey]);
+      const options = '<option value="">Select Building</option>' + availableBuildings.map(b => 
+        `<option value="${b.dataKey}">${b.name}</option>`
+      ).join('');
+      document.getElementById('compareBuilding1').innerHTML = options;
+      document.getElementById('compareBuilding2').innerHTML = options;
+    }
+    
+    function renderCompare() {
+      const key1 = document.getElementById('compareBuilding1').value;
+      const key2 = document.getElementById('compareBuilding2').value;
+      
+      if (!key1 || !key2 || key1 === key2) {
+        document.getElementById('compareResults').style.display = 'none';
+        return;
+      }
+      
+      document.getElementById('compareResults').style.display = 'block';
+      
+      const ranked = getRanked();
+      const b1 = ranked.find(r => r.dataKey === key1);
+      const b2 = ranked.find(r => r.dataKey === key2);
+      
+      // Score summary
+      const leader = b1.score < b2.score ? b1 : b2;
+      const diff = Math.abs(b1.score - b2.score).toFixed(2);
+      document.getElementById('compareScoreSummary').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:2rem;align-items:center;text-align:center;">
+          <div style="padding:1.5rem;background:${b1.score <= b2.score ? 'rgba(16,185,129,0.1)' : 'var(--white-05)'};border-radius:12px;border:2px solid ${b1.score <= b2.score ? '#10b981' : 'transparent'}">
+            <div style="font-size:0.85rem;color:var(--slate-400);margin-bottom:0.5rem;">${b1.region}</div>
+            <div style="font-size:1.25rem;font-weight:700;color:var(--slate-100);margin-bottom:0.5rem;">${b1.name}</div>
+            <div style="font-size:2rem;font-weight:800;color:${b1.score <= b2.score ? '#10b981' : 'var(--gold)'};">#${b1.rank}</div>
+            <div style="font-size:1.1rem;color:var(--slate-300);">${b1.score.toFixed(2)} pts</div>
+          </div>
+          <div>
+            <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.25rem;">Difference</div>
+            <div style="font-size:1.5rem;font-weight:700;color:var(--gold);">${diff}</div>
+          </div>
+          <div style="padding:1.5rem;background:${b2.score <= b1.score ? 'rgba(16,185,129,0.1)' : 'var(--white-05)'};border-radius:12px;border:2px solid ${b2.score <= b1.score ? '#10b981' : 'transparent'}">
+            <div style="font-size:0.85rem;color:var(--slate-400);margin-bottom:0.5rem;">${b2.region}</div>
+            <div style="font-size:1.25rem;font-weight:700;color:var(--slate-100);margin-bottom:0.5rem;">${b2.name}</div>
+            <div style="font-size:2rem;font-weight:800;color:${b2.score <= b1.score ? '#10b981' : 'var(--gold)'};">#${b2.rank}</div>
+            <div style="font-size:1.1rem;color:var(--slate-300);">${b2.score.toFixed(2)} pts</div>
+          </div>
+        </div>
+      `;
+      
+      // Metric-by-metric breakdown
+      let metricsHtml = '';
+      let b1Wins = 0, b2Wins = 0, ties = 0;
+      
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        metricsHtml += `<div style="margin-bottom:1.5rem;">
+          <div style="font-weight:700;color:var(--gold);margin-bottom:0.75rem;font-size:0.95rem;">${cat.name}</div>`;
+        
+        cat.metrics.forEach(metric => {
+          const v1 = b1.metrics[metric.key];
+          const v2 = b2.metrics[metric.key];
+          const r1 = b1.metricRanks[metric.key];
+          const r2 = b2.metricRanks[metric.key];
+          
+          if (v1 === null || v1 === undefined || v2 === null || v2 === undefined) {
+            metricsHtml += `<div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:1rem;padding:0.5rem;color:var(--slate-500);font-size:0.85rem;">
+              <div style="text-align:right;">N/A</div>
+              <div style="text-align:center;">${metric.label}</div>
+              <div style="text-align:left;">N/A</div>
+            </div>`;
+            return;
+          }
+          
+          let winner = 'tie';
+          if (r1 < r2) { winner = 'b1'; b1Wins++; }
+          else if (r2 < r1) { winner = 'b2'; b2Wins++; }
+          else { ties++; }
+          
+          const b1Color = winner === 'b1' ? '#10b981' : (winner === 'b2' ? '#ef4444' : 'var(--slate-300)');
+          const b2Color = winner === 'b2' ? '#10b981' : (winner === 'b1' ? '#ef4444' : 'var(--slate-300)');
+          const b1Icon = winner === 'b1' ? '✓' : '';
+          const b2Icon = winner === 'b2' ? '✓' : '';
+          
+          metricsHtml += `<div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:1rem;padding:0.6rem 0.5rem;background:var(--white-05);border-radius:8px;margin-bottom:0.4rem;align-items:center;">
+            <div style="text-align:right;">
+              <span style="color:${b1Color};font-weight:600;">${b1Icon} ${v1}</span>
+              <span style="color:var(--slate-500);font-size:0.75rem;margin-left:0.25rem;">(#${r1})</span>
+            </div>
+            <div style="text-align:center;color:var(--slate-300);font-size:0.85rem;">${metric.label} ${metric.higher ? '↑' : '↓'}</div>
+            <div style="text-align:left;">
+              <span style="color:var(--slate-500);font-size:0.75rem;margin-right:0.25rem;">(#${r2})</span>
+              <span style="color:${b2Color};font-weight:600;">${v2} ${b2Icon}</span>
+            </div>
+          </div>`;
+        });
+        
+        metricsHtml += '</div>';
+      });
+      
+      document.getElementById('compareMetrics').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;margin-bottom:1.5rem;text-align:center;padding:1rem;background:var(--white-05);border-radius:10px;">
+          <div><span style="font-size:1.5rem;font-weight:700;color:#10b981;">${b1Wins}</span><div style="font-size:0.8rem;color:var(--slate-400);">metrics won</div></div>
+          <div><span style="font-size:1.5rem;font-weight:700;color:var(--slate-400);">${ties}</span><div style="font-size:0.8rem;color:var(--slate-400);">ties</div></div>
+          <div><span style="font-size:1.5rem;font-weight:700;color:#10b981;">${b2Wins}</span><div style="font-size:0.8rem;color:var(--slate-400);">metrics won</div></div>
+        </div>
+        ${metricsHtml}
+      `;
+      
+      // Category scores comparison
+      let catHtml = '<div style="display:flex;flex-direction:column;gap:0.75rem;">';
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        const c1 = b1.categoryScores[catKey];
+        const c2 = b2.categoryScores[catKey];
+        const catWinner = c1 < c2 ? 'b1' : (c2 < c1 ? 'b2' : 'tie');
+        
+        catHtml += `<div style="display:grid;grid-template-columns:80px 1fr 60px 60px 1fr 80px;gap:0.5rem;align-items:center;padding:0.75rem;background:var(--white-05);border-radius:8px;">
+          <div style="text-align:right;font-weight:600;color:${catWinner === 'b1' ? '#10b981' : 'var(--slate-300)'};">${c1.toFixed(2)}</div>
+          <div style="background:var(--white-10);border-radius:4px;height:8px;overflow:hidden;direction:rtl;">
+            <div style="background:${catWinner === 'b1' ? '#10b981' : 'var(--slate-500)'};height:100%;width:${(c1 / (c1 + c2)) * 100}%;border-radius:4px;"></div>
+          </div>
+          <div style="text-align:center;font-weight:600;color:var(--gold);font-size:0.85rem;">${cat.name.split(' ')[0]}</div>
+          <div style="text-align:center;color:var(--slate-500);font-size:0.75rem;">${(cat.weight * 100).toFixed(0)}%</div>
+          <div style="background:var(--white-10);border-radius:4px;height:8px;overflow:hidden;">
+            <div style="background:${catWinner === 'b2' ? '#10b981' : 'var(--slate-500)'};height:100%;width:${(c2 / (c1 + c2)) * 100}%;border-radius:4px;"></div>
+          </div>
+          <div style="text-align:left;font-weight:600;color:${catWinner === 'b2' ? '#10b981' : 'var(--slate-300)'};">${c2.toFixed(2)}</div>
+        </div>`;
+      });
+      catHtml += '</div>';
+      document.getElementById('compareCategories').innerHTML = catHtml;
+    }
+    
+    let catSortState = {}; // track sort state per category
+    
+
+
+    function renderCategoryHeatmapStandalone() {
+      try {
+        buildCategoryHeatmap();
+      } catch(e) {
+        console.error('Category heatmap error:', e);
+      }
+    }
+
+    function showTip(id, e) {}
+    function hideTip(id) {}
+    function showCatTooltipKey(el, e) {
+      const key = el.dataset.tipkey;
+      const data = window._catTips && window._catTips[key];
+      if (!data) return;
+      showCatTooltip(e, data.title, data.rows);
+    }
+    function showCatTooltip(e, title, rows) {
+      const tip = document.getElementById('catTooltip');
+      const titleEl = document.getElementById('catTooltipTitle');
+      const rowsEl = document.getElementById('catTooltipRows');
+      if (!tip) return;
+      titleEl.textContent = title;
+      rowsEl.innerHTML = rows;
+      tip.style.display = 'block';
+      moveCatTooltip(e);
+    }
+    function moveCatTooltip(e) {
+      const tip = document.getElementById('catTooltip');
+      if (!tip || tip.style.display === 'none') return;
+      const x = e.clientX + 14;
+      const y = e.clientY - 10;
+      const w = tip.offsetWidth || 220;
+      const h = tip.offsetHeight || 150;
+      tip.style.left = (x + w > window.innerWidth ? e.clientX - w - 8 : x) + 'px';
+      tip.style.top = (y + h > window.innerHeight ? e.clientY - h - 8 : y) + 'px';
+    }
+    function hideCatTooltip() {
+      const tip = document.getElementById('catTooltip');
+      if (tip) tip.style.display = 'none';
+    }
+
+    function buildCategoryHeatmap() {
+      const table = document.getElementById('catHeatmapTable');
+      const debugDiv = document.getElementById('categoryHeatmapContent');
+      if (!table) { if(debugDiv) debugDiv.insertAdjacentHTML('afterbegin','<div style="color:#f87171;padding:8px;">Error: table not found</div>'); return; }
+      if (!currentData) { table.innerHTML = '<tbody><tr><td style="color:#f87171;padding:8px;">Error: no currentData</td></tr></tbody>'; return; }
+      if (!allData || allData.length < 2) { table.innerHTML = '<tbody><tr><td style="color:#f87171;padding:8px;">Error: allData length=' + (allData ? allData.length : 'null') + '</td></tr></tbody>'; return; }
+      const ranked = getRanked();
+      if (!ranked || ranked.length === 0) return;
+      const prevData = allData[allData.length - 2];
+      const prevCatRanks = getCategoryRanksByCategory(prevData);
+      const currCatRanks = getCategoryRanksByCategory(currentData);
+      const prevRanked = getRanked(prevData);
+      const prevOverallMap = {};
+      prevRanked.forEach(r => { prevOverallMap[r.dataKey] = r.rank; });
+      const currScores = calculateRankBasedScores(currentData);
+      const prevScores = prevData ? calculateRankBasedScores(prevData) : {};
+
+      const catKeys = Object.keys(CATEGORIES);
+      const catLabels = { care:'Care', census:'Census', collections:'Collections', controls:'Controls', culture:'Culture', compliance:'Compliance', credibility:'Credibility' };
+      const metricLabels = { healthInspections:'Health Insp.', qmRating:'QM Rating', rehospitalization:'Rehospitalization', dischargeFunctional:'Discharge Func.', occupancy:'Occupancy', medicareCensus:'Medicare Census', skilledMix:'Skilled Mix', badDebt:'Bad Debt', dso:'DSO', noi:'NOI', labor:'Labor', otdt:'OT/DT', rehabProductivity:'Rehab Prod.', turnover:'Turnover', workerSafety:'Worker Safety', admissionPacket:'Admission Pkt', arbitration:'Arbitration', substandardQoc:'Substandard QoC', googleRating:'Google', yelpRating:'Yelp', legalClaims:'Legal Claims' };
+
+      function badgeBg(r) {
+        if (r <= 3) return '#14532d'; if (r <= 6) return '#166534';
+        if (r <= 9) return '#713f12'; if (r <= 12) return '#7c2d12';
+        if (r <= 15) return '#7f1d1d'; return '#450a0a';
+      }
+      function badgeText(r) {
+        if (r <= 3) return '#4ade80'; if (r <= 6) return '#86efac';
+        if (r <= 9) return '#fde047'; if (r <= 12) return '#fdba74';
+        if (r <= 15) return '#fca5a5'; return '#f87171';
+      }
+      function arrowSpan(curr, prev) {
+        if (prev == null || curr == null) return '<span style="color:#475569;font-size:9px;"> —</span>';
+        if (prev > curr) return '<span style="color:#4ade80;font-size:9px;"> ↑</span>';
+        if (prev < curr) return '<span style="color:#f87171;font-size:9px;"> ↓</span>';
+        return '<span style="color:#475569;font-size:9px;"> —</span>';
+      }
+      function badge(rank, prevRank) {
+        return `<span style="background:${badgeBg(rank)};color:${badgeText(rank)};font-weight:700;font-size:11px;padding:2px 7px;border-radius:4px;">#${rank}</span>${arrowSpan(rank, prevRank)}`;
+      }
+
+      let html = `<thead><tr>
+        <th style="text-align:left;padding:7px 10px;color:#64748b;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.12);">Facility</th>
+        <th style="text-align:center;padding:7px 8px;color:#64748b;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.12);">Overall</th>
+        ${catKeys.map(k => `<th style="text-align:center;padding:7px 8px;color:#64748b;font-weight:500;border-bottom:0.5px solid rgba(255,255,255,0.12);white-space:nowrap;">${catLabels[k]}<br><span style="font-weight:400;font-size:10px;">(${(CATEGORIES[k].weight*100).toFixed(0)}%)</span></th>`).join('')}
+      </tr></thead><tbody>`;
+
+      ranked.forEach((b, i) => {
+        const bg = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+        const prevOverall = prevOverallMap[b.dataKey] != null ? prevOverallMap[b.dataKey] : null;
+
+        const catCells = catKeys.map(catKey => {
+          const catRank = currCatRanks[b.dataKey] ? (currCatRanks[b.dataKey][catKey] || 9) : 9;
+          const prevCR = prevCatRanks[b.dataKey] ? (prevCatRanks[b.dataKey][catKey] || null) : null;
+          const metrics = CATEGORIES[catKey].metrics;
+          const tipLines = metrics.map(m => {
+            const cr = currScores[b.dataKey]?.metricRanks?.[m.key] || '—';
+            const pr = prevScores[b.dataKey]?.metricRanks?.[m.key] ?? null;
+            const arr = (pr != null && cr !== '—') ? (pr > cr ? '↑' : pr < cr ? '↓' : '—') : '—';
+            return `${metricLabels[m.key]||m.key}: #${cr} ${arr}`;
+          }).join('&#10;');
+          const rowsHtml = metrics.map(m => {
+            const cr = currScores[b.dataKey]?.metricRanks?.[m.key] || '—';
+            const pr = prevScores[b.dataKey]?.metricRanks?.[m.key] ?? null;
+            const arr = (pr != null && cr !== '—') ? (pr > cr ? '<span style="color:#4ade80;">↑</span>' : pr < cr ? '<span style="color:#f87171;">↓</span>' : '<span style="color:#64748b;">—</span>') : '';
+            return `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:0.5px solid rgba(255,255,255,0.06);font-size:11px;"><span style="color:#94a3b8;">${metricLabels[m.key]||m.key}</span><span style="font-weight:600;color:#e2e8f0;">#${cr} ${arr}</span></div>`;
+          }).join('');
+          const tipTitle = catLabels[catKey].toUpperCase() + ' — ' + b.name.split(' ')[0].toUpperCase();
+          const tipKey = 'ct_' + i + '_' + catKey;
+          window._catTips = window._catTips || {};
+          window._catTips[tipKey] = { title: tipTitle, rows: rowsHtml };
+          return '<td style="text-align:center;padding:7px 8px;cursor:default;" data-tipkey="' + tipKey + '" onmouseenter="showCatTooltipKey(this,event)" onmousemove="moveCatTooltip(event)" onmouseleave="hideCatTooltip()">' + badge(catRank, prevCR) + '</td>';
+        }).join('');
+
+        html += `<tr style="background:${bg};border-bottom:0.5px solid rgba(255,255,255,0.05);">
+          <td style="padding:7px 10px;color:#e2e8f0;font-weight:500;white-space:nowrap;">${b.name}</td>
+          <td style="text-align:center;padding:7px 8px;">${badge(b.rank, prevOverall)}</td>
+          ${catCells}
+        </tr>`;
+      });
+
+      html += '</tbody>';
+      table.innerHTML = html;
+    }
+
+
+    function renderCategoryRankings() { 
+      if (!currentData) return; 
+      const ranked = getRanked(); 
+      
+      let html = '';
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        const sortKey = catSortState[catKey]?.sortKey || null;
+        const sortDir = catSortState[catKey]?.sortDir || 'asc';
+        
+        // Sort buildings by the selected metric or by category rank
+        let sortedBuildings = [...ranked];
+        if (sortKey) {
+          sortedBuildings.sort((a, b) => {
+            const aRank = a.metricRanks[sortKey] || 17;
+            const bRank = b.metricRanks[sortKey] || 17;
+            return sortDir === 'asc' ? aRank - bRank : bRank - aRank;
+          });
+        } else {
+          // Sort by category rank
+          sortedBuildings.sort((a, b) => {
+            const aRank = getCatRankForBuilding(a.dataKey, catKey);
+            const bRank = getCatRankForBuilding(b.dataKey, catKey);
+            return aRank - bRank;
+          });
+        }
+        
+        html += `
+          <div class="category-band" style="margin-bottom:1.5rem;border:1px solid var(--white-10);border-radius:12px;overflow:hidden">
+            <div style="background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:0.75rem 1.25rem;display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <span style="font-weight:700;font-size:1.1rem;color:var(--gold)">${cat.name}</span>
+                <span style="color:var(--slate-400);margin-left:0.75rem">(${(cat.weight*100).toFixed(0)}% weight)</span>
+              </div>
+            </div>
+            <div style="overflow-x:auto;padding:0.5rem">
+              <table class="cat-rank-table" style="font-size:0.85rem;min-width:100%">
+                <thead><tr>
+                  <th style="text-align:left;min-width:180px;position:sticky;left:0;background:var(--slate-800);z-index:1">Building</th>
+                  <th style="cursor:pointer;min-width:100px;text-align:center" onclick="sortCategoryByMetric('${catKey}', null)">
+                    Category Rank ${!sortKey ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  ${cat.metrics.map(m => `
+                    <th style="cursor:pointer;min-width:120px;text-align:center" onclick="sortCategoryByMetric('${catKey}', '${m.key}')">
+                      ${m.label}<br>
+                      <span style="font-size:0.6rem;font-weight:normal;opacity:0.7">(${(m.weight*100).toFixed(0)}%) ${m.higher ? '↑' : '↓'}</span>
+                      ${sortKey === m.key ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                  `).join('')}
+                </tr></thead>
+                <tbody>
+                  ${sortedBuildings.map(r => {
+                    const catRank = getCatRankForBuilding(r.dataKey, catKey);
+                    return `<tr>
+                      <td style="position:sticky;left:0;background:var(--slate-800);z-index:1">${r.name}</td>
+                      <td style="text-align:center"><span class="rank-badge ${getRankBadgeClass(catRank)}">#${catRank}</span></td>
+                      ${cat.metrics.map(m => {
+                        const mRank = r.metricRanks[m.key] || 17;
+                        const mVal = r.metrics[m.key];
+                        const displayVal = mVal !== null && mVal !== undefined ? mVal : 'N/A';
+                        return `<td style="text-align:center">
+                          <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem">
+                            <span class="rank-badge ${getRankBadgeClass(mRank)}" style="font-size:0.7rem;padding:0.15rem 0.35rem">#${mRank}</span>
+                            <span style="color:var(--slate-300)">${displayVal}</span>
+                          </div>
+                        </td>`;
+                      }).join('')}
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>`;
+      });
+      
+      document.getElementById('categoryBands').innerHTML = html;
+    }
+    
+    function getCatRankForBuilding(dataKey, catKey) {
+      const catRanks = getCategoryRanksByCategory();
+      return catRanks[dataKey]?.[catKey] || 17;
+    }
+    
+    function sortCategoryByMetric(catKey, metricKey) {
+      if (!catSortState[catKey]) catSortState[catKey] = { sortKey: null, sortDir: 'asc' };
+      
+      if (catSortState[catKey].sortKey === metricKey) {
+        // Toggle direction
+        catSortState[catKey].sortDir = catSortState[catKey].sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        catSortState[catKey].sortKey = metricKey;
+        catSortState[catKey].sortDir = 'asc';
+      }
+      renderCategoryRankings();
+    }
+    
+    function getHeatColor(score, min, max) { 
+      const normalized = (score - min) / (max - min);
+      if (normalized <= 0.2) return '#10b981'; 
+      if (normalized <= 0.4) return '#22c55e'; 
+      if (normalized <= 0.6) return '#f59e0b'; 
+      if (normalized <= 0.8) return '#f97316'; 
+      return '#ef4444'; 
+    }
+    
+    function renderHeatMap() { 
+      if (!currentData) return; 
+      const ranked = getRanked(); 
+      const catKeys = Object.keys(CATEGORIES);
+      
+      const catMinMax = {};
+      catKeys.forEach(k => {
+        const scores = ranked.map(r => r.categoryScores[k]);
+        catMinMax[k] = { min: Math.min(...scores), max: Math.max(...scores) };
+      });
+      
+      let html = `<thead><tr><th>Building</th>${catKeys.map(k => `<th>${CATEGORIES[k].name}</th>`).join('')}<th>Total</th></tr></thead><tbody>`; 
+      ranked.forEach(r => { 
+        html += `<tr><td>${r.name}</td>`; 
+        catKeys.forEach(k => { 
+          const score = r.categoryScores[k]; 
+          const color = getHeatColor(score, catMinMax[k].min, catMinMax[k].max); 
+          html += `<td><span class="heatmap-cell" style="background:${color};color:#fff">${score.toFixed(2)}</span></td>`; 
+        }); 
+        html += `<td><strong style="color:var(--gold)">${r.score.toFixed(2)}</strong></td></tr>`; 
+      }); 
+      html += '</tbody>'; 
+      document.getElementById('heatmapTable').innerHTML = html; 
+    }
+    
+    // =====================
+    // CATEGORY RANKINGS
+    // =====================
+    function initCategoryRankings() {
+      const catSelect = document.getElementById('categorySelect');
+      catSelect.innerHTML = '<option value="">Select Category</option>' + 
+        Object.entries(CATEGORIES).map(([key, cat]) => 
+          `<option value="${key}">${cat.name} (${(cat.weight * 100).toFixed(0)}%)</option>`
+        ).join('');
+      document.getElementById('metricSelect').innerHTML = '<option value="">Select Metric</option>';
+      document.getElementById('categoryRankingsContent').innerHTML = '<div style="color:var(--slate-400);text-align:center;padding:2rem;">Select a category and metric to view rankings</div>';
+    }
+    
+    function updateMetricSelect() {
+      const catKey = document.getElementById('categorySelect').value;
+      const metricSelect = document.getElementById('metricSelect');
+      
+      if (!catKey) {
+        metricSelect.innerHTML = '<option value="">Select Metric</option>';
+        document.getElementById('categoryRankingsContent').innerHTML = '<div style="color:var(--slate-400);text-align:center;padding:2rem;">Select a category and metric to view rankings</div>';
+        return;
+      }
+      
+      const cat = CATEGORIES[catKey];
+      metricSelect.innerHTML = '<option value="">Select Metric</option>' + 
+        cat.metrics.map(m => 
+          `<option value="${m.key}" data-higher="${m.higher}">${m.label} (${(m.weight * 100).toFixed(0)}%) ${m.higher ? '↑' : '↓'}</option>`
+        ).join('');
+    }
+    
+
+
+    function renderCategoryHeatmapStandalone() {
+      try {
+        buildCategoryHeatmap();
+      } catch(e) {
+        console.error('Category heatmap error:', e);
+      }
+    }
+
+
+
+
+    function renderCategoryRankings() {
+      const catKey = document.getElementById('categorySelect').value;
+      const metricKey = document.getElementById('metricSelect').value;
+      const container = document.getElementById('categoryRankingsContent');
+      
+      if (!catKey || !metricKey || !currentData) {
+        container.innerHTML = '<div style="color:var(--slate-400);text-align:center;padding:2rem;">Select a category and metric to view rankings</div>';
+        return;
+      }
+      
+      const cat = CATEGORIES[catKey];
+      const metric = cat.metrics.find(m => m.key === metricKey);
+      if (!metric) return;
+      
+      // Get all building values for this metric
+      const values = BUILDINGS.map(b => {
+        const data = currentData.buildingData[b.dataKey];
+        const value = data ? data[metricKey] : null;
+        return {
+          name: b.name,
+          dataKey: b.dataKey,
+          region: b.region,
+          value: value
+        };
+      }).filter(v => v.value !== null && v.value !== undefined);
+      
+      // Sort by value
+      values.sort((a, b) => metric.higher ? b.value - a.value : a.value - b.value);
+      
+      // Assign ranks with ties
+      let currentRank = 1;
+      let i = 0;
+      while (i < values.length) {
+        const currentValue = values[i].value;
+        const tiedItems = values.filter(v => v.value === currentValue);
+        tiedItems.forEach(item => { item.rank = currentRank; });
+        i += tiedItems.length;
+        currentRank = i + 1;
+      }
+      
+      const direction = metric.higher ? '(Higher is better ↑)' : '(Lower is better ↓)';
+      
+      let html = `
+        <div style="margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span style="font-size:1.1rem;font-weight:700;color:var(--slate-200);">${metric.label}</span>
+            <span style="color:var(--slate-400);font-size:0.85rem;margin-left:0.5rem;">${direction}</span>
+          </div>
+          <span style="color:var(--slate-400);font-size:0.85rem;">${cat.name} • ${(metric.weight * 100).toFixed(0)}% weight</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+      `;
+      
+      values.forEach((v, idx) => {
+        const medal = v.rank === 1 ? '🥇' : v.rank === 2 ? '🥈' : v.rank === 3 ? '🥉' : '';
+        const bgColor = v.rank <= 3 ? 'rgba(251,191,36,0.1)' : 'var(--white-05)';
+        const borderColor = v.rank <= 3 ? 'rgba(251,191,36,0.3)' : 'var(--white-10)';
+        
+        html += `
+          <div onclick="goToBuildingDetail('${v.dataKey}')" style="display:grid;grid-template-columns:50px 1fr 100px;align-items:center;padding:0.75rem 1rem;background:${bgColor};border:1px solid ${borderColor};border-radius:10px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform=''">
+            <span style="font-size:1.1rem;font-weight:700;color:var(--gold);">${medal} #${v.rank}</span>
+            <div>
+              <div style="color:var(--slate-200);font-weight:500;">${v.name}</div>
+              <div style="color:var(--slate-500);font-size:0.8rem;">${v.region}</div>
+            </div>
+            <div style="text-align:right;font-size:1.1rem;font-weight:600;color:var(--slate-200);">${typeof v.value === 'number' ? v.value.toFixed(2) : v.value}</div>
+          </div>
+        `;
+      });
+      
+      // Show buildings with no data
+      const noData = BUILDINGS.filter(b => !values.find(v => v.dataKey === b.dataKey));
+      if (noData.length > 0) {
+        html += `<div style="color:var(--slate-500);font-size:0.85rem;padding:0.75rem;margin-top:0.5rem;">No data: ${noData.map(b => b.name).join(', ')}</div>`;
+      }
+      
+      html += '</div>';
+      container.innerHTML = html;
+    }
+    
+    function renderTrends() {
+      if (allData.length < 2) return;
+      const months = allData.map(d => d.month.split(' ')[0]);
+      const allRanked = allData.map(d => calculateRankBasedScores(d));
+      const latestScores = allRanked[allRanked.length-1];
+      const sortedBuildings = [...BUILDINGS].sort((a,b) =>
+        (latestScores[a.dataKey] ? latestScores[a.dataKey].rank : 18) -
+        (latestScores[b.dataKey] ? latestScores[b.dataKey].rank : 18)
+      );
+      const colors18 = ['#f5c842','#38bdf8','#cd7f32','#4ade80','#818cf8','#fb923c',
+        '#34d399','#f472b6','#a78bfa','#60a5fa','#facc15','#2dd4bf',
+        '#f87171','#c084fc','#94a3b8','#e879f9','#6366f1','#fb7185'];
+      const isDark = !document.body.classList.contains('light-mode');
+      const textColor = isDark ? '#94a3b8' : '#64748b';
+      const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+      const datasets = sortedBuildings.map((b, i) => {
+        const ranks = allRanked.map(s => s[b.dataKey] ? s[b.dataKey].rank : null);
+        const firstRank = ranks.find(r => r !== null) || 18;
+        const lastRank = [...ranks].reverse().find(r => r !== null) || 18;
+        const isNotable = firstRank <= 3 || lastRank <= 3 || Math.abs(firstRank - lastRank) >= 4;
+        return {
+          label: b.name, data: ranks,
+          borderColor: colors18[i], backgroundColor: colors18[i],
+          borderWidth: isNotable ? 2.5 : 1,
+          pointRadius: isNotable ? 5 : 3, pointHoverRadius: 7,
+          tension: 0.3, borderDash: isNotable ? [] : [4, 3],
+        };
+      });
+      const ctx = document.getElementById('trendsChart').getContext('2d');
+      if (charts.trends) charts.trends.destroy();
+      charts.trends = new Chart(ctx, {
+        type: 'line', data: { labels: months, datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.dataset.label + ': #' + c.raw } } },
+          scales: {
+            y: { reverse: true, min: 0.5, max: 18.5,
+              ticks: { stepSize: 1, color: textColor, font: { size: 11 }, callback: v => '#' + v },
+              grid: { color: gridColor } },
+            x: { ticks: { color: textColor, font: { size: 12 } }, grid: { color: gridColor } }
+          }
+        }
+      });
+      const legend = document.getElementById('bumpLegend');
+      if (legend) {
+        legend.innerHTML = sortedBuildings.map((b, i) => {
+          const firstR = allRanked[0][b.dataKey] ? allRanked[0][b.dataKey].rank : 18;
+          const lastR = allRanked[allRanked.length-1][b.dataKey] ? allRanked[allRanked.length-1][b.dataKey].rank : 18;
+          const delta = firstR - lastR;
+          const arrow = delta > 2 ? ' ↑' : delta < -2 ? ' ↓' : '';
+          return '<div style="display:flex;align-items:center;gap:4px;"><div style="width:10px;height:10px;border-radius:2px;background:' + colors18[i] + '"></div>' +
+            '<span style="color:var(--slate-300);font-size:11px;">#' + lastR + ' ' + b.name + arrow + '</span></div>';
+        }).join('');
+      }
+      const heatmap = document.getElementById('rankHeatmap');
+      if (!heatmap) return;
+      function rankStyle(r) {
+        if (r <= 3) return 'background:#14532d;color:#bbf7d0';
+        if (r <= 6) return 'background:#166534;color:#86efac';
+        if (r <= 9) return 'background:#15803d;color:#dcfce7';
+        if (r <= 12) return 'background:#92400e;color:#fde68a';
+        if (r <= 15) return 'background:#9a3412;color:#fed7aa';
+        return 'background:#7f1d1d;color:#fecaca';
+      }
+      let html = '<table style="border-collapse:collapse;width:100%;font-size:12px;">';
+      html += '<thead><tr><th style="text-align:left;padding:6px 10px;color:var(--slate-400);font-weight:600;min-width:180px;">Facility</th>';
+      months.forEach(m => { html += '<th style="text-align:center;padding:6px 8px;color:var(--slate-400);font-weight:600;min-width:52px;">' + m + '</th>'; });
+      html += '<th style="text-align:center;padding:6px 8px;color:var(--slate-400);font-weight:600;min-width:60px;">Change</th></tr></thead><tbody>';
+      sortedBuildings.forEach((b, bi) => {
+        const rowBg = bi % 2 === 0 ? 'var(--white-05)' : 'transparent';
+        html += '<tr style="background:' + rowBg + '">';
+        html += '<td style="padding:5px 10px;color:var(--slate-200);">' + b.name + '</td>';
+        allRanked.forEach(scores => {
+          const r = scores[b.dataKey] ? scores[b.dataKey].rank : null;
+          if (r === null) {
+            html += '<td style="padding:4px 8px;text-align:center;"><div style="width:36px;height:26px;border-radius:4px;background:var(--white-10);margin:0 auto;"></div></td>';
+          } else {
+            html += '<td style="padding:4px 8px;text-align:center;"><div style="width:36px;height:26px;border-radius:4px;' + rankStyle(r) + ';display:flex;align-items:center;justify-content:center;font-weight:500;margin:0 auto;">#' + r + '</div></td>';
+          }
+        });
+        const firstR = allRanked[0][b.dataKey] ? allRanked[0][b.dataKey].rank : 18;
+        const lastR = allRanked[allRanked.length-1][b.dataKey] ? allRanked[allRanked.length-1][b.dataKey].rank : 18;
+        const delta = firstR - lastR;
+        const arrow = delta > 0 ? '<span style="color:#4ade80;font-weight:600;">↑' + delta + '</span>' :
+                      delta < 0 ? '<span style="color:#f87171;font-weight:600;">↓' + Math.abs(delta) + '</span>' :
+                      '<span style="color:var(--slate-500);">—</span>';
+        html += '<td style="text-align:center;">' + arrow + '</td></tr>';
+      });
+      html += '</tbody></table>';
+      heatmap.innerHTML = html;
+    }
+
+    function initSimulator() {
+      const dataKey = document.getElementById('simBuildingSelect').value;
+      if (!dataKey || !currentData) {
+        document.getElementById('simResults').style.display = 'none';
+        return;
+      }
+      
+      document.getElementById('simResults').style.display = 'block';
+      
+      const buildingData = currentData.buildingData[dataKey];
+      simOriginalValues = { ...buildingData };
+      simCurrentValues = { ...buildingData };
+      
+      // Build metric inputs by category
+      let html = '';
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        html += `<div style="margin-bottom:1.5rem">
+          <div style="font-weight:700;color:var(--gold);margin-bottom:0.75rem;font-size:1rem">${cat.name} <span style="color:var(--slate-500);font-weight:normal">(${(cat.weight*100).toFixed(0)}% weight)</span></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem">`;
+        
+        cat.metrics.forEach(m => {
+          const val = buildingData[m.key];
+          const displayVal = val !== null && val !== undefined ? val : '';
+          const direction = m.higher ? '↑ Higher=Better' : '↓ Lower=Better';
+          const dirColor = m.higher ? '#10b981' : '#f59e0b';
+          
+          html += `<div style="background:var(--white-05);padding:0.75rem;border-radius:8px">
+            <div style="font-size:0.8rem;color:var(--slate-400);margin-bottom:0.25rem">${m.label} <span style="color:${dirColor};font-size:0.7rem">${direction}</span></div>
+            <div style="display:flex;gap:0.5rem;align-items:center">
+              <input type="number" step="any" id="sim_${m.key}" value="${displayVal}" 
+                onchange="updateSimulation()" 
+                style="flex:1;padding:0.5rem;border:1px solid var(--white-20);border-radius:6px;background:var(--white-10);color:var(--slate-200);font-family:'Inter',sans-serif;font-size:0.9rem;width:80px">
+              <span style="color:var(--slate-500);font-size:0.75rem">was: ${displayVal}</span>
+            </div>
+          </div>`;
+        });
+        
+        html += '</div></div>';
+      });
+      
+      document.getElementById('simMetricInputs').innerHTML = html;
+      updateSimulation();
+    }
+    
+    function resetSimulator() {
+      const dataKey = document.getElementById('simBuildingSelect').value;
+      if (!dataKey) return;
+      
+      simCurrentValues = { ...simOriginalValues };
+      
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        cat.metrics.forEach(m => {
+          const input = document.getElementById('sim_' + m.key);
+          if (input) {
+            const val = simOriginalValues[m.key];
+            input.value = val !== null && val !== undefined ? val : '';
+          }
+        });
+      });
+      
+      updateSimulation();
+    }
+    
+    function updateSimulation() {
+      const dataKey = document.getElementById('simBuildingSelect').value;
+      if (!dataKey || !currentData) return;
+      
+      // Get current values from inputs
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        cat.metrics.forEach(m => {
+          const input = document.getElementById('sim_' + m.key);
+          if (input) {
+            const val = parseFloat(input.value);
+            simCurrentValues[m.key] = isNaN(val) ? null : val;
+          }
+        });
+      });
+      
+      // Calculate original ranking
+      const originalRanked = getRanked();
+      const originalBuilding = originalRanked.find(r => r.dataKey === dataKey);
+      
+      // Create simulated data with modified values
+      const simData = JSON.parse(JSON.stringify(currentData));
+      simData.buildingData[dataKey] = { ...simData.buildingData[dataKey], ...simCurrentValues };
+      
+      // Recalculate with simulated values
+      const simScores = {};
+      const availableBuildings = BUILDINGS.filter(b => simData.buildingData[b.dataKey]);
+      availableBuildings.forEach(b => { simScores[b.dataKey] = { total: 0, categoryScores: {} }; });
+      
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        availableBuildings.forEach(b => { simScores[b.dataKey].categoryScores[catKey] = 0; });
+        
+        cat.metrics.forEach(metric => {
+          const values = availableBuildings.map(b => ({
+            dataKey: b.dataKey,
+            value: simData.buildingData[b.dataKey][metric.key]
+          })).filter(v => v.value !== null && v.value !== undefined);
+          
+          if (values.length === 0) return;
+          
+          values.sort((a, b) => metric.higher ? b.value - a.value : a.value - b.value);
+          
+          const ranks = {};
+          let currentRank = 1;
+          let i = 0;
+          while (i < values.length) {
+            const currentValue = values[i].value;
+            const tiedItems = values.filter(v => v.value === currentValue);
+            tiedItems.forEach(item => { ranks[item.dataKey] = currentRank; });
+            i += tiedItems.length;
+            currentRank = i + 1;
+          }
+          
+          availableBuildings.forEach(b => {
+            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = 9; // middle rank for missing
+            const rank = ranks[b.dataKey];
+            const contribution = rank * metric.weight * cat.weight;
+            simScores[b.dataKey].total += contribution;
+            simScores[b.dataKey].categoryScores[catKey] += contribution;
+          });
+        });
+      });
+      
+      // Calculate simulated ranks
+      const simSorted = availableBuildings.map(b => ({ dataKey: b.dataKey, score: simScores[b.dataKey].total }))
+        .sort((a, b) => a.score - b.score);
+      simSorted.forEach((b, idx) => { simScores[b.dataKey].rank = idx + 1; });
+      
+      const simBuilding = { 
+        score: simScores[dataKey].total, 
+        rank: simScores[dataKey].rank,
+        categoryScores: simScores[dataKey].categoryScores
+      };
+      
+      // Render comparison
+      const rankChange = originalBuilding.rank - simBuilding.rank;
+      const scoreChange = originalBuilding.score - simBuilding.score;
+      const rankClass = rankChange > 0 ? 'trend-up' : rankChange < 0 ? 'trend-down' : 'trend-same';
+      const rankIcon = rankChange > 0 ? '↑' : rankChange < 0 ? '↓' : '→';
+      
+      document.getElementById('simComparison').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;text-align:center">
+          <div style="background:var(--white-05);padding:1.5rem;border-radius:12px">
+            <div style="color:var(--slate-400);font-size:0.85rem;margin-bottom:0.5rem">Current Rank</div>
+            <div style="font-size:2.5rem;font-weight:800;color:var(--slate-300)">#${originalBuilding.rank}</div>
+            <div style="color:var(--slate-500);font-size:0.9rem">${originalBuilding.score.toFixed(2)} pts</div>
+          </div>
+          <div style="background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:1.5rem;border-radius:12px">
+            <div style="color:var(--gold-light);font-size:0.85rem;margin-bottom:0.5rem">Simulated Rank</div>
+            <div style="font-size:2.5rem;font-weight:800;color:var(--gold)">#${simBuilding.rank}</div>
+            <div style="color:var(--gold-light);font-size:0.9rem">${simBuilding.score.toFixed(2)} pts</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:1rem;padding:1rem;background:var(--white-05);border-radius:8px">
+          <span class="${rankClass}" style="font-size:1.5rem;font-weight:700">${rankIcon} ${Math.abs(rankChange)} rank${Math.abs(rankChange) !== 1 ? 's' : ''}</span>
+          <span style="color:var(--slate-400);margin-left:1rem">(${scoreChange > 0 ? '-' : '+'}${Math.abs(scoreChange).toFixed(2)} pts)</span>
+        </div>`;
+      
+      // Find which metrics changed the most
+      const changes = [];
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        cat.metrics.forEach(m => {
+          const orig = simOriginalValues[m.key];
+          const curr = simCurrentValues[m.key];
+          if (orig !== curr && orig !== null && curr !== null) {
+            changes.push({
+              label: m.label,
+              category: cat.name,
+              original: orig,
+              current: curr,
+              change: curr - orig,
+              higher: m.higher
+            });
+          }
+        });
+      });
+      
+      if (changes.length === 0) {
+        document.getElementById('simImpact').innerHTML = `
+          <div style="text-align:center;padding:2rem;color:var(--slate-400)">
+            <div style="font-size:2rem;margin-bottom:0.5rem">🧭</div>
+            Adjust your heading to see the impact
+          </div>`;
+      } else {
+        document.getElementById('simImpact').innerHTML = `
+          <div style="font-size:0.9rem">
+            ${changes.map(c => {
+              const improved = (c.higher && c.change > 0) || (!c.higher && c.change < 0);
+              const color = improved ? '#10b981' : '#ef4444';
+              const icon = improved ? '✓' : '✗';
+              return `<div style="padding:0.5rem 0;border-bottom:1px solid var(--white-10);display:flex;justify-content:space-between">
+                <span>${c.label}</span>
+                <span style="color:${color}"><strong>${c.original}</strong> → <strong>${c.current}</strong> ${icon}</span>
+              </div>`;
+            }).join('')}
+          </div>`;
+      }
+    }
+    
+    function renderRadarChart() { 
+      if (!currentData) return; 
+      const ctx = document.getElementById('radarChart').getContext('2d'); 
+      if (charts.radar) charts.radar.destroy(); 
+      
+      let selected = ['radarSelect1','radarSelect2','radarSelect3'].map(id => document.getElementById(id).value).filter(Boolean); 
+      if (selected.length === 0) { 
+        const ranked = getRanked(); 
+        selected = [ranked[0].dataKey, ranked[1].dataKey, ranked[2].dataKey]; 
+      } 
+      
+      const labels = Object.values(CATEGORIES).map(c => c.name); 
+      const ranked = getRanked();
+      
+      // Convert to performance score (100 = best, 0 = worst) for visual display
+      // Since lower weighted score = better, we invert for the chart
+      const catKeys = Object.keys(CATEGORIES);
+      const catMaxScores = {};
+      catKeys.forEach(k => {
+        const scores = ranked.map(r => r.categoryScores[k]);
+        catMaxScores[k] = Math.max(...scores);
+      });
+      
+      const datasets = selected.map((dataKey, i) => { 
+        const building = ranked.find(r => r.dataKey === dataKey);
+        // Convert to 0-100 scale where 100 = best performance (lowest score)
+        const data = catKeys.map(k => {
+          const score = building ? building.categoryScores[k] : 0;
+          const maxScore = catMaxScores[k];
+          // Invert: if score is 0 (best), performance is 100. If score is max (worst), performance is 0
+          return maxScore > 0 ? Math.round((1 - score / maxScore) * 100) : 100;
+        });
+        return { 
+          label: getFullName(dataKey), 
+          data, 
+          borderColor: COLORS[i], 
+          backgroundColor: COLORS[i] + '35', 
+          pointBackgroundColor: COLORS[i], 
+          pointBorderColor: '#fff',
+          pointRadius: 6,
+          pointHoverRadius: 9,
+          borderWidth: 3,
+          fill: true
+        }; 
+      }); 
+      
+      charts.radar = new Chart(ctx, { 
+        type: 'radar', 
+        data: { labels, datasets }, 
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false,
+          scales: { 
+            r: { 
+              beginAtZero: true,
+              min: 0,
+              max: 100,
+              ticks: { 
+                stepSize: 20,
+                color: '#94a3b8',
+                backdropColor: 'transparent',
+                font: { size: 11 }
+              },
+              grid: {
+                color: 'rgba(255,255,255,0.2)',
+                lineWidth: 1,
+                circular: true
+              },
+              angleLines: {
+                color: 'rgba(255,255,255,0.2)',
+                lineWidth: 1
+              },
+              pointLabels: {
+                color: '#e2e8f0',
+                font: { size: 14, weight: '600' }
+              }
+            }
+          }, 
+          plugins: { 
+            legend: { 
+              position: 'bottom',
+              labels: {
+                color: '#e2e8f0',
+                padding: 25,
+                font: { size: 13, weight: '500' },
+                usePointStyle: true,
+                pointStyle: 'circle'
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.dataset.label}: ${context.raw}% performance`;
+                }
+              }
+            }
+          }
+        } 
+      }); 
+    }
+    
+    function renderRegionalStats() { 
+      if (!regionalMonthData) return; 
+      const ranked = getRanked(regionalMonthData); 
+      const gc = ranked.filter(r => r.region === 'Golden Coast'), ol = ranked.filter(r => r.region === 'Overland'); 
+      const avgGC = gc.reduce((s, r) => s + r.score, 0) / gc.length, avgOL = ol.reduce((s, r) => s + r.score, 0) / ol.length; 
+      document.getElementById('gcStats').innerHTML = `<div class="region-stat"><div class="region-stat-value">${avgGC.toFixed(2)}</div><div class="region-stat-label">Avg Score</div></div><div class="region-stat"><div class="region-stat-value">${gc[0].score.toFixed(2)}</div><div class="region-stat-label">Best Score</div></div><div class="region-stat"><div class="region-stat-value">#${gc[0].rank}</div><div class="region-stat-label">Best Rank</div></div>`; 
+      document.getElementById('olStats').innerHTML = `<div class="region-stat"><div class="region-stat-value">${avgOL.toFixed(2)}</div><div class="region-stat-label">Avg Score</div></div><div class="region-stat"><div class="region-stat-value">${ol[0].score.toFixed(2)}</div><div class="region-stat-label">Best Score</div></div><div class="region-stat"><div class="region-stat-value">#${ol[0].rank}</div><div class="region-stat-label">Best Rank</div></div>`; 
+      document.getElementById('gcTopBuildings').innerHTML = `<div style="font-size:0.9rem">${gc.slice(0,3).map((r,i) => `<div style="padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.1)">${['🥇','🥈','🥉'][i]} ${r.name} - ${r.score.toFixed(2)}</div>`).join('')}</div>`; 
+      document.getElementById('olTopBuildings').innerHTML = `<div style="font-size:0.9rem">${ol.slice(0,3).map((r,i) => `<div style="padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.1)">${['🥇','🥈','🥉'][i]} ${r.name} - ${r.score.toFixed(2)}</div>`).join('')}</div>`; 
+    }
+    
+    function renderRegionalChart() { 
+      if (!regionalMonthData) return; 
+      const ctx = document.getElementById('regionalChart').getContext('2d'); 
+      if (charts.regional) charts.regional.destroy(); 
+      const ranked = getRanked(regionalMonthData); 
+      const gc = ranked.filter(r => r.region === 'Golden Coast'), ol = ranked.filter(r => r.region === 'Overland'); 
+      const catKeys = Object.keys(CATEGORIES); 
+      const gcAvg = catKeys.map(k => gc.reduce((s, r) => s + r.categoryScores[k], 0) / gc.length);
+      const olAvg = catKeys.map(k => ol.reduce((s, r) => s + r.categoryScores[k], 0) / ol.length);
+      const maxVal = Math.max(...gcAvg, ...olAvg) * 1.2;
+      charts.regional = new Chart(ctx, { type: 'bar', data: { labels: catKeys.map(k => CATEGORIES[k].name), datasets: [{ label: 'Golden Coast', data: gcAvg, backgroundColor: '#f59e0b', borderRadius: 6 },{ label: 'Overland', data: olAvg, backgroundColor: '#a855f7', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { y: { beginAtZero: true, max: maxVal }}} }); 
+    }
+    
+    function getWorkingDraggingHTML(dataKey) {
+      if (allData.length < 2) return '';
+      const firstData = allData[0].buildingData[dataKey];
+      const currentBData = currentData.buildingData[dataKey];
+      if (!firstData || !currentBData) return '';
+
+      const allMetrics = [];
+      Object.values(CATEGORIES).forEach(cat => {
+        cat.metrics.forEach(m => {
+          const firstVal = firstData[m.key];
+          const currVal = currentBData[m.key];
+          if (firstVal === null || firstVal === undefined || currVal === null || currVal === undefined) return;
+          if (firstVal === currVal) return;
+          const improved = m.higher ? currVal > firstVal : currVal < firstVal;
+          const delta = Math.abs(currVal - firstVal);
+          allMetrics.push({ key: m.key, label: m.label, higher: m.higher, firstVal, currVal, improved, delta });
+        });
+      });
+
+      const working = allMetrics.filter(m => m.improved).sort((a,b) => b.delta - a.delta).slice(0,3);
+      const dragging = allMetrics.filter(m => !m.improved).sort((a,b) => b.delta - a.delta).slice(0,3);
+
+      if (working.length === 0 && dragging.length === 0) return '';
+
+      function fmtVal(key, val) {
+        if (val === null || val === undefined) return 'N/A';
+        const pctKeys = ['rehospitalization','dischargeFunctional','occupancy','medicareCensus','skilledMix','badDebt','noi','labor','otdt','rehabProductivity','turnover','admissionPacket','arbitration'];
+        if (pctKeys.includes(key)) return val.toFixed(1) + '%';
+        return val.toFixed(1);
+      }
+
+      function rowHTML(m, isWorking) {
+        const arrow = isWorking ? '&#8593;' : '&#8595;';
+        const color = isWorking ? '#4ade80' : '#f87171';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--white-10);font-size:12px;">' +
+          '<span style="color:var(--slate-300);">' + m.label + '</span>' +
+          '<span style="color:' + color + ';font-weight:600;">' + fmtVal(m.key, m.firstVal) + ' &rarr; ' + fmtVal(m.key, m.currVal) + ' ' + arrow + '</span>' +
+        '</div>';
+      }
+
+      const firstMonth = allData[0].month.split(' ')[0];
+      const currMonth = currentData.month.split(' ')[0];
+
+      return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;">' +
+        '<div style="background:rgba(74,222,128,0.06);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;">' +
+          '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:8px;">WORKING (' + firstMonth + ' &rarr; ' + currMonth + ')</div>' +
+          (working.length ? working.map(m => rowHTML(m, true)).join('') : '<div style="font-size:12px;color:var(--slate-500);">No significant gains</div>') +
+        '</div>' +
+        '<div style="background:rgba(248,113,113,0.06);border:0.5px solid rgba(248,113,113,0.25);border-radius:10px;padding:12px 14px;">' +
+          '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:8px;">DRAGGING (' + firstMonth + ' &rarr; ' + currMonth + ')</div>' +
+          (dragging.length ? dragging.map(m => rowHTML(m, false)).join('') : '<div style="font-size:12px;color:var(--slate-500);">No significant declines</div>') +
+        '</div>' +
+      '</div>';
+    }
+
+    function getMonthlyTrail(dataKey, metricKey) {
+      if (allData.length < 2) return '';
+      const pctKeys = ['rehospitalization','dischargeFunctional','occupancy','medicareCensus','skilledMix','badDebt','noi','labor','otdt','rehabProductivity','turnover','admissionPacket','arbitration'];
+      function fmt(val) {
+        if (val === null || val === undefined) return null;
+        // Show full precision, trimming trailing zeros
+        return parseFloat(val.toFixed(2)).toString();
+      }
+      const parts = allData.map(d => {
+        const bData = d.buildingData[dataKey];
+        const v = bData && bData._raw ? bData._raw[metricKey] : null;
+        const f = fmt(v);
+        if (f === null) return null;
+        return { label: d.month.split(' ')[0], val: f };
+      }).filter(x => x !== null);
+      if (parts.length === 0) return '';
+      return '<div style="font-size:10px;color:var(--slate-500);margin-top:3px;line-height:1.4;">' +
+        parts.map(p => p.label + ' ' + p.val).join(' &#8594; ') +
+      '</div>';
+    }
+
+    function renderBuildingDetail(dataKey) { 
+      if (!dataKey || !currentData) { document.getElementById('buildingContent').innerHTML = '<div class="no-data" style="padding:2rem"><p>Select a building</p></div>'; return; } 
+      const building = BUILDINGS.find(b => b.dataKey === dataKey); 
+      const ranked = getRanked();
+      const buildingData = ranked.find(r => r.dataKey === dataKey);
+      const catRanks = getCategoryRanksByCategory();
+      
+      // Get rank movement analysis
+      const movementHTML = getRankMovementAnalysis(dataKey, buildingData);
+      
       document.getElementById('buildingContent').innerHTML = `<div class="card">
         <div class="detail-header">
           <div><div class="detail-title">${building.name}</div><span style="color:var(--slate-400)">${building.region}</span></div>
