@@ -666,7 +666,12 @@
               <div class="example-num">4</div>
               <div class="example-text">If Building B is ranked <b>#10</b> on the same metric:<br>= 10 × 0.25 × 0.26 = <b>0.65 points</b> — ten times more added to their score.</div>
             </div>
-            <div class="example-result">This calculation runs across all <strong>21 metrics</strong>. All contributions are summed. The building with the <strong>lowest total</strong> wins the Regatta. A #1 rank on every metric would produce a perfect score of <strong>1.00</strong>.</div>
+            <div class="example-result">
+  This calculation runs across all <strong>21 metrics</strong>. All contributions are summed. The building with the <strong>lowest total wins</strong>.<br><br>
+  <strong>Why does #1 everywhere = a perfect score of 1.00?</strong><br>
+  All category weights add up to 100% (26+20+14+12+10+10+8). Within each category, metric weights also add up to 100%. So when you multiply everything out across all 21 metrics, the weights sum to exactly 1.00. A building ranked #1 on every metric scores: <strong>1 × 1.00 = 1.00</strong>. Ranked #2 everywhere = 2.00. Ranked #9 everywhere = 9.00. The rank number scales directly because the weights always sum to 1.<br><br>
+  In practice no building is #1 on everything — real scores typically fall between <strong>5 and 13</strong>.
+</div>
           </div>
         </div>
       </div>
@@ -3392,12 +3397,13 @@ function toggleQ1Review() {
       const currMonth = allData[currentIdx];
       const prevScores = calculateRankBasedScores(prevMonth);
       const currScores = calculateRankBasedScores(currMonth);
-      
-      // Most Improved
+      const janScores = calculateRankBasedScores(allData[0]);
+
+      // Most Improved — Jan to current
       let mostImproved = null;
       let maxImprovement = 0;
       BUILDINGS.forEach(b => {
-        const prev = prevScores[b.dataKey]?.rank || 18;
+        const prev = janScores[b.dataKey]?.rank || 18;
         const curr = currScores[b.dataKey]?.rank || 18;
         const improvement = prev - curr;
         if (improvement > maxImprovement) {
