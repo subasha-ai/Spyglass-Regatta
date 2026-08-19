@@ -606,101 +606,186 @@
     </div>
     
     <div id="methodology" class="tab-content">
-      <div class="card">
-        <div class="method-section">
-          <div class="method-title">📐 How Scoring Works</div>
-          <p class="method-text">Each building is ranked #1–18 for every metric. Ranks are weighted and summed. <strong>Lowest total score wins</strong> (like golf).</p>
-          <div class="formula-box">Score = Σ (Rank × Metric Weight × Category Weight)</div>
-        </div>
-        <div class="method-section">
-          <div class="method-title">🔢 The Process</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;">
-            <div style="background:var(--white-05);padding:1rem;border-radius:10px;"><div style="font-size:1.25rem;color:var(--gold);font-weight:700;margin-bottom:0.5rem;">1. Rank</div><div style="color:var(--slate-300);font-size:0.9rem;">For each metric, rank all buildings. Best = #1. Ties share ranks.</div></div>
-            <div style="background:var(--white-05);padding:1rem;border-radius:10px;"><div style="font-size:1.25rem;color:var(--gold);font-weight:700;margin-bottom:0.5rem;">2. Weight</div><div style="color:var(--slate-300);font-size:0.9rem;">Multiply rank by metric weight and category weight.</div></div>
-            <div style="background:var(--white-05);padding:1rem;border-radius:10px;"><div style="font-size:1.25rem;color:var(--gold);font-weight:700;margin-bottom:0.5rem;">3. Sum</div><div style="color:var(--slate-300);font-size:0.9rem;">Add all weighted ranks across all 21 metrics.</div></div>
-            <div style="background:var(--white-05);padding:1rem;border-radius:10px;"><div style="font-size:1.25rem;color:var(--gold);font-weight:700;margin-bottom:0.5rem;">4. Rank</div><div style="color:var(--slate-300);font-size:0.9rem;">Lowest total score = #1 overall.</div></div>
-          </div>
-          <p class="method-text" style="margin-top:1rem;font-size:0.85rem;color:var(--slate-400);">Best possible: 1.00 (rank #1 in everything) · Worst possible: 18.00</p>
-        </div>
-      </div>
-      <div class="card">
-        <div class="method-title">📊 Categories & Metrics</div>
-        <p class="method-text" style="margin-bottom:1rem;">7 categories, 21 metrics. Each metric shows its weight within the category and direction (↑ higher is better, ↓ lower is better).</p>
-        <div class="category-grid">
-          <div class="category-card"><div class="category-header"><span class="category-name">🏥 Care</span><span class="category-weight">26%</span></div><div class="metric-row"><span class="metric-name">Health Inspections</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">QM Rating</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Rehospitalization %</span><span><span class="metric-weight">25%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Discharge Functional %</span><span><span class="metric-weight">25%</span><span class="metric-direction higher-better">↑</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">📈 Census</span><span class="category-weight">20%</span></div><div class="metric-row"><span class="metric-name">Occupancy %</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Medicare Census %</span><span><span class="metric-weight">40%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Skilled Mix #</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">💰 Collections</span><span class="category-weight">10%</span></div><div class="metric-row"><span class="metric-name">Bad Debt %</span><span><span class="metric-weight">70%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">DSO</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">⚙️ Controls</span><span class="category-weight">14%</span></div><div class="metric-row"><span class="metric-name">NOI %</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Labor %</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">OT/DT %</span><span><span class="metric-weight">25%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Rehab Productivity %</span><span><span class="metric-weight">15%</span><span class="metric-direction higher-better">↑</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">👥 Culture</span><span class="category-weight">12%</span></div><div class="metric-row"><span class="metric-name">Turnover %</span><span><span class="metric-weight">50%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Worker Safety</span><span><span class="metric-weight">50%</span><span class="metric-direction higher-better">↑</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">✅ Compliance</span><span class="category-weight">10%</span></div><div class="metric-row"><span class="metric-name">Admission Packet %</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Arbitration %</span><span><span class="metric-weight">40%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Substandard QoC</span><span><span class="metric-weight">40%</span><span class="metric-direction lower-better">↓</span></span></div></div>
-          <div class="category-card"><div class="category-header"><span class="category-name">⭐ Credibility</span><span class="category-weight">8%</span></div><div class="metric-row"><span class="metric-name">Google Rating</span><span><span class="metric-weight">10%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Yelp Rating</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Legal Claims</span><span><span class="metric-weight">70%</span><span class="metric-direction lower-better">↓</span></span></div></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="method-section" style="margin-bottom:0">
-          <div class="method-title">⚠️ Missing Data</div>
-          <p class="method-text" style="margin-bottom:0">If all buildings are missing a metric, it's excluded from scoring. If only some buildings are missing data, they receive rank 9 (middle) for that metric.</p>
-        </div>
-      </div>
+  <div class="card">
 
-      <div class="card" style="margin-top:1rem;">
-        <div class="method-title">📁 Data Sources, Frequency &amp; Lag</div>
-        <p class="method-text" style="margin-bottom:1.5rem;">All metrics are updated monthly and scored as a year-to-date average unless noted. Substandard QoC and Legal Claims use the current month value only (not averaged).</p>
-        <style>
-          .dsrc-table { width:100%; border-collapse:collapse; font-size:13px; }
-          .dsrc-table th { text-align:left; padding:8px 12px; color:#64748b; font-weight:600; font-size:11px; border-bottom:1px solid rgba(255,255,255,0.12); }
-          .dsrc-table td { padding:9px 12px; border-bottom:0.5px solid rgba(255,255,255,0.07); vertical-align:top; }
-          .dsrc-table tr:last-child td { border-bottom:none; }
-          .dsrc-metric { font-weight:600; color:#e2e8f0; }
-          .lag-min { color:#4ade80; } .lag-mod { color:#fde047; } .lag-heavy { color:#f87171; } .lag-unk { color:#94a3b8; }
-          .freq-pill { display:inline-flex; align-items:center; gap:4px; font-size:12px; color:#94a3b8; }
-          .dsrc-table tr:hover td { background:rgba(255,255,255,0.02); }
-          .cat-header td { background:rgba(255,255,255,0.04); padding:6px 12px; }
-          .cat-label { font-size:11px; font-weight:700; letter-spacing:0.06em; color:#94a3b8; }
-        </style>
-        <div style="overflow-x:auto;">
-        <table class="dsrc-table">
-          <thead><tr>
-            <th style="min-width:180px;">Data Metric</th>
-            <th style="min-width:120px;">Update Frequency</th>
-            <th style="min-width:220px;">Source Material</th>
-            <th style="min-width:240px;">Data Lag Status</th>
-          </tr></thead>
-          <tbody>
-          <tr class="cat-header"><td colspan="4"><span class="cat-label">🏥 CARE — 26% of total score</span></td></tr>
-          <tr><td><div class="dsrc-metric">Health Inspections</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>NH 5 Star Report</td><td><span class="lag-min">⚡ Minimal Lag</span> — Updated as states upload forms</td></tr>
-          <tr><td><div class="dsrc-metric">QM Star Rating</div></td><td><span class="freq-pill">📅 Quarterly</span></td><td>NH 5 Star Report</td><td><span class="lag-mod">⚠️ Moderate Lag</span> — Quarterly clinical lookback windows</td></tr>
-          <tr><td><div class="dsrc-metric">Rehospitalization %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Simple LTC</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
-          <tr><td><div class="dsrc-metric">Discharge Functional %</div></td><td><span class="freq-pill">📅 Quarterly</span></td><td>NH 5 Star Report</td><td><span class="lag-heavy">🔴 Heavy Lag</span> — 6 to 18-month delay, rolling 12-month target windows</td></tr>
-          <tr class="cat-header"><td colspan="4"><span class="cat-label">📊 CENSUS — 20% of total score</span></td></tr>
-          <tr><td><div class="dsrc-metric">Occupancy %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements &amp; Megadata</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
-          <tr><td><div class="dsrc-metric">Medicare Census %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>PCC — Census vs Budget Report</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
-          <tr><td><div class="dsrc-metric">Skilled Mix #</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Megadata</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
-          <tr class="cat-header"><td colspan="4"><span class="cat-label">💰 COLLECTIONS — 10% of total score</span></td></tr>
-          <tr><td><div class="dsrc-metric">Bad Debt %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month financials</td></tr>
-          <tr><td><div class="dsrc-metric">DSO</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>AR Trends Report</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month AR data</td></tr>
-          <tr class="cat-header"><td colspan="4"><span class="cat-label">⚙️ CONTROLS — 14% of total score</span></td></tr>
-          <tr><td><div class="dsrc-metric">NOI %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month financials</td></tr>
-          <tr><td><div class="dsrc-metric">Labor %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month financials</td></tr>
-          <tr><td><div class="dsrc-metric">OT/DT %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Megadata</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
-          <tr><td><div class="dsrc-metric">Rehab Productivity %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Nethealth</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
-          <tr class="cat-header"><td colspan="4"><span class="cat-label">❤️ CULTURE — 12% of total score</span></td></tr>
-          <tr><td><div class="dsrc-metric">Turnover %</div></td><td><span class="freq-pill">📅 Quarterly</span></td><td>Care Compare</td><td><span class="lag-mod">⚠️ Moderate Lag</span> — Updated quarterly by CMS</td></tr>
-          <tr><td><div class="dsrc-metric">Worker Safety Score</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Workers Comp Rep (Lori's log)</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month open claims &amp; dollars</td></tr>
-          <tr class="cat-header"><td colspan="4"><span class="cat-label">✅ COMPLIANCE — 10% of total score</span></td></tr>
-          <tr><td><div class="dsrc-metric">Admission Packet %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>SharePoint Spreadsheet</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
-          <tr><td><div class="dsrc-metric">Arbitration %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>SharePoint Spreadsheet</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
-          <tr><td><div class="dsrc-metric">Substandard QoC <span style="font-size:10px;background:rgba(251,191,36,0.15);color:#f5c842;padding:1px 5px;border-radius:3px;margin-left:4px;">current month only</span></div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>IQIES — Form CMS 2567</td><td><span class="lag-min">⚡ Minimal Lag</span> — Active deficiencies, not averaged</td></tr>
-          <tr class="cat-header"><td colspan="4"><span class="cat-label">⭐ CREDIBILITY — 8% of total score</span></td></tr>
-          <tr><td><div class="dsrc-metric">Google Rating</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Google Business</td><td><span class="lag-min">⚡ Minimal Lag</span> — Live ratings</td></tr>
-          <tr><td><div class="dsrc-metric">Yelp Rating</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Yelp</td><td><span class="lag-min">⚡ Minimal Lag</span> — Live ratings</td></tr>
-          <tr><td><div class="dsrc-metric">Legal Claims # <span style="font-size:10px;background:rgba(251,191,36,0.15);color:#f5c842;padding:1px 5px;border-radius:3px;margin-left:4px;">current month only</span></div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Shomer Insurance Group</td><td><span class="lag-min">⚡ Minimal Lag</span> — Currently open claims, not averaged</td></tr>
-          </tbody>
-        </table>
+    <!-- COLLAPSIBLE SECTIONS -->
+    <style>
+      .method-collapsible { border-bottom:0.5px solid rgba(255,255,255,0.08); margin-bottom:0; }
+      .method-collapsible:last-child { border-bottom:none; }
+      .method-toggle { display:flex;justify-content:space-between;align-items:center;padding:1rem 0;cursor:pointer;user-select:none; }
+      .method-toggle:hover .method-toggle-title { color:#e2e8f0; }
+      .method-toggle-title { font-size:1rem;font-weight:600;color:var(--slate-200);display:flex;align-items:center;gap:0.5rem; }
+      .method-toggle-arrow { color:#64748b;font-size:12px;transition:transform 0.2s; }
+      .method-toggle-arrow.open { transform:rotate(180deg); }
+      .method-body { overflow:hidden;transition:max-height 0.3s ease;max-height:0; }
+      .method-body.open { max-height:9999px; }
+      .method-body-inner { padding-bottom:1.25rem; }
+      .example-box { background:rgba(201,168,76,0.06);border:0.5px solid rgba(201,168,76,0.25);border-radius:10px;padding:1rem 1.25rem;margin-top:0.75rem; }
+      .example-step { display:flex;align-items:flex-start;gap:0.75rem;padding:0.5rem 0;border-bottom:0.5px solid rgba(255,255,255,0.06);font-size:13px; }
+      .example-step:last-child { border-bottom:none; }
+      .example-num { background:rgba(201,168,76,0.2);color:var(--gold);font-weight:700;font-size:11px;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px; }
+      .example-text { color:var(--slate-300);line-height:1.5; }
+      .example-text b { color:#e2e8f0; }
+      .example-result { background:rgba(74,222,128,0.08);border:0.5px solid rgba(74,222,128,0.2);border-radius:8px;padding:0.75rem 1rem;margin-top:0.75rem;font-size:13px;color:var(--slate-300); }
+    </style>
+
+    <!-- Section 1: How Scoring Works -->
+    <div class="method-collapsible">
+      <div class="method-toggle" onclick="toggleMethod('scoring')">
+        <span class="method-toggle-title">📐 How Scoring Works</span>
+        <span class="method-toggle-arrow open" id="arrow-scoring">▼</span>
+      </div>
+      <div class="method-body open" id="body-scoring">
+        <div class="method-body-inner">
+          <p class="method-text">Each building is ranked <strong>#1–18</strong> for every metric. Ranks are weighted and summed. <strong>Lowest total score wins</strong> — like golf.</p>
+          <div class="formula-box">Score = Σ (Rank × Metric Weight × Category Weight)</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-top:1rem;">
+            <div style="background:var(--white-05);padding:0.85rem;border-radius:10px;"><div style="font-size:1.1rem;color:var(--gold);font-weight:700;margin-bottom:0.4rem;">1. Rank</div><div style="color:var(--slate-300);font-size:0.85rem;">For each metric, rank all 18 buildings. Best = #1. Ties share ranks.</div></div>
+            <div style="background:var(--white-05);padding:0.85rem;border-radius:10px;"><div style="font-size:1.1rem;color:var(--gold);font-weight:700;margin-bottom:0.4rem;">2. Weight</div><div style="color:var(--slate-300);font-size:0.85rem;">Multiply rank by metric weight × category weight.</div></div>
+            <div style="background:var(--white-05);padding:0.85rem;border-radius:10px;"><div style="font-size:1.1rem;color:var(--gold);font-weight:700;margin-bottom:0.4rem;">3. Sum</div><div style="color:var(--slate-300);font-size:0.85rem;">Add all weighted ranks across all 21 metrics.</div></div>
+            <div style="background:var(--white-05);padding:0.85rem;border-radius:10px;"><div style="font-size:1.1rem;color:var(--gold);font-weight:700;margin-bottom:0.4rem;">4. Rank</div><div style="color:var(--slate-300);font-size:0.85rem;">Lowest total score = #1 overall.</div></div>
+          </div>
+          <p class="method-text" style="margin-top:0.75rem;font-size:0.85rem;color:var(--slate-400);">Best possible: 1.00 (ranked #1 in everything) · Worst possible: 18.00</p>
+
+          <!-- Worked Example -->
+          <div class="example-box">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;color:var(--gold);margin-bottom:0.75rem;">WORKED EXAMPLE — Rehospitalization % Contribution</div>
+            <div class="example-step">
+              <div class="example-num">1</div>
+              <div class="example-text">18 buildings are ranked on Rehospitalization %. The building with the <b>lowest rate</b> gets <b>Rank #1</b>. Say Building A has 13.1% — best in the portfolio — so they get <b>Rank #1</b>.</div>
+            </div>
+            <div class="example-step">
+              <div class="example-num">2</div>
+              <div class="example-text">Rehospitalization % carries <b>25% weight</b> within the Care category. Care is <b>26% of the total score</b>.</div>
+            </div>
+            <div class="example-step">
+              <div class="example-num">3</div>
+              <div class="example-text">Score contribution = <b>Rank × Metric Weight × Category Weight</b><br>= 1 × 0.25 × 0.26 = <b>0.065 points</b></div>
+            </div>
+            <div class="example-step">
+              <div class="example-num">4</div>
+              <div class="example-text">If Building B is ranked <b>#10</b> on the same metric:<br>= 10 × 0.25 × 0.26 = <b>0.65 points</b> — ten times more added to their score.</div>
+            </div>
+            <div class="example-result">This calculation runs across all <strong>21 metrics</strong>. All contributions are summed. The building with the <strong>lowest total</strong> wins the Regatta. A #1 rank on every metric would produce a perfect score of <strong>1.00</strong>.</div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Section 2: Categories & Metrics -->
+    <div class="method-collapsible">
+      <div class="method-toggle" onclick="toggleMethod('categories')">
+        <span class="method-toggle-title">📊 Categories & Metrics</span>
+        <span class="method-toggle-arrow" id="arrow-categories">▼</span>
+      </div>
+      <div class="method-body" id="body-categories">
+        <div class="method-body-inner">
+          <p class="method-text" style="margin-bottom:1rem;">7 categories, 21 metrics. Each metric shows its weight within the category and direction (↑ higher is better, ↓ lower is better).</p>
+          <div class="category-grid">
+            <div class="category-card"><div class="category-header"><span class="category-name">🏥 Care</span><span class="category-weight">26%</span></div><div class="metric-row"><span class="metric-name">Health Inspections</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">QM Rating</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Rehospitalization %</span><span><span class="metric-weight">25%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Discharge Functional %</span><span><span class="metric-weight">25%</span><span class="metric-direction higher-better">↑</span></span></div></div>
+            <div class="category-card"><div class="category-header"><span class="category-name">📈 Census</span><span class="category-weight">20%</span></div><div class="metric-row"><span class="metric-name">Occupancy %</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Medicare Census %</span><span><span class="metric-weight">40%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Skilled Mix #</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div></div>
+            <div class="category-card"><div class="category-header"><span class="category-name">💰 Collections</span><span class="category-weight">10%</span></div><div class="metric-row"><span class="metric-name">Bad Debt %</span><span><span class="metric-weight">70%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">DSO</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div></div>
+            <div class="category-card"><div class="category-header"><span class="category-name">⚙️ Controls</span><span class="category-weight">14%</span></div><div class="metric-row"><span class="metric-name">NOI %</span><span><span class="metric-weight">30%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Labor %</span><span><span class="metric-weight">30%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">OT/DT %</span><span><span class="metric-weight">25%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Rehab Productivity %</span><span><span class="metric-weight">15%</span><span class="metric-direction higher-better">↑</span></span></div></div>
+            <div class="category-card"><div class="category-header"><span class="category-name">👥 Culture</span><span class="category-weight">12%</span></div><div class="metric-row"><span class="metric-name">Turnover %</span><span><span class="metric-weight">50%</span><span class="metric-direction lower-better">↓</span></span></div><div class="metric-row"><span class="metric-name">Worker Safety</span><span><span class="metric-weight">50%</span><span class="metric-direction higher-better">↑</span></span></div></div>
+            <div class="category-card"><div class="category-header"><span class="category-name">✅ Compliance</span><span class="category-weight">10%</span></div><div class="metric-row"><span class="metric-name">Admission Packet %</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Arbitration %</span><span><span class="metric-weight">40%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Substandard QoC</span><span><span class="metric-weight">40%</span><span class="metric-direction lower-better">↓</span></span></div></div>
+            <div class="category-card"><div class="category-header"><span class="category-name">⭐ Credibility</span><span class="category-weight">8%</span></div><div class="metric-row"><span class="metric-name">Google Rating</span><span><span class="metric-weight">10%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Yelp Rating</span><span><span class="metric-weight">20%</span><span class="metric-direction higher-better">↑</span></span></div><div class="metric-row"><span class="metric-name">Legal Claims</span><span><span class="metric-weight">70%</span><span class="metric-direction lower-better">↓</span></span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Missing Data -->
+    <div class="method-collapsible">
+      <div class="method-toggle" onclick="toggleMethod('missing')">
+        <span class="method-toggle-title">⚠️ Missing Data Rules</span>
+        <span class="method-toggle-arrow" id="arrow-missing">▼</span>
+      </div>
+      <div class="method-body" id="body-missing">
+        <div class="method-body-inner">
+          <p class="method-text" style="margin-bottom:0">If <strong>all buildings</strong> are missing a metric, it is excluded from scoring entirely. If <strong>only some buildings</strong> are missing data, they receive rank 9 (middle of the pack) for that metric.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Data Sources -->
+    <div class="method-collapsible">
+      <div class="method-toggle" onclick="toggleMethod('sources')">
+        <span class="method-toggle-title">📁 Data Sources, Frequency &amp; Lag</span>
+        <span class="method-toggle-arrow" id="arrow-sources">▼</span>
+      </div>
+      <div class="method-body" id="body-sources">
+        <div class="method-body-inner">
+          <p class="method-text" style="margin-bottom:1rem;">All metrics are scored as a year-to-date average unless noted. <strong>Substandard QoC</strong> and <strong>Legal Claims</strong> use the current month value only.</p>
+          <style>
+            .dsrc-table { width:100%; border-collapse:collapse; font-size:13px; }
+            .dsrc-table th { text-align:left; padding:8px 12px; color:#64748b; font-weight:600; font-size:11px; border-bottom:1px solid rgba(255,255,255,0.12); }
+            .dsrc-table td { padding:9px 12px; border-bottom:0.5px solid rgba(255,255,255,0.07); vertical-align:top; }
+            .dsrc-table tr:last-child td { border-bottom:none; }
+            .dsrc-metric { font-weight:600; color:#e2e8f0; }
+            .lag-min { color:#4ade80; } .lag-mod { color:#fde047; } .lag-heavy { color:#f87171; }
+            .freq-pill { display:inline-flex; align-items:center; gap:4px; font-size:12px; color:#94a3b8; }
+            .dsrc-table tr:hover td { background:rgba(255,255,255,0.02); }
+            .cat-header td { background:rgba(255,255,255,0.04); padding:6px 12px; }
+            .cat-label { font-size:11px; font-weight:700; letter-spacing:0.06em; color:#94a3b8; }
+          </style>
+          <div style="overflow-x:auto;">
+          <table class="dsrc-table">
+            <thead><tr>
+              <th style="min-width:180px;">Data Metric</th>
+              <th style="min-width:120px;">Update Frequency</th>
+              <th style="min-width:220px;">Source Material</th>
+              <th style="min-width:240px;">Data Lag Status</th>
+            </tr></thead>
+            <tbody>
+            <tr class="cat-header"><td colspan="4"><span class="cat-label">🏥 CARE — 26% of total score</span></td></tr>
+            <tr><td><div class="dsrc-metric">Health Inspections</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>NH 5 Star Report</td><td><span class="lag-min">⚡ Minimal Lag</span> — Updated as states upload forms</td></tr>
+            <tr><td><div class="dsrc-metric">QM Star Rating</div></td><td><span class="freq-pill">📅 Quarterly</span></td><td>NH 5 Star Report</td><td><span class="lag-mod">⚠️ Moderate Lag</span> — Quarterly clinical lookback windows</td></tr>
+            <tr><td><div class="dsrc-metric">Rehospitalization %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Simple LTC</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+            <tr><td><div class="dsrc-metric">Discharge Functional %</div></td><td><span class="freq-pill">📅 Quarterly</span></td><td>NH 5 Star Report</td><td><span class="lag-heavy">🔴 Heavy Lag</span> — 6 to 18-month delay, rolling 12-month target windows</td></tr>
+            <tr class="cat-header"><td colspan="4"><span class="cat-label">📊 CENSUS — 20% of total score</span></td></tr>
+            <tr><td><div class="dsrc-metric">Occupancy %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements &amp; Megadata</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+            <tr><td><div class="dsrc-metric">Medicare Census %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>PCC — Census vs Budget Report</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+            <tr><td><div class="dsrc-metric">Skilled Mix #</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Megadata</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+            <tr class="cat-header"><td colspan="4"><span class="cat-label">💰 COLLECTIONS — 10% of total score</span></td></tr>
+            <tr><td><div class="dsrc-metric">Bad Debt %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month financials</td></tr>
+            <tr><td><div class="dsrc-metric">DSO</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>AR Trends Report</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month AR data</td></tr>
+            <tr class="cat-header"><td colspan="4"><span class="cat-label">⚙️ CONTROLS — 14% of total score</span></td></tr>
+            <tr><td><div class="dsrc-metric">NOI %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month financials</td></tr>
+            <tr><td><div class="dsrc-metric">Labor %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Income Statements</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month financials</td></tr>
+            <tr><td><div class="dsrc-metric">OT/DT %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Megadata</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+            <tr><td><div class="dsrc-metric">Rehab Productivity %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Nethealth</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+            <tr class="cat-header"><td colspan="4"><span class="cat-label">❤️ CULTURE — 12% of total score</span></td></tr>
+            <tr><td><div class="dsrc-metric">Turnover %</div></td><td><span class="freq-pill">📅 Quarterly</span></td><td>Care Compare</td><td><span class="lag-mod">⚠️ Moderate Lag</span> — Updated quarterly by CMS</td></tr>
+            <tr><td><div class="dsrc-metric">Worker Safety Score</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Workers Comp Rep (Lori's log)</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month open claims &amp; dollars</td></tr>
+            <tr class="cat-header"><td colspan="4"><span class="cat-label">✅ COMPLIANCE — 10% of total score</span></td></tr>
+            <tr><td><div class="dsrc-metric">Admission Packet %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>SharePoint Spreadsheet</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+            <tr><td><div class="dsrc-metric">Arbitration %</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>SharePoint Spreadsheet</td><td><span class="lag-min">⚡ Minimal Lag</span> — Current month internal data</td></tr>
+            <tr><td><div class="dsrc-metric">Substandard QoC <span style="font-size:10px;background:rgba(251,191,36,0.15);color:#f5c842;padding:1px 5px;border-radius:3px;margin-left:4px;">current month only</span></div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>IQIES — Form CMS 2567</td><td><span class="lag-min">⚡ Minimal Lag</span> — Active deficiencies, not averaged</td></tr>
+            <tr class="cat-header"><td colspan="4"><span class="cat-label">⭐ CREDIBILITY — 8% of total score</span></td></tr>
+            <tr><td><div class="dsrc-metric">Google Rating</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Google Business</td><td><span class="lag-min">⚡ Minimal Lag</span> — Live ratings</td></tr>
+            <tr><td><div class="dsrc-metric">Yelp Rating</div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Yelp</td><td><span class="lag-min">⚡ Minimal Lag</span> — Live ratings</td></tr>
+            <tr><td><div class="dsrc-metric">Legal Claims # <span style="font-size:10px;background:rgba(251,191,36,0.15);color:#f5c842;padding:1px 5px;border-radius:3px;margin-left:4px;">current month only</span></div></td><td><span class="freq-pill">🔄 Monthly</span></td><td>Shomer Insurance Group</td><td><span class="lag-min">⚡ Minimal Lag</span> — Currently open claims, not averaged</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
+  </div>
+  </div>
+
+  <script>
+    function toggleMethod(id) {
+      const body = document.getElementById('body-' + id);
+      const arrow = document.getElementById('arrow-' + id);
+      if (!body) return;
+      const isOpen = body.classList.contains('open');
+      body.classList.toggle('open', !isOpen);
+      arrow.classList.toggle('open', !isOpen);
+    }
+  </script>
 
   <!-- Metric Deep Dive Modal -->
   <div id="metricModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;overflow-y:auto;">
