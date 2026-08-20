@@ -355,6 +355,7 @@
       <button class="tab" style="display:none" data-tab="compare">⚖️ Compare</button>
       <button class="tab" data-tab="insights">📖 Insights</button>
       <button class="tab" data-tab="methodology">📋 Methodology</button>
+      <button class="tab" data-tab="reference">📚 Reference</button>
     </div>
     
     <div id="regatraReportBar" style="display:none;margin-bottom:1rem;"><button id="q1ReviewToggle" onclick="toggleQ1Review()" style="width:100%;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);color:#f5c842;padding:0.75rem 1.25rem;border-radius:10px;cursor:pointer;font-size:0.9rem;font-weight:600;text-align:left;display:flex;justify-content:space-between;align-items:center;"><span>&#9956; The Regatta Report — Season summary, category leaders &amp; regional breakdown</span><span id="q1ReviewArrow">&#9662;</span></button><div id="q1ReviewContent" style="display:none;margin-top:1rem;"></div></div>
@@ -712,14 +713,45 @@
       </div>
     </div>
 
-    <!-- Section 4: Data Sources -->
-    <div class="method-collapsible">
-      <div class="method-toggle" onclick="toggleMethod('sources')">
+  </div>
+  </div>
+  </div>
+
+  </div>
+  </div>
+  </div>
+
+  <div id="reference" class="tab-content">
+    <div class="card">
+
+      <!-- Data Sources section (moved from methodology) -->
+      <style>
+        .ref-collapsible { border-bottom:0.5px solid rgba(255,255,255,0.08); margin-bottom:0; }
+        .ref-collapsible:last-child { border-bottom:none; }
+        .ref-toggle { display:flex;justify-content:space-between;align-items:center;padding:1rem 0;cursor:pointer;user-select:none; }
+        .ref-toggle-title { font-size:1rem;font-weight:600;color:var(--slate-200);display:flex;align-items:center;gap:0.5rem; }
+        .ref-toggle-arrow { color:#64748b;font-size:12px;transition:transform 0.2s; }
+        .ref-toggle-arrow.open { transform:rotate(180deg); }
+        .ref-body { overflow:hidden;transition:max-height 0.3s ease;max-height:0; }
+        .ref-body.open { max-height:9999px; }
+        .ref-body-inner { padding-bottom:1.25rem; }
+      </style>
+
+      <div class="ref-collapsible">
+        <div class="ref-toggle" onclick="toggleRef('sources')">
+          <span class="ref-toggle-title">📁 Data Sources, Frequency &amp; Lag</span>
+          <span class="ref-toggle-arrow open" id="refarrow-sources">▼</span>
+        </div>
+        <div class="ref-body open" id="refbody-sources">
+          <div class="ref-body-inner">
+            <p class="method-text" style="margin-bottom:1rem;">All metrics are scored as a year-to-date average unless noted. <strong>Substandard QoC</strong> and <strong>Legal Claims</strong> use the current month value only.</p>
+<div class="method-collapsible">
+
         <span class="method-toggle-title">📁 Data Sources, Frequency &amp; Lag</span>
         <span class="method-toggle-arrow" id="arrow-sources">▼</span>
       </div>
-      <div class="method-body" id="body-sources">
-        <div class="method-body-inner">
+
+
           <p class="method-text" style="margin-bottom:1rem;">All metrics are scored as a year-to-date average unless noted. <strong>Substandard QoC</strong> and <strong>Legal Claims</strong> use the current month value only.</p>
           <style>
             .dsrc-table { width:100%; border-collapse:collapse; font-size:13px; }
@@ -775,15 +807,24 @@
           </div>
         </div>
       </div>
+          </div>
+        </div>
+      </div>
 
-    <!-- FAQ SECTION -->
-    <div class="method-collapsible">
-      <div class="method-toggle" onclick="toggleMethod('faq')">
+      <div class="ref-collapsible">
+        <div class="ref-toggle" onclick="toggleRef('faq')">
+          <span class="ref-toggle-title">❓ Frequently Asked Questions</span>
+          <span class="ref-toggle-arrow open" id="refarrow-faq">▼</span>
+        </div>
+        <div class="ref-body open" id="refbody-faq">
+          <div class="ref-body-inner">
+<div class="method-collapsible">
+
         <span class="method-toggle-title">❓ Frequently Asked Questions</span>
         <span class="method-toggle-arrow" id="arrow-faq">▼</span>
       </div>
-      <div class="method-body" id="body-faq">
-        <div class="method-body-inner">
+
+
           <style>
             .faq-item { border-bottom:0.5px solid rgba(255,255,255,0.08); padding:1rem 0; }
             .faq-item:last-child { border-bottom:none; padding-bottom:0; }
@@ -899,10 +940,24 @@
     </div>
 
     </div>
+          </div>
+        </div>
+      </div>
 
+    </div>
   </div>
-  </div>
-  </div>
+
+  <script>
+    function toggleRef(id) {
+      const body = document.getElementById('refbody-' + id);
+      const arrow = document.getElementById('refarrow-' + id);
+      if (!body) return;
+      const isOpen = body.classList.contains('open');
+      body.classList.toggle('open', !isOpen);
+      arrow.classList.toggle('open', !isOpen);
+    }
+  </script>
+
 
   <script>
     function toggleMethod(id) {
