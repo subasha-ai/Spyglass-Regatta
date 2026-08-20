@@ -723,12 +723,11 @@
 
   <div id="reference" class="tab-content">
     <div class="card">
-
-      <!-- Data Sources section (moved from methodology) -->
       <style>
-        .ref-collapsible { border-bottom:0.5px solid rgba(255,255,255,0.08); margin-bottom:0; }
+        .ref-collapsible { border-bottom:0.5px solid rgba(255,255,255,0.08); }
         .ref-collapsible:last-child { border-bottom:none; }
         .ref-toggle { display:flex;justify-content:space-between;align-items:center;padding:1rem 0;cursor:pointer;user-select:none; }
+        .ref-toggle:hover .ref-toggle-title { color:#e2e8f0; }
         .ref-toggle-title { font-size:1rem;font-weight:600;color:var(--slate-200);display:flex;align-items:center;gap:0.5rem; }
         .ref-toggle-arrow { color:#64748b;font-size:12px;transition:transform 0.2s; }
         .ref-toggle-arrow.open { transform:rotate(180deg); }
@@ -745,27 +744,7 @@
         <div class="ref-body open" id="refbody-sources">
           <div class="ref-body-inner">
             <p class="method-text" style="margin-bottom:1rem;">All metrics are scored as a year-to-date average unless noted. <strong>Substandard QoC</strong> and <strong>Legal Claims</strong> use the current month value only.</p>
-<div class="method-collapsible">
-
-        <span class="method-toggle-title">📁 Data Sources, Frequency &amp; Lag</span>
-        <span class="method-toggle-arrow" id="arrow-sources">▼</span>
-      </div>
-
-
-          <p class="method-text" style="margin-bottom:1rem;">All metrics are scored as a year-to-date average unless noted. <strong>Substandard QoC</strong> and <strong>Legal Claims</strong> use the current month value only.</p>
-          <style>
-            .dsrc-table { width:100%; border-collapse:collapse; font-size:13px; }
-            .dsrc-table th { text-align:left; padding:8px 12px; color:#64748b; font-weight:600; font-size:11px; border-bottom:1px solid rgba(255,255,255,0.12); }
-            .dsrc-table td { padding:9px 12px; border-bottom:0.5px solid rgba(255,255,255,0.07); vertical-align:top; }
-            .dsrc-table tr:last-child td { border-bottom:none; }
-            .dsrc-metric { font-weight:600; color:#e2e8f0; }
-            .lag-min { color:#4ade80; } .lag-mod { color:#fde047; } .lag-heavy { color:#f87171; }
-            .freq-pill { display:inline-flex; align-items:center; gap:4px; font-size:12px; color:#94a3b8; }
-            .dsrc-table tr:hover td { background:rgba(255,255,255,0.02); }
-            .cat-header td { background:rgba(255,255,255,0.04); padding:6px 12px; }
-            .cat-label { font-size:11px; font-weight:700; letter-spacing:0.06em; color:#94a3b8; }
-          </style>
-          <div style="overflow-x:auto;">
+            <div style="overflow-x:auto;">
           <table class="dsrc-table">
             <thead><tr>
               <th style="min-width:180px;">Data Metric</th>
@@ -805,8 +784,6 @@
             </tbody>
           </table>
           </div>
-        </div>
-      </div>
           </div>
         </div>
       </div>
@@ -818,146 +795,107 @@
         </div>
         <div class="ref-body open" id="refbody-faq">
           <div class="ref-body-inner">
-<div class="method-collapsible">
+            <style>
+              .faq-item { border-bottom:0.5px solid rgba(255,255,255,0.08); padding:1rem 0; }
+              .faq-item:last-child { border-bottom:none; padding-bottom:0; }
+              .faq-q { font-size:0.9rem; font-weight:700; color:var(--slate-100); margin-bottom:0.5rem; display:flex; gap:0.6rem; align-items:flex-start; }
+              .faq-q-icon { color:var(--gold); flex-shrink:0; margin-top:1px; }
+              .faq-a { font-size:0.875rem; color:var(--slate-300); line-height:1.6; padding-left:1.4rem; }
+              .faq-a strong { color:var(--slate-100); }
+              .faq-tag { display:inline-block; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+              .faq-tag-mod { background:rgba(253,224,71,0.15); color:#fde047; }
+              .faq-tag-heavy { background:rgba(248,113,113,0.15); color:#f87171; }
+            </style>
 
-        <span class="method-toggle-title">❓ Frequently Asked Questions</span>
-        <span class="method-toggle-arrow" id="arrow-faq">▼</span>
-      </div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin-bottom:0.75rem;">SCORING &amp; RANKINGS</div>
 
-
-          <style>
-            .faq-item { border-bottom:0.5px solid rgba(255,255,255,0.08); padding:1rem 0; }
-            .faq-item:last-child { border-bottom:none; padding-bottom:0; }
-            .faq-q { font-size:0.9rem; font-weight:700; color:var(--slate-100); margin-bottom:0.5rem; display:flex; gap:0.6rem; align-items:flex-start; }
-            .faq-q-icon { color:var(--gold); flex-shrink:0; margin-top:1px; }
-            .faq-a { font-size:0.875rem; color:var(--slate-300); line-height:1.6; padding-left:1.4rem; }
-            .faq-a strong { color:var(--slate-100); }
-            .faq-tag { display:inline-block; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
-            .faq-tag-mod { background:rgba(253,224,71,0.15); color:#fde047; }
-            .faq-tag-heavy { background:rgba(248,113,113,0.15); color:#f87171; }
-          </style>
-
-          
-          <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin-bottom:0.75rem;">SCORING & RANKINGS</div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> Why did my rank change even though my metrics didn't change much?</div>
-            <div class="faq-a">Rankings are <strong>relative</strong> — you're being compared to all 17 other buildings. If another building improved, your rank can drop even if your own numbers stayed the same. Think of it like a race: you can run the same speed and still fall back if others run faster.</div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> Can two buildings have the same rank?</div>
-            <div class="faq-a">Yes. If two buildings have the same weighted score (rounded to 2 decimal places), they share the same rank and the next rank is skipped. For example, two buildings tied at #3 means the next building is ranked #5 — there is no #4.</div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> What's the best possible score and what does a competitive score look like?</div>
-            <div class="faq-a">The theoretical best is <strong>1.00</strong> (ranked #1 on every metric). The worst possible is <strong>18.00</strong>. In practice scores range between 5 and 13. A score below 7 puts you in contention for top 3. Above 10 means there's meaningful work to do across multiple categories.</div>
-          </div>
-
-          <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin:1.25rem 0 0.75rem;">DATA & METRICS</div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> How often is the dashboard updated?</div>
-            <div class="faq-a">Monthly as new data becomes available. Most metrics update each month. QM Star Rating, Discharge Functional %, and Turnover % update quarterly through CMS. The month in the top right corner reflects the most current data loaded.</div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> What happens if a building is missing data for a metric?</div>
-            <div class="faq-a">If <strong>all 18 buildings</strong> are missing data, that metric is excluded from scoring entirely. If <strong>only some buildings</strong> are missing, those buildings receive a default rank of <strong>9</strong> — middle of the pack — neither rewarded nor penalized.</div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> Why is my Skilled Mix showing lower than what I see in PCC?</div>
-            <div class="faq-a">The Regatta uses a <strong>YTD average</strong> — not your current month's number. If Skilled Mix was lower earlier in the year, the average is pulled down even if your current month is higher. Check <strong>Building Detail</strong> for the monthly trail below each metric.</div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> Why does my Rehospitalization % look different from Simple LTC?</div>
-            <div class="faq-a">Simple LTC shows your current month's rate. The Regatta averages all months from January through current. If you had a high-rehospitalization month earlier in the year, that's still factored into the average shown here.</div>
-          </div>
-
-          <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin:1.25rem 0 0.75rem;">METHODOLOGY</div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> Does a bad month early in the year hurt me all year?</div>
-            <div class="faq-a">It does, but less and less over time. A bad January counts as 1/7 of your score by July — and 1/12 by December. The averaging naturally dilutes early months as the year progresses. Getting back on track quickly matters — every good month pulls the average up.</div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> Which metrics have the biggest impact on my score?</div>
-            <div class="faq-a">The top metrics by combined weight (metric weight x category weight):<br><br>
-              <strong>1. Medicare Census %</strong> — 8.0% of total score<br>
-              <strong>2. Health Inspections</strong> — 7.8%<br>
-              <strong>3. Bad Debt %</strong> — 7.0%<br>
-              <strong>4. Rehospitalization %</strong> — 6.5%<br>
-              <strong>5. Occupancy %, Skilled Mix, Worker Safety</strong> — 6.0% each<br><br>
-              Google Rating is the lowest weight at 0.8%.
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> Why did my rank change even though my metrics didn't change much?</div>
+              <div class="faq-a">Rankings are <strong>relative</strong> — you're being compared to all 17 other buildings. If another building improved, your rank can drop even if your own numbers stayed the same. Think of it like a race: you can run the same speed and still fall back if others run faster.</div>
             </div>
-          </div>
-
-          <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin:1.25rem 0 0.75rem;">PRACTICAL</div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> How do I know which metric to focus on to move my rank?</div>
-            <div class="faq-a">Go to the <strong>Category Rankings</strong> tab and look at where your building ranks worst. The fastest wins come from metrics where you rank poorly AND the metric carries high weight. Medicare Census %, Health Inspections, and Bad Debt % move the needle most. Use <strong>Building Detail</strong> to see your monthly trail.</div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> If I improve from #10 to #5 on one metric, how much does that move my overall score?</div>
-            <div class="faq-a">It depends on the metric's weight. For <strong>Medicare Census %</strong> (8% of total): moving from #10 to #5 saves <em>5 × 0.08 = 0.40 points</em>. The gap between #1 and #2 overall in June 2026 was only 0.07 points — so 0.40 is a significant swing.<br><br>For <strong>Google Rating</strong> (0.8% of total): the same improvement saves only <em>0.04 points</em>. Focus your energy where the weight is.</div>
-          </div>
-
-          <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin:1.25rem 0 0.75rem;">MORE ABOUT YOUR SCORE</div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> Why doesn't my score match what I expect?</div>
-            <div class="faq-a">All metrics are <strong>year-to-date averages</strong> — not your current month's value. To see raw monthly values, go to <strong>Building Detail</strong>, select your building, and look below each metric for the month-by-month trail.</div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> How is the Worker Safety Score calculated?</div>
-            <div class="faq-a">
-              Two components from the Workers Comp report (Lori's log) each month:<br><br>
-              <strong>1. Open Claims Count</strong> — Fewest = 0, most = 100, others scaled in between.<br>
-              <strong>2. Dollars Tied Up</strong> — Same: lowest = 0, highest = 100.<br><br>
-              Averaged together to capture both risk of occurrence and cost exposure. Higher = better.
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> Can two buildings have the same rank?</div>
+              <div class="faq-a">Yes. If two buildings have the same weighted score (rounded to 2 decimal places), they share the same rank and the next rank is skipped. Two buildings tied at #3 means the next building is ranked #5 — there is no #4.</div>
             </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-q"><span class="faq-q-icon">Q</span> Why do some metrics feel out of date? <span class="faq-tag faq-tag-mod">Moderate Lag</span><span class="faq-tag faq-tag-heavy">Heavy Lag</span></div>
-            <div class="faq-a">
-              <strong>Discharge Functional %</strong> <span class="faq-tag faq-tag-heavy">Heavy Lag</span> — As of July 2026, data window is <strong>Oct 1, 2024 – Sep 30, 2025</strong>. Up to 9 months behind.<br><br>
-              <strong>Turnover %</strong> <span class="faq-tag faq-tag-mod">Moderate Lag</span> — CMS updates quarterly using a rolling 12-month PBJ window, 45-day lag. Typically 4-6 months behind current.<br><br>
-              <strong>QM Star Rating</strong> <span class="faq-tag faq-tag-mod">Moderate Lag</span> — Updated quarterly, typically 3-4 months behind.<br><br>
-              Focus on Minimal Lag metrics for immediate feedback. Treat lagged metrics as a longer-term view of your trajectory.
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> What's the best possible score and what does a competitive score look like?</div>
+              <div class="faq-a">The theoretical best is <strong>1.00</strong> (ranked #1 on every metric). The worst possible is <strong>18.00</strong>. In practice scores range between 5 and 13. A score below 7 puts you in contention for top 3. Above 10 means there's meaningful work to do.</div>
             </div>
-          </div>
 
-        </div>
-      </div>
-    </div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin:1.25rem 0 0.75rem;">DATA &amp; METRICS</div>
 
-    </div>
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> How often is the dashboard updated?</div>
+              <div class="faq-a">Monthly as new data becomes available. Most metrics update each month. QM Star Rating, Discharge Functional %, and Turnover % update quarterly through CMS. The month in the top right corner reflects the most current data loaded.</div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> What happens if a building is missing data for a metric?</div>
+              <div class="faq-a">If <strong>all 18 buildings</strong> are missing data, that metric is excluded from scoring entirely. If <strong>only some</strong> are missing, those buildings receive a default rank of <strong>9</strong> — middle of the pack — neither rewarded nor penalized.</div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> Why is my Skilled Mix showing lower than what I see in Megadata?</div>
+              <div class="faq-a">The Regatta uses a <strong>YTD average</strong> — not your current month's number. If Skilled Mix was lower earlier in the year, the average is pulled down even if your current month is higher. Check <strong>Building Detail</strong> for the monthly trail below each metric.</div>
+            </div>
+
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin:1.25rem 0 0.75rem;">METHODOLOGY</div>
+
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> Does a bad month early in the year hurt me all year?</div>
+              <div class="faq-a">It does, but less and less over time. A bad January counts as 1/7 of your score by July — and 1/12 by December. The averaging naturally dilutes early months as the year progresses. Getting back on track quickly matters — every good month pulls the average up.</div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> Which metrics have the biggest impact on my score?</div>
+              <div class="faq-a">The top metrics by combined weight:<br><br>
+                <strong>1. Medicare Census %</strong> — 8.0% of total score<br>
+                <strong>2. Health Inspections</strong> — 7.8%<br>
+                <strong>3. Bad Debt %</strong> — 7.0%<br>
+                <strong>4. Rehospitalization %</strong> — 6.5%<br>
+                <strong>5. Occupancy %, Skilled Mix, Worker Safety</strong> — 6.0% each<br><br>
+                Google Rating is the lowest at 0.8%.
+              </div>
+            </div>
+
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin:1.25rem 0 0.75rem;">PRACTICAL</div>
+
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> How do I know which metric to focus on to move my rank?</div>
+              <div class="faq-a">Go to the <strong>Category Rankings</strong> tab and look at where your building ranks worst. The fastest wins come from metrics where you rank poorly AND the metric carries high weight. Medicare Census %, Health Inspections, and Bad Debt % move the needle most. Use <strong>Building Detail</strong> to see your monthly trail.</div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> If I improve from #10 to #5 on one metric, how much does that move my overall score?</div>
+              <div class="faq-a">It depends on the metric's weight. For <strong>Medicare Census %</strong> (8% of total): moving from #10 to #5 saves <em>5 × 0.08 = 0.40 points</em>. The gap between #1 and #2 overall in June 2026 was only 0.07 points — so 0.40 is a significant swing. For <strong>Google Rating</strong> (0.8%): the same improvement saves only 0.04 points. Focus your energy where the weight is.</div>
+            </div>
+
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--gold);margin:1.25rem 0 0.75rem;">MORE ABOUT YOUR SCORE</div>
+
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> Why doesn't my score match what I expect?</div>
+              <div class="faq-a">All metrics are <strong>year-to-date averages</strong> — not your current month's value. To see raw monthly values, go to <strong>Building Detail</strong>, select your building, and look below each metric for the month-by-month trail.</div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> How is the Worker Safety Score calculated?</div>
+              <div class="faq-a">Two components from the Workers Comp report (Lori's log) each month:<br><br>
+                <strong>1. Open Claims Count</strong> — Fewest = 0, most = 100, others scaled in between.<br>
+                <strong>2. Dollars Tied Up</strong> — Same: lowest = 0, highest = 100.<br><br>
+                Averaged together to capture both risk of occurrence and cost exposure. Higher = better.
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-q"><span class="faq-q-icon">Q</span> Why do some metrics feel out of date? <span class="faq-tag faq-tag-mod">Moderate Lag</span><span class="faq-tag faq-tag-heavy">Heavy Lag</span></div>
+              <div class="faq-a">
+                <strong>Discharge Functional %</strong> <span class="faq-tag faq-tag-heavy">Heavy Lag</span> — As of July 2026, data window is <strong>Oct 1, 2024 – Sep 30, 2025</strong>. Up to 9 months behind.<br><br>
+                <strong>Turnover %</strong> <span class="faq-tag faq-tag-mod">Moderate Lag</span> — CMS updates quarterly using a rolling 12-month PBJ window, 45-day lag. Typically 4-6 months behind.<br><br>
+                <strong>QM Star Rating</strong> <span class="faq-tag faq-tag-mod">Moderate Lag</span> — Updated quarterly, typically 3-4 months behind.<br><br>
+                Focus on Minimal Lag metrics for immediate feedback. Treat lagged metrics as a longer-term view of your trajectory.
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
 
     </div>
   </div>
-
-  <script>
-    function toggleRef(id) {
-      const body = document.getElementById('refbody-' + id);
-      const arrow = document.getElementById('refarrow-' + id);
-      if (!body) return;
-      const isOpen = body.classList.contains('open');
-      body.classList.toggle('open', !isOpen);
-      arrow.classList.toggle('open', !isOpen);
-    }
-  </script>
-
 
   <script>
     function toggleMethod(id) {
