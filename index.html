@@ -1203,7 +1203,7 @@
 
     function initMonthSelect() { const select = document.getElementById('monthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { currentData = allData[parseInt(e.target.value)]; updateAllDisplays(); }); }
     function initRegionalMonthSelect() { const select = document.getElementById('regionalMonthSelect'); select.innerHTML = ''; allData.forEach((d, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = d.month; if (i === allData.length - 1) opt.selected = true; select.appendChild(opt); }); select.addEventListener('change', e => { regionalMonthData = allData[parseInt(e.target.value)]; renderRegionalStats(); renderRegionalChart(); }); }
-    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); updateSearchBarVisibility(tab.dataset.tab); clearURLParams(); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'simulator') initSimulator(); if (tab.dataset.tab === 'race') renderRaceTab(); if (tab.dataset.tab === 'categories') { initCategoryRankings(); buildCategoryHeatmap(); } if (tab.dataset.tab === 'insights') renderInsightsTab(); } }); }); }
+    function initTabs() { document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); tab.classList.add('active'); document.getElementById(tab.dataset.tab).classList.add('active'); updateSearchBarVisibility(tab.dataset.tab); clearURLParams(); if (typeof trackSection === 'function') trackSection(tab.dataset.tab); if (currentData) { if (tab.dataset.tab === 'radar') renderRadarChart(); if (tab.dataset.tab === 'regional') renderRegionalChart(); if (tab.dataset.tab === 'trends') renderTrends(); if (tab.dataset.tab === 'simulator') initSimulator(); if (tab.dataset.tab === 'race') renderRaceTab(); if (tab.dataset.tab === 'categories') { initCategoryRankings(); buildCategoryHeatmap(); } if (tab.dataset.tab === 'insights') renderInsightsTab(); } }); }); }
     function clearURLParams() { window.history.replaceState({}, '', window.location.pathname); }
     function updateSearchBarVisibility(tabId) { const showOn = ['podium', 'heatmap']; document.getElementById('searchFilterBar').style.display = showOn.includes(tabId) ? 'flex' : 'none'; }
     function initSelects() { ['buildingSelect', 'radarSelect1', 'radarSelect2', 'radarSelect3', 'simBuildingSelect'].forEach(id => { const select = document.getElementById(id); BUILDINGS.forEach(b => { const opt = document.createElement('option'); opt.value = b.dataKey; opt.textContent = b.name; select.appendChild(opt); }); }); document.getElementById('buildingSelect').addEventListener('change', e => { renderBuildingDetail(e.target.value); if (e.target.value) updateURL('building', e.target.value); }); ['radarSelect1','radarSelect2','radarSelect3'].forEach(id => { document.getElementById(id).addEventListener('change', renderRadarChart); }); }
@@ -3830,15 +3830,134 @@ function toggleQ1Review() {
   </div><!-- end mainContent -->
   
   <script>
-    const SITE_PASSWORD = 'anchorsaway';
-    
+    // ---- Logging endpoint (Google Apps Script Web App URL) ----
+    const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzCObTZv_z9iOO4cnOar21ijbAp4CX88_tp6KJaR8QCab4zvbO4p5owiZl0VV8DpC-qNA/exec';
+
+    // ---- Per-admin nautical login codes ----
+    const ADMIN_CODES = {
+      'windward14':   { admin: 'Rein Sonza',         building: 'Belmont, Millbrae' },
+      'compass27':    { admin: 'Alex Lattin',        building: 'Eden' },
+      'starboard08':  { admin: 'Ryan Danco',         building: 'Golden Harbor' },
+      'anchor33':     { admin: 'Tyson Parker',       building: 'West Shore' },
+      'rudder19':     { admin: 'Brennan Mccormack',  building: 'Vacaville' },
+      'mainsail45':   { admin: 'Trevor Park',        building: 'Capital' },
+      'bowsprit52':   { admin: 'Robert Schulz',      building: 'Cedarwood, Bridgewood' },
+      'helmsman11':   { admin: 'Prabhjot Dhaddey',   building: 'Blue Oak' },
+      'crowsnest38':  { admin: 'Brian Papke',        building: 'Gilroy' },
+      'galleon06':    { admin: 'Ashley Espinoza',    building: 'Morgan Hill' },
+      'sextant29':    { admin: 'Destiny Newby',      building: 'Pacific Hills' },
+      'mooring17':    { admin: 'Micah Almond',       building: 'Pacific Coast Manor' },
+      'tidewater41':  { admin: 'Michelle Bayuga',    building: 'Manresa' },
+      'halyard23':    { admin: 'Adam Follrath',      building: 'Los Altos' },
+      'keelson09':    { admin: 'Hunter Mitchell',    building: 'Mountain View' },
+      'transom36':    { admin: 'Brian Kent',         building: 'The Win' },
+      'binnacle15':   { admin: 'Anita Hubbard',      building: 'Camino Ridge' },
+      'fathom50':     { admin: 'Jennifer Mejia',     building: 'Palo Alto' },
+      'deckhand01':   { admin: 'Leadership',         building: '' }
+    };
+
+    // ---- Session tracking state ----
+    let sessionId = null;
+    let sessionStart = null;
+    let viewedSections = new Set();
+    let activeMs = 0;
+    let lastResumeTime = null;
+
+    function detectDevice() {
+      return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+    }
+
+    function sendLog(payload, useBeacon) {
+      if (!LOG_ENDPOINT || LOG_ENDPOINT.indexOf('PASTE_') === 0) return;
+      const body = JSON.stringify(payload);
+      if (useBeacon && navigator.sendBeacon) {
+        navigator.sendBeacon(LOG_ENDPOINT, new Blob([body], { type: 'text/plain' }));
+      } else {
+        fetch(LOG_ENDPOINT, { method: 'POST', body, mode: 'no-cors' }).catch(() => {});
+      }
+    }
+
+    function trackSection(tabName) {
+      if (!sessionId) return;
+      viewedSections.add(tabName);
+    }
+
+    function startActiveTimer() {
+      if (lastResumeTime === null) lastResumeTime = Date.now();
+    }
+    function pauseActiveTimer() {
+      if (lastResumeTime !== null) {
+        activeMs += Date.now() - lastResumeTime;
+        lastResumeTime = null;
+      }
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) pauseActiveTimer(); else startActiveTimer();
+    });
+
+    function sendHeartbeat(final) {
+      if (!sessionId) return;
+      pauseActiveTimer();
+      if (!document.hidden) startActiveTimer();
+      const identity = ADMIN_CODES[sessionStorage.getItem('regattaCode')];
+      sendLog({
+        type: final ? 'session_end' : 'heartbeat',
+        admin: identity ? identity.admin : '',
+        building: identity ? identity.building : '',
+        sessionId: sessionId,
+        durationSec: Math.round(activeMs / 1000),
+        device: detectDevice(),
+        sections: Array.from(viewedSections).join(', '),
+        referrer: document.referrer || 'direct'
+      }, final);
+    }
+
+    function beginSession(code) {
+      const identity = ADMIN_CODES[code];
+      sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      sessionStart = Date.now();
+      viewedSections = new Set();
+      activeMs = 0;
+      lastResumeTime = Date.now();
+
+      sendLog({
+        type: 'login',
+        admin: identity.admin,
+        building: identity.building,
+        sessionId: sessionId,
+        durationSec: 0,
+        device: detectDevice(),
+        sections: '',
+        referrer: document.referrer || 'direct'
+      });
+
+      // Heartbeat every 45s while tab is active
+      setInterval(() => sendHeartbeat(false), 45000);
+      // Final beacon on close/navigate away
+      window.addEventListener('pagehide', () => sendHeartbeat(true));
+      window.addEventListener('beforeunload', () => sendHeartbeat(true));
+    }
+
     function checkPassword() {
-      const input = document.getElementById('passwordInput').value;
-      if (input === SITE_PASSWORD) {
+      const input = document.getElementById('passwordInput').value.trim().toLowerCase();
+      const identity = ADMIN_CODES[input];
+      if (identity) {
         sessionStorage.setItem('regattaAuth', 'true');
+        sessionStorage.setItem('regattaCode', input);
         document.getElementById('passwordOverlay').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
+        beginSession(input);
       } else {
+        sendLog({
+          type: 'failed_attempt',
+          admin: '',
+          building: '',
+          sessionId: '',
+          durationSec: 0,
+          device: detectDevice(),
+          sections: '',
+          referrer: document.referrer || 'direct'
+        });
         document.getElementById('passwordError').style.display = 'block';
         document.getElementById('passwordInput').value = '';
         document.getElementById('passwordInput').focus();
@@ -3849,6 +3968,8 @@ function toggleQ1Review() {
     if (sessionStorage.getItem('regattaAuth') === 'true') {
       document.getElementById('passwordOverlay').style.display = 'none';
       document.getElementById('mainContent').style.display = 'block';
+      const existingCode = sessionStorage.getItem('regattaCode');
+      if (existingCode && ADMIN_CODES[existingCode]) beginSession(existingCode);
     }
     
     // Focus password input on load
