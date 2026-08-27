@@ -1553,16 +1553,7 @@ Keep it concise and actionable. No fluff. Leadership style.`;
       renderMetricSpotlight();
       initTrajectorySelect();
     }
-    
-function toggleQ1Review() {
-      const panel = document.getElementById('q1ReviewPanel');
-      const btn = document.getElementById('q1ReviewToggle');
-      const isOpen = panel.style.display !== 'none';
-      panel.style.display = isOpen ? 'none' : 'block';
-      btn.innerHTML = isOpen ? '🏆 Q1 Review ▾' : '🏆 Q1 Review ▴';
-    }
-
-    function toggleQ1Review() {
+        function toggleQ1Review() {
       const content = document.getElementById('q1ReviewContent');
       const arrow = document.getElementById('q1ReviewArrow');
       if (!content) return;
@@ -2195,82 +2186,6 @@ function toggleQ1Review() {
     
     let catSortState = {}; // track sort state per category
     
-    function renderCategoryRankings() { 
-      if (!currentData) return; 
-      const ranked = getRanked(); 
-      
-      let html = '';
-      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
-        const sortKey = catSortState[catKey]?.sortKey || null;
-        const sortDir = catSortState[catKey]?.sortDir || 'asc';
-        
-        // Sort buildings by the selected metric or by category rank
-        let sortedBuildings = [...ranked];
-        if (sortKey) {
-          sortedBuildings.sort((a, b) => {
-            const aRank = a.metricRanks[sortKey] || 17;
-            const bRank = b.metricRanks[sortKey] || 17;
-            return sortDir === 'asc' ? aRank - bRank : bRank - aRank;
-          });
-        } else {
-          // Sort by category rank
-          sortedBuildings.sort((a, b) => {
-            const aRank = getCatRankForBuilding(a.dataKey, catKey);
-            const bRank = getCatRankForBuilding(b.dataKey, catKey);
-            return aRank - bRank;
-          });
-        }
-        
-        html += `
-          <div class="category-band" style="margin-bottom:1.5rem;border:1px solid var(--white-10);border-radius:12px;overflow:hidden">
-            <div style="background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:0.75rem 1.25rem;display:flex;justify-content:space-between;align-items:center">
-              <div>
-                <span style="font-weight:700;font-size:1.1rem;color:var(--gold)">${cat.name}</span>
-                <span style="color:var(--slate-400);margin-left:0.75rem">(${(cat.weight*100).toFixed(0)}% weight)</span>
-              </div>
-            </div>
-            <div style="overflow-x:auto;padding:0.5rem">
-              <table class="cat-rank-table" style="font-size:0.85rem;min-width:100%">
-                <thead><tr>
-                  <th style="text-align:left;min-width:180px;position:sticky;left:0;background:var(--slate-800);z-index:1">Building</th>
-                  <th style="cursor:pointer;min-width:100px;text-align:center" onclick="sortCategoryByMetric('${catKey}', null)">
-                    Category Rank ${!sortKey ? (sortDir === 'asc' ? '▲' : '▼') : ''}
-                  </th>
-                  ${cat.metrics.map(m => `
-                    <th style="cursor:pointer;min-width:120px;text-align:center" onclick="sortCategoryByMetric('${catKey}', '${m.key}')">
-                      ${m.label}<br>
-                      <span style="font-size:0.6rem;font-weight:normal;opacity:0.7">(${(m.weight*100).toFixed(0)}%) ${m.higher ? '↑' : '↓'}</span>
-                      ${sortKey === m.key ? (sortDir === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                  `).join('')}
-                </tr></thead>
-                <tbody>
-                  ${sortedBuildings.map(r => {
-                    const catRank = getCatRankForBuilding(r.dataKey, catKey);
-                    return `<tr>
-                      <td style="position:sticky;left:0;background:var(--slate-800);z-index:1">${r.name}</td>
-                      <td style="text-align:center"><span class="rank-badge ${getRankBadgeClass(catRank)}">#${catRank}</span></td>
-                      ${cat.metrics.map(m => {
-                        const mRank = r.metricRanks[m.key] || 17;
-                        const mVal = r.metrics[m.key];
-                        const displayVal = mVal !== null && mVal !== undefined ? mVal : 'N/A';
-                        return `<td style="text-align:center">
-                          <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem">
-                            <span class="rank-badge ${getRankBadgeClass(mRank)}" style="font-size:0.7rem;padding:0.15rem 0.35rem">#${mRank}</span>
-                            <span style="color:var(--slate-300)">${displayVal}</span>
-                          </div>
-                        </td>`;
-                      }).join('')}
-                    </tr>`;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>`;
-      });
-      
-      document.getElementById('categoryBands').innerHTML = html;
-    }
     
     function getCatRankForBuilding(dataKey, catKey) {
       const catRanks = getCategoryRanksByCategory();
@@ -2852,82 +2767,6 @@ function toggleQ1Review() {
       charts.regional = new Chart(ctx, { type: 'bar', data: { labels: catKeys.map(k => CATEGORIES[k].name), datasets: [{ label: 'Golden Coast', data: gcAvg, backgroundColor: '#f59e0b', borderRadius: 6 },{ label: 'Overland', data: olAvg, backgroundColor: '#a855f7', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { y: { beginAtZero: true, max: maxVal }}} }); 
     }
     
-    function getWorkingDraggingHTML(dataKey) {
-      if (allData.length < 2) return '';
-      const firstData = allData[0].buildingData[dataKey];
-      const currentBData = currentData.buildingData[dataKey];
-      if (!firstData || !currentBData) return '';
-
-      const allMetrics = [];
-      Object.values(CATEGORIES).forEach(cat => {
-        cat.metrics.forEach(m => {
-          const firstVal = firstData[m.key];
-          const currVal = currentBData[m.key];
-          if (firstVal === null || firstVal === undefined || currVal === null || currVal === undefined) return;
-          if (firstVal === currVal) return;
-          const improved = m.higher ? currVal > firstVal : currVal < firstVal;
-          const delta = Math.abs(currVal - firstVal);
-          allMetrics.push({ key: m.key, label: m.label, higher: m.higher, firstVal, currVal, improved, delta });
-        });
-      });
-
-      const working = allMetrics.filter(m => m.improved).sort((a,b) => b.delta - a.delta).slice(0,3);
-      const dragging = allMetrics.filter(m => !m.improved).sort((a,b) => b.delta - a.delta).slice(0,3);
-
-      if (working.length === 0 && dragging.length === 0) return '';
-
-      function fmtVal(key, val) {
-        if (val === null || val === undefined) return 'N/A';
-        const pctKeys = ['rehospitalization','dischargeFunctional','occupancy','medicareCensus','skilledMix','badDebt','noi','labor','otdt','rehabProductivity','turnover','admissionPacket','arbitration'];
-        if (pctKeys.includes(key)) return val.toFixed(1) + '%';
-        return val.toFixed(1);
-      }
-
-      function rowHTML(m, isWorking) {
-        const arrow = isWorking ? '&#8593;' : '&#8595;';
-        const color = isWorking ? '#4ade80' : '#f87171';
-        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--white-10);font-size:12px;">' +
-          '<span style="color:var(--slate-300);">' + m.label + '</span>' +
-          '<span style="color:' + color + ';font-weight:600;">' + fmtVal(m.key, m.firstVal) + ' &rarr; ' + fmtVal(m.key, m.currVal) + ' ' + arrow + '</span>' +
-        '</div>';
-      }
-
-      const firstMonth = allData[0].month.split(' ')[0];
-      const currMonth = currentData.month.split(' ')[0];
-
-      return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;">' +
-        '<div style="background:rgba(74,222,128,0.06);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;">' +
-          '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:8px;">WORKING (' + firstMonth + ' &rarr; ' + currMonth + ')</div>' +
-          (working.length ? working.map(m => rowHTML(m, true)).join('') : '<div style="font-size:12px;color:var(--slate-500);">No significant gains</div>') +
-        '</div>' +
-        '<div style="background:rgba(248,113,113,0.06);border:0.5px solid rgba(248,113,113,0.25);border-radius:10px;padding:12px 14px;">' +
-          '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f87171;margin-bottom:8px;">DRAGGING (' + firstMonth + ' &rarr; ' + currMonth + ')</div>' +
-          (dragging.length ? dragging.map(m => rowHTML(m, false)).join('') : '<div style="font-size:12px;color:var(--slate-500);">No significant declines</div>') +
-        '</div>' +
-      '</div>';
-    }
-
-    function getMonthlyTrail(dataKey, metricKey) {
-      if (allData.length < 2) return '';
-      const pctKeys = ['rehospitalization','dischargeFunctional','occupancy','medicareCensus','skilledMix','badDebt','noi','labor','otdt','rehabProductivity','turnover','admissionPacket','arbitration'];
-      function fmt(val) {
-        if (val === null || val === undefined) return null;
-        // Show full precision, trimming trailing zeros
-        return parseFloat(val.toFixed(2)).toString();
-      }
-      const parts = allData.map(d => {
-        const bData = d.buildingData[dataKey];
-        const v = bData && bData._raw ? bData._raw[metricKey] : null;
-        const f = fmt(v);
-        if (f === null) return null;
-        return { label: d.month.split(' ')[0], val: f };
-      }).filter(x => x !== null);
-      if (parts.length === 0) return '';
-      return '<div style="font-size:10px;color:var(--slate-500);margin-top:3px;line-height:1.4;">' +
-        parts.map(p => p.label + ' ' + p.val).join(' &#8594; ') +
-      '</div>';
-    }
-
     function getWorkingDraggingHTML(dataKey) {
       if (allData.length < 2) return '';
       const firstData = allData[0].buildingData[dataKey];
