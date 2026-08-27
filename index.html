@@ -1650,17 +1650,19 @@ function toggleQ1Review() {
       const months = allData.map(d => d.month);
       const latestMonth = months[months.length-1];
       const avgRank = {};
-      BUILDINGS.forEach(b => {
+      const rankedBuildings = BUILDINGS.filter(b => !b.isNew);
+      rankedBuildings.forEach(b => {
         const ranks = allMonthScores.map(s => s[b.dataKey] ? s[b.dataKey].rank : 18);
         avgRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
       });
-      const champion = BUILDINGS.reduce((best, b) => avgRank[b.dataKey] < avgRank[best.dataKey] ? b : best);
-      const allImproved = BUILDINGS.map(b => ({
+      const champion = rankedBuildings.reduce((best, b) => avgRank[b.dataKey] < avgRank[best.dataKey] ? b : best);
+      const currentLeader = rankedBuildings.reduce((best, b) => (allMonthScores[allMonthScores.length-1][b.dataKey]?.rank || 18) < (allMonthScores[allMonthScores.length-1][best.dataKey]?.rank || 18) ? b : best);
+      const allImproved = rankedBuildings.map(b => ({
         b: b, delta: (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18)
       })).sort((a, b) => b.delta - a.delta || (allMonthScores[allMonthScores.length-1][a.b.dataKey] ? allMonthScores[allMonthScores.length-1][a.b.dataKey].rank : 18) - (allMonthScores[allMonthScores.length-1][b.b.dataKey] ? allMonthScores[allMonthScores.length-1][b.b.dataKey].rank : 18));
       const topImproved = allImproved[0];
       const tiedImproved = allImproved.filter(x => x.delta > 0 && x.delta === topImproved.delta);
-      const bottom6 = BUILDINGS.filter(b => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) >= 13);
+      const bottom6 = rankedBuildings.filter(b => (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) >= 13);
       const atRisk = bottom6.reduce((worst, b) => {
         const dB = (allMonthScores[allMonthScores.length-1][b.dataKey] ? allMonthScores[allMonthScores.length-1][b.dataKey].rank : 18) - (allMonthScores[0][b.dataKey] ? allMonthScores[0][b.dataKey].rank : 18);
         const dW = (allMonthScores[allMonthScores.length-1][worst.dataKey] ? allMonthScores[allMonthScores.length-1][worst.dataKey].rank : 18) - (allMonthScores[0][worst.dataKey] ? allMonthScores[0][worst.dataKey].rank : 18);
@@ -1720,8 +1722,8 @@ function toggleQ1Review() {
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem;">' +
           '<div style="background:rgba(184,134,11,0.08);border:0.5px solid rgba(184,134,11,0.3);border-radius:10px;padding:12px 14px;">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f5c842;margin-bottom:5px;">SEASON LEADER</div>' +
-            '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + champion.name + '</div>' +
-            '<div style="font-size:11px;color:var(--slate-400);">Avg rank ' + avgRank[champion.dataKey].toFixed(1) + ' all season</div></div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + currentLeader.name + '</div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">July 2026 leader &middot; Season avg #' + avgRank[champion.dataKey].toFixed(1) + ' (' + champion.name + ')</div></div>' +
           '<div style="background:rgba(74,222,128,0.07);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;" onclick="toggleMostImproved(event)">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:5px;">MOST IMPROVED</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + (topImproved ? topImproved.b.name : '') + '</div>' +
