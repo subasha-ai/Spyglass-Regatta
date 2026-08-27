@@ -1324,8 +1324,7 @@
 
     function updateAllDisplays() { 
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
-      const _fns = [['renderQ1Review',renderQ1Review],['renderMoversStrip',renderMoversStrip],['renderPodium',renderPodium],['renderQuickRankings',renderQuickRankings],['renderHeatMap',renderHeatMap],['renderRegionalStats',renderRegionalStats]];
-      for (const [_n, _f] of _fns) { try { _f(); } catch(_e) { document.getElementById('podiumContent').innerHTML = '<div style="color:#f87171;padding:20px;font-family:monospace;font-size:11px;"><b>' + _n + ' crashed:</b><br>' + (_e.message||_e) + '<br><pre style="font-size:10px">' + (_e.stack||'').split('\n').slice(0,6).join('\n') + '</pre></div>'; console.error(_n,_e); break; } }
+      renderQ1Review(); renderMoversStrip(); renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
       initCompareSelects();
       const bs = document.getElementById('buildingSelect'); 
       if (bs.value) renderBuildingDetail(bs.value); 
@@ -2319,9 +2318,9 @@ function toggleQ1Review() {
         catKeys.forEach(k => { 
           const score = r.categoryScores[k]; 
           const color = getHeatColor(score, catMinMax[k].min, catMinMax[k].max); 
-          html += `<td><span class="heatmap-cell" style="background:${color};color:#fff">${score.toFixed(2)}</span></td>`; 
+          html += `<td><span class="heatmap-cell" style="background:${color};color:#fff">${score != null ? score.toFixed(2) : "—"}</span></td>`; 
         }); 
-        html += `<td><strong style="color:var(--gold)">${r.score.toFixed(2)}</strong></td></tr>`; 
+        html += `<td><strong style="color:var(--gold)">${r.score != null ? r.score.toFixed(2) : "—"}</strong></td></tr>`; 
       }); 
       html += '</tbody>'; 
       document.getElementById('heatmapTable').innerHTML = html; 
