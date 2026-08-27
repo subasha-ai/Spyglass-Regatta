@@ -1035,7 +1035,7 @@
     function calculateRankBasedScores(monthData) {
       const scores = {};
       const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
-      BUILDINGS.forEach(b => { scores[b.dataKey] = { total: 0, categoryScores: {}, metricRanks: {}, exists: !!monthData.buildingData[b.dataKey] }; });
+      BUILDINGS.forEach(b => { if (monthData.buildingData[b.dataKey]) { scores[b.dataKey] = { total: 0, categoryScores: {}, metricRanks: {}, rank: 18, exists: true }; } });
       
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
         BUILDINGS.forEach(b => { scores[b.dataKey].categoryScores[catKey] = 0; });
