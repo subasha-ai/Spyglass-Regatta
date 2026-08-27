@@ -1314,7 +1314,8 @@
 
     function updateAllDisplays() { 
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
-      renderQ1Review(); renderMoversStrip(); renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
+      const fns = [['renderQ1Review',renderQ1Review],['renderMoversStrip',renderMoversStrip],['renderPodium',renderPodium],['renderQuickRankings',renderQuickRankings],['renderHeatMap',renderHeatMap],['renderRegionalStats',renderRegionalStats]];
+      for (const [name, fn] of fns) { try { fn(); } catch(e) { document.getElementById('podiumContent').innerHTML = '<div style="color:#f87171;padding:20px;font-family:monospace;"><b>Crashed in: ' + name + '</b><br><pre>' + (e.stack||e) + '</pre></div>'; console.error(name, e); break; } }
       initCompareSelects();
       const bs = document.getElementById('buildingSelect'); 
       if (bs.value) renderBuildingDetail(bs.value); 
