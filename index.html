@@ -364,7 +364,7 @@
       <select id="regionFilter" onchange="filterBuildings()" style="padding:0.6rem 1rem;border-radius:8px;border:1px solid var(--white-20);background:var(--white-05);color:var(--slate-100);font-size:0.9rem;">
         <option value="">All Regions</option>
         <option value="Golden Coast">Golden Coast</option>
-        <option value="Overland">Overland</option>
+        <option value="The Overland">The Overland</option>
       </select>
     </div>
     
@@ -1682,7 +1682,7 @@ function toggleQ1Review() {
         catWinners[catKey] = { building: winner, avg: avgCatRank[winner.dataKey].toFixed(1), surprise: avgRank[winner.dataKey] > 10 };
       });
       const gcBuildings = BUILDINGS.filter(b => b.region === 'Golden Coast');
-      const olBuildings = BUILDINGS.filter(b => b.region === 'Overland');
+      const olBuildings = BUILDINGS.filter(b => b.region === 'The Overland');
       const getTopHalf = function(buildings, scores) { return buildings.filter(b => scores[b.dataKey] && scores[b.dataKey].rank <= 9).length; };
       const gcCounts = allMonthScores.map(s => getTopHalf(gcBuildings, s));
       const olCounts = allMonthScores.map(s => getTopHalf(olBuildings, s));
@@ -1825,10 +1825,10 @@ function toggleQ1Review() {
       
       // Regional race
       const gcBuildings = ranked.filter(r => r.region === 'Golden Coast');
-      const olBuildings = ranked.filter(r => r.region === 'Overland');
+      const olBuildings = ranked.filter(r => r.region === 'The Overland');
       const gcTop10 = ranked.slice(0, 10).filter(r => r.region === 'Golden Coast').length;
       const olTop10 = 10 - gcTop10;
-      const regionLeader = gcTop10 > olTop10 ? 'Golden Coast' : gcTop10 < olTop10 ? 'Overland' : 'Tied';
+      const regionLeader = gcTop10 > olTop10 ? 'Golden Coast' : gcTop10 < olTop10 ? 'The Overland' : 'Tied';
       
       // Build narrative
       let story = '';
@@ -2834,7 +2834,7 @@ function toggleQ1Review() {
     function renderRegionalStats() { 
       if (!regionalMonthData) return; 
       const ranked = getRanked(regionalMonthData); 
-      const gc = ranked.filter(r => r.region === 'Golden Coast'), ol = ranked.filter(r => r.region === 'Overland'); 
+      const gc = ranked.filter(r => r.region === 'Golden Coast'), ol = ranked.filter(r => r.region === 'The Overland'); 
       const avgGC = gc.reduce((s, r) => s + r.score, 0) / gc.length, avgOL = ol.reduce((s, r) => s + r.score, 0) / ol.length; 
       document.getElementById('gcStats').innerHTML = `<div class="region-stat"><div class="region-stat-value">${avgGC.toFixed(2)}</div><div class="region-stat-label">Avg Score</div></div><div class="region-stat"><div class="region-stat-value">${gc[0].score.toFixed(2)}</div><div class="region-stat-label">Best Score</div></div><div class="region-stat"><div class="region-stat-value">#${gc[0].rank}</div><div class="region-stat-label">Best Rank</div></div>`; 
       document.getElementById('olStats').innerHTML = `<div class="region-stat"><div class="region-stat-value">${avgOL.toFixed(2)}</div><div class="region-stat-label">Avg Score</div></div><div class="region-stat"><div class="region-stat-value">${ol[0].score.toFixed(2)}</div><div class="region-stat-label">Best Score</div></div><div class="region-stat"><div class="region-stat-value">#${ol[0].rank}</div><div class="region-stat-label">Best Rank</div></div>`; 
@@ -2847,12 +2847,12 @@ function toggleQ1Review() {
       const ctx = document.getElementById('regionalChart').getContext('2d'); 
       if (charts.regional) charts.regional.destroy(); 
       const ranked = getRanked(regionalMonthData); 
-      const gc = ranked.filter(r => r.region === 'Golden Coast'), ol = ranked.filter(r => r.region === 'Overland'); 
+      const gc = ranked.filter(r => r.region === 'Golden Coast'), ol = ranked.filter(r => r.region === 'The Overland'); 
       const catKeys = Object.keys(CATEGORIES); 
       const gcAvg = catKeys.map(k => gc.reduce((s, r) => s + r.categoryScores[k], 0) / gc.length);
       const olAvg = catKeys.map(k => ol.reduce((s, r) => s + r.categoryScores[k], 0) / ol.length);
       const maxVal = Math.max(...gcAvg, ...olAvg) * 1.2;
-      charts.regional = new Chart(ctx, { type: 'bar', data: { labels: catKeys.map(k => CATEGORIES[k].name), datasets: [{ label: 'Golden Coast', data: gcAvg, backgroundColor: '#f59e0b', borderRadius: 6 },{ label: 'Overland', data: olAvg, backgroundColor: '#a855f7', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { y: { beginAtZero: true, max: maxVal }}} }); 
+      charts.regional = new Chart(ctx, { type: 'bar', data: { labels: catKeys.map(k => CATEGORIES[k].name), datasets: [{ label: 'Golden Coast', data: gcAvg, backgroundColor: '#f59e0b', borderRadius: 6 },{ label: 'The Overland', data: olAvg, backgroundColor: '#a855f7', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }}, scales: { y: { beginAtZero: true, max: maxVal }}} }); 
     }
     
     function getWorkingDraggingHTML(dataKey) {
@@ -3575,7 +3575,7 @@ function toggleQ1Review() {
       }
       
       // Regional Stats - Best Region AND Most Improved
-      const regions = ['Golden Coast', 'Overland'];
+      const regions = ['Golden Coast', 'The Overland'];
       const regionStats = regions.map(region => {
         const regionBuildings = BUILDINGS.filter(b => b.region === region);
         const prevAvg = regionBuildings.reduce((sum, b) => sum + (prevScores[b.dataKey]?.rank || 18), 0) / regionBuildings.length;
