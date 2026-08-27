@@ -1034,7 +1034,7 @@
     
     function calculateRankBasedScores(monthData) {
       const scores = {};
-      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
+      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew);
       BUILDINGS.forEach(b => { scores[b.dataKey] = { total: 0, categoryScores: {}, metricRanks: {}, rank: 18, exists: !!monthData.buildingData[b.dataKey] }; });
       
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
@@ -1094,7 +1094,7 @@
     function getRanked(monthData = currentData) {
       if (!monthData) return [];
       const scores = calculateRankBasedScores(monthData);
-      return BUILDINGS.filter(b => monthData.buildingData[b.dataKey]).map(b => ({
+      const ranked = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew).map(b => ({
         name: b.name,
         dataKey: b.dataKey,
         region: b.region,
@@ -1104,6 +1104,16 @@
         metricRanks: scores[b.dataKey].metricRanks,
         metrics: monthData.buildingData[b.dataKey]
       })).sort((a, b) => a.rank - b.rank);
+      // Inject new buildings at correct score position (not ranked)
+      BUILDINGS.filter(b => b.isNew && monthData.buildingData[b.dataKey]).forEach(b => {
+        const storedScore = monthData.buildingData[b.dataKey]._score;
+        if (storedScore == null) return;
+        const insertAt = ranked.findIndex(r => r.score > storedScore);
+        const entry = { name: b.name, dataKey: b.dataKey, region: b.region, score: storedScore, rank: null, isNew: true, metrics: monthData.buildingData[b.dataKey], categoryScores: {}, metricRanks: {} };
+        if (insertAt === -1) ranked.push(entry);
+        else ranked.splice(insertAt, 0, entry);
+      });
+      return ranked;
     }
     
     function getSparklineData(dataKey) {
@@ -1188,7 +1198,7 @@
     function getCategoryRanksByCategory(monthData = currentData) {
       if (!monthData) return {};
       const scores = calculateRankBasedScores(monthData);
-      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
+      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew);
       const catKeys = Object.keys(CATEGORIES);
       const catRanks = {};
       
@@ -1314,7 +1324,8 @@
 
     function updateAllDisplays() { 
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
-      renderQ1Review(); renderMoversStrip(); renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
+      const _fns = [['renderQ1Review',renderQ1Review],['renderMoversStrip',renderMoversStrip],['renderPodium',renderPodium],['renderQuickRankings',renderQuickRankings],['renderHeatMap',renderHeatMap],['renderRegionalStats',renderRegionalStats]];
+      for (const [_n, _f] of _fns) { try { _f(); } catch(_e) { document.getElementById('podiumContent').innerHTML = '<div style="color:#f87171;padding:20px;font-family:monospace;font-size:11px;"><b>' + _n + ' crashed:</b><br>' + (_e.message||_e) + '<br><pre style="font-size:10px">' + (_e.stack||'').split('\n').slice(0,6).join('\n') + '</pre></div>'; console.error(_n,_e); break; } }
       initCompareSelects();
       const bs = document.getElementById('buildingSelect'); 
       if (bs.value) renderBuildingDetail(bs.value); 
@@ -1341,7 +1352,7 @@
         const sparkline = getSparklineSVG(r.dataKey);
         const streakBadge = getStreakBadge(r.dataKey);
         const rankChange = getRankChange(r.dataKey);
-        return `<div class="rank-item ${streakClass}"><span class="rank-num">${r.rank}</span><div style="cursor:pointer;flex:1;" onclick="goToBuildingDetail('${r.dataKey}')"><span class="rank-name">${r.name}${streakBadge}</span><div class="rank-region">${r.region}</div></div>
+        return `<div class="rank-item ${streakClass}">${r.rank != null ? `<span class="rank-num">${r.rank}</span>` : `<span class="rank-num" style="font-size:9px;color:var(--slate-500);">—</span>`}<div style="cursor:pointer;flex:1;" onclick="goToBuildingDetail('${r.dataKey}')"><span class="rank-name">${r.name}${r.isNew ? '<span style="font-size:9px;font-weight:700;background:rgba(251,191,36,0.15);color:#f5c842;border:0.5px solid rgba(251,191,36,0.4);padding:1px 5px;border-radius:3px;margin-left:5px;">Not Competing until Jan 1, 2027</span>' : streakBadge}</span><div class="rank-region">${r.region}</div></div>
         <div style="display:flex;align-items:center;gap:8px;">${sparkline}${rankChange.text}</div>
         <span class="rank-score">${r.score.toFixed(2)}</span></div>`;
       }).join('')}</div>`; 
