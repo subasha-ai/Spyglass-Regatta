@@ -1035,7 +1035,7 @@
     function calculateRankBasedScores(monthData) {
       const scores = {};
       const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
-      BUILDINGS.forEach(b => { if (monthData.buildingData[b.dataKey]) { scores[b.dataKey] = { total: 0, categoryScores: {}, metricRanks: {}, rank: 18, exists: true }; } });
+      BUILDINGS.forEach(b => { scores[b.dataKey] = { total: 0, categoryScores: {}, metricRanks: {}, rank: 18, exists: !!monthData.buildingData[b.dataKey] }; });
       
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
         BUILDINGS.forEach(b => { scores[b.dataKey].categoryScores[catKey] = 0; });
@@ -1314,8 +1314,7 @@
 
     function updateAllDisplays() { 
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
-      const fns = [['renderQ1Review',renderQ1Review],['renderMoversStrip',renderMoversStrip],['renderPodium',renderPodium],['renderQuickRankings',renderQuickRankings],['renderHeatMap',renderHeatMap],['renderRegionalStats',renderRegionalStats]];
-      for (const [name, fn] of fns) { try { fn(); } catch(e) { document.getElementById('podiumContent').innerHTML = '<div style="color:#f87171;padding:20px;font-family:monospace;"><b>Crashed in: ' + name + '</b><br><pre>' + (e.stack||e) + '</pre></div>'; console.error(name, e); break; } }
+      renderQ1Review(); renderMoversStrip(); renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
       initCompareSelects();
       const bs = document.getElementById('buildingSelect'); 
       if (bs.value) renderBuildingDetail(bs.value); 
