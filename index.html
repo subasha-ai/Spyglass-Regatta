@@ -1793,6 +1793,7 @@ function toggleQ1Review() {
       if (allData.length >= 2) {
         const prevScores = calculateRankBasedScores(allData[allData.length - 2]);
         ranked.forEach(r => {
+          if (r.isNew || r.rank === null) return;
           const prevRank = prevScores[r.dataKey]?.rank || 9;
           const gain = prevRank - r.rank;
           if (gain > biggestGain) {
