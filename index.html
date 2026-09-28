@@ -1723,7 +1723,7 @@ function toggleQ1Review() {
           '<div style="background:rgba(184,134,11,0.08);border:0.5px solid rgba(184,134,11,0.3);border-radius:10px;padding:12px 14px;">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f5c842;margin-bottom:5px;">SEASON LEADER</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + currentLeader.name + '</div>' +
-            '<div style="font-size:11px;color:var(--slate-400);">July 2026 leader &middot; Season avg #' + avgRank[champion.dataKey].toFixed(1) + ' (' + champion.name + ')</div></div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">' + currentData.month + ' leader &middot; Season avg #' + avgRank[champion.dataKey].toFixed(1) + ' (' + champion.name + ')</div></div>' +
           '<div style="background:rgba(74,222,128,0.07);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;" onclick="toggleMostImproved(event)">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:5px;">MOST IMPROVED</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + (topImproved ? topImproved.b.name : '') + '</div>' +
