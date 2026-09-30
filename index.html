@@ -1095,23 +1095,18 @@
       if (!monthData) return [];
       const scores = calculateRankBasedScores(monthData);
       const ranked = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew).map(b => ({
-        name: b.name,
-        dataKey: b.dataKey,
-        region: b.region,
-        score: scores[b.dataKey].total,
-        rank: scores[b.dataKey].rank,
+        name: b.name, dataKey: b.dataKey, region: b.region,
+        score: scores[b.dataKey].total, rank: scores[b.dataKey].rank,
         categoryScores: scores[b.dataKey].categoryScores,
         metricRanks: scores[b.dataKey].metricRanks,
         metrics: monthData.buildingData[b.dataKey]
       })).sort((a, b) => a.rank - b.rank);
-      // Inject new buildings at correct score position (not ranked)
       BUILDINGS.filter(b => b.isNew && monthData.buildingData[b.dataKey]).forEach(b => {
         const storedScore = monthData.buildingData[b.dataKey]._score;
         if (storedScore == null) return;
         const insertAt = ranked.findIndex(r => r.score > storedScore);
         const entry = { name: b.name, dataKey: b.dataKey, region: b.region, score: storedScore, rank: null, isNew: true, metrics: monthData.buildingData[b.dataKey], categoryScores: {}, metricRanks: {} };
-        if (insertAt === -1) ranked.push(entry);
-        else ranked.splice(insertAt, 0, entry);
+        if (insertAt === -1) ranked.push(entry); else ranked.splice(insertAt, 0, entry);
       });
       return ranked;
     }
@@ -1255,7 +1250,7 @@
     function buildCategoryHeatmap() {
       const table = document.getElementById('catHeatmapTable');
       if (!table || !currentData || !allData || allData.length < 2) return;
-      const ranked = getRanked();
+      const ranked = getRanked().filter(r => !r.isNew);
       if (!ranked || ranked.length === 0) return;
       const prevData = allData[allData.length - 2];
       const prevCatRanks = getCategoryRanksByCategory(prevData);
@@ -1723,7 +1718,7 @@ function toggleQ1Review() {
           '<div style="background:rgba(184,134,11,0.08);border:0.5px solid rgba(184,134,11,0.3);border-radius:10px;padding:12px 14px;">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#f5c842;margin-bottom:5px;">SEASON LEADER</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + currentLeader.name + '</div>' +
-            '<div style="font-size:11px;color:var(--slate-400);">' + currentData.month + ' leader &middot; Season avg #' + avgRank[champion.dataKey].toFixed(1) + ' (' + champion.name + ')</div></div>' +
+            '<div style="font-size:11px;color:var(--slate-400);">&#39; + currentData.month + &#39; leader · Season avg #' + avgRank[champion.dataKey].toFixed(1) + ' (' + champion.name + ')</div></div>' +
           '<div style="background:rgba(74,222,128,0.07);border:0.5px solid rgba(74,222,128,0.25);border-radius:10px;padding:12px 14px;cursor:pointer;" onclick="toggleMostImproved(event)">' +
             '<div style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#4ade80;margin-bottom:5px;">MOST IMPROVED</div>' +
             '<div style="font-size:14px;font-weight:600;color:var(--slate-100);">' + (topImproved ? topImproved.b.name : '') + '</div>' +
@@ -2202,7 +2197,7 @@ function toggleQ1Review() {
     
     function renderCategoryRankings() { 
       if (!currentData) return; 
-      const ranked = getRanked(); 
+      const ranked = getRanked().filter(r => !r.isNew); 
       
       let html = '';
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
@@ -2306,7 +2301,7 @@ function toggleQ1Review() {
     
     function renderHeatMap() { 
       if (!currentData) return; 
-      const ranked = getRanked(); 
+      const ranked = getRanked().filter(r => !r.isNew); 
       const catKeys = Object.keys(CATEGORIES);
       
       const catMinMax = {};
@@ -3006,17 +3001,15 @@ function toggleQ1Review() {
       const building = BUILDINGS.find(b => b.dataKey === dataKey); 
       const ranked = getRanked();
       const buildingData = ranked.find(r => r.dataKey === dataKey);
-      if (!buildingData && (!currentData || !currentData.buildingData[dataKey])) {
-        document.getElementById('buildingContent').innerHTML = '<div class="no-data" style="padding:2rem"><p>No data available for this building in the selected month.</p></div>';
+      const isNewBuilding = building && building.isNew;
+      if (isNewBuilding) {
+        const bd = currentData && currentData.buildingData[dataKey];
+        if (!bd) { document.getElementById('buildingContent').innerHTML = '<div class="no-data" style="padding:2rem"><p>No data available for this building yet.</p></div>'; return; }
+        const mLabels = {healthInspections:'Health Inspections',qmRating:'QM Rating',rehospitalization:'Rehospitalization %',dischargeFunctional:'DC Functional %',occupancy:'Occupancy %',medicareCensus:'Medicare Census %',skilledMix:'Skilled Mix #',badDebt:'Bad Debt %',dso:'DSO',noi:'NOI %',labor:'Labor %',otdt:'OT/DT %',rehabProductivity:'Rehab Productivity %',turnover:'Turnover %',workerSafety:'Worker Safety',admissionPacket:'Admission Packet %',arbitration:'Arbitration %',substandardQoc:'Substandard QoC',googleRating:'Google Rating',yelpRating:'Yelp Rating',legalClaims:'Legal Claims #'};
+        const rows = Object.entries(mLabels).map(([k,lbl]) => { const v = bd[k]; if (v==null) return ''; return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid rgba(255,255,255,0.07);font-size:0.875rem;"><span style="color:var(--slate-300);">'+lbl+'</span><span style="color:var(--slate-100);font-weight:600;">'+(typeof v==='number'?v.toFixed(1):v)+'</span></div>'; }).join('');
+        document.getElementById('buildingContent').innerHTML = '<div style="padding:1.5rem;"><div style="font-size:1.4rem;font-weight:800;color:var(--gold);margin-bottom:4px;">'+building.name+'</div><div style="font-size:0.875rem;color:var(--slate-400);margin-bottom:4px;">'+building.region+' · <span style="background:rgba(251,191,36,0.15);color:#f5c842;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;">Not Competing until Jan 1, 2027</span></div><div style="font-size:0.875rem;color:var(--slate-400);margin-bottom:1rem;">Score: <strong style="color:var(--slate-100);">'+(bd._score?bd._score.toFixed(2):'—')+'</strong> · Based on '+currentData.month+' data only</div><div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:1rem;">'+rows+'</div></div>';
         return;
       }
-      const isNewBuilding = building && building.isNew;
-      // For new buildings with null rank, create a safe display object
-      const safeBuildingData = buildingData ? {
-        ...buildingData,
-        rank: safeBuildingData.rank ?? '—',
-        score: safeBuildingData.score ?? '—'
-      } : null;
       const catRanks = getCategoryRanksByCategory();
       
       // Get rank movement analysis
@@ -3025,12 +3018,12 @@ function toggleQ1Review() {
       document.getElementById('buildingContent').innerHTML = `<div class="card">
         <div class="detail-header">
           <div><div class="detail-title">${building.name}</div><span style="color:var(--slate-400)">${building.region}</span></div>
-          <div style="text-align:right"><div class="detail-rank">${isNewBuilding ? "Not Competing" : "Rank #" + safeBuildingData.rank}</div><div style="font-size:1.5rem;font-weight:800;margin-top:0.5rem;background:linear-gradient(90deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${safeBuildingData.score.toFixed(2)} pts</div></div>
+          <div style="text-align:right"><div class="detail-rank">Rank #${buildingData.rank}</div><div style="font-size:1.5rem;font-weight:800;margin-top:0.5rem;background:linear-gradient(90deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${buildingData.score.toFixed(2)} pts</div></div>
         </div>
         ${movementHTML}
         ${getWorkingDraggingHTML(dataKey)}
         ${Object.entries(CATEGORIES).map(([k, cat]) => { 
-          const catScore = safeBuildingData.categoryScores[k]; 
+          const catScore = buildingData.categoryScores[k]; 
           const catRank = catRanks[dataKey][k];
           const allCatScores = ranked.map(r => r.categoryScores[k]);
           const color = getHeatColor(catScore, Math.min(...allCatScores), Math.max(...allCatScores)); 
@@ -3044,7 +3037,7 @@ function toggleQ1Review() {
               </span>
             </div>
             <div class="metrics-grid">
-              ${cat.metrics.map(m => `<div class="metric-item" style="cursor:pointer" onclick="openMetricModal('${m.key}', '${m.label}', ${m.higher})"><div class="metric-label">${m.label} <span style="color:var(--gold)">(Rank #${safeBuildingData.metricRanks[m.key] || 'N/A'})</span></div><div class="metric-value">${safeBuildingData.metrics[m.key] !== null && safeBuildingData.metrics[m.key] !== undefined ? safeBuildingData.metrics[m.key] : 'N/A'}</div>${getMonthlyTrail(dataKey, m.key)}</div>`).join('')}
+              ${cat.metrics.map(m => `<div class="metric-item" style="cursor:pointer" onclick="openMetricModal('${m.key}', '${m.label}', ${m.higher})"><div class="metric-label">${m.label} <span style="color:var(--gold)">(Rank #${buildingData.metricRanks[m.key] || 'N/A'})</span></div><div class="metric-value">${buildingData.metrics[m.key] !== null && buildingData.metrics[m.key] !== undefined ? buildingData.metrics[m.key] : 'N/A'}</div>${getMonthlyTrail(dataKey, m.key)}</div>`).join('')}
             </div>
           </div>`; 
         }).join('')}
