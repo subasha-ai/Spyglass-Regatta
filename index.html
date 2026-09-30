@@ -1034,7 +1034,7 @@
     
     function calculateRankBasedScores(monthData) {
       const scores = {};
-      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew);
+      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
       BUILDINGS.forEach(b => { scores[b.dataKey] = { total: 0, categoryScores: {}, metricRanks: {}, rank: 18, exists: !!monthData.buildingData[b.dataKey] }; });
       
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
@@ -1077,7 +1077,7 @@
         });
       });
       
-      const sortedBuildings = availableBuildings.map(b => ({ dataKey: b.dataKey, score: scores[b.dataKey].total }))
+      const sortedBuildings = availableBuildings.filter(b => !BUILDINGS.find(bl => bl.dataKey === b.dataKey && bl.isNew)).map(b => ({ dataKey: b.dataKey, score: scores[b.dataKey].total }))
         .sort((a, b) => a.score - b.score);
       
       let rankIdx = 0;
@@ -1193,7 +1193,7 @@
     function getCategoryRanksByCategory(monthData = currentData) {
       if (!monthData) return {};
       const scores = calculateRankBasedScores(monthData);
-      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew);
+      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
       const catKeys = Object.keys(CATEGORIES);
       const catRanks = {};
       
@@ -1250,7 +1250,7 @@
     function buildCategoryHeatmap() {
       const table = document.getElementById('catHeatmapTable');
       if (!table || !currentData || !allData || allData.length < 2) return;
-      const ranked = getRanked().filter(r => !r.isNew);
+      const ranked = getRanked();
       if (!ranked || ranked.length === 0) return;
       const prevData = allData[allData.length - 2];
       const prevCatRanks = getCategoryRanksByCategory(prevData);
@@ -2197,7 +2197,7 @@ function toggleQ1Review() {
     
     function renderCategoryRankings() { 
       if (!currentData) return; 
-      const ranked = getRanked().filter(r => !r.isNew); 
+      const ranked = getRanked(); 
       
       let html = '';
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
@@ -2301,7 +2301,7 @@ function toggleQ1Review() {
     
     function renderHeatMap() { 
       if (!currentData) return; 
-      const ranked = getRanked().filter(r => !r.isNew); 
+      const ranked = getRanked(); 
       const catKeys = Object.keys(CATEGORIES);
       
       const catMinMax = {};
