@@ -1034,7 +1034,7 @@
     
     function calculateRankBasedScores(monthData) {
       const scores = {};
-      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
+      const availableBuildings = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew);
       BUILDINGS.forEach(b => { scores[b.dataKey] = { total: 0, categoryScores: {}, metricRanks: {}, rank: 18, exists: !!monthData.buildingData[b.dataKey] }; });
       
       Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
@@ -1087,7 +1087,31 @@
         tiedItems.forEach(item => { scores[item.dataKey].rank = rankIdx + 1; });
         rankIdx += tiedItems.length;
       }
-      
+
+      // Display-only pass for new buildings — does NOT affect official rankings
+      const newBldgs = BUILDINGS.filter(b => b.isNew && monthData.buildingData[b.dataKey]);
+      if (newBldgs.length > 0) {
+        const allPool = BUILDINGS.filter(b => monthData.buildingData[b.dataKey]);
+        Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+          cat.metrics.forEach(metric => {
+            const vals = allPool.map(b => ({ dk: b.dataKey, v: monthData.buildingData[b.dataKey][metric.key] })).filter(x => x.v != null);
+            if (!vals.length) return;
+            vals.sort((a, b) => metric.higher ? b.v - a.v : a.v - b.v);
+            const r20 = {}; let ii = 0; let rr = 1;
+            while (ii < vals.length) {
+              const cv = vals[ii].v; const tied = vals.filter(v => v.v === cv);
+              tied.forEach(v => { r20[v.dk] = rr; }); ii += tied.length; rr = ii + 1;
+            }
+            newBldgs.forEach(b => {
+              const rank = r20[b.dataKey] || 10;
+              scores[b.dataKey].metricRanks[metric.key] = rank;
+              scores[b.dataKey].total += rank * metric.weight * cat.weight;
+              scores[b.dataKey].categoryScores[catKey] = (scores[b.dataKey].categoryScores[catKey] || 0) + rank * metric.weight;
+            });
+          });
+        });
+      }
+
       return scores;
     }
     
@@ -3007,7 +3031,7 @@ function toggleQ1Review() {
         if (!bd) { document.getElementById('buildingContent').innerHTML = '<div class="no-data" style="padding:2rem"><p>No data available for this building yet.</p></div>'; return; }
         const mLabels = {healthInspections:'Health Inspections',qmRating:'QM Rating',rehospitalization:'Rehospitalization %',dischargeFunctional:'DC Functional %',occupancy:'Occupancy %',medicareCensus:'Medicare Census %',skilledMix:'Skilled Mix #',badDebt:'Bad Debt %',dso:'DSO',noi:'NOI %',labor:'Labor %',otdt:'OT/DT %',rehabProductivity:'Rehab Productivity %',turnover:'Turnover %',workerSafety:'Worker Safety',admissionPacket:'Admission Packet %',arbitration:'Arbitration %',substandardQoc:'Substandard QoC',googleRating:'Google Rating',yelpRating:'Yelp Rating',legalClaims:'Legal Claims #'};
         const rows = Object.entries(mLabels).map(([k,lbl]) => { const v = bd[k]; if (v==null) return ''; return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid rgba(255,255,255,0.07);font-size:0.875rem;"><span style="color:var(--slate-300);">'+lbl+'</span><span style="color:var(--slate-100);font-weight:600;">'+(typeof v==='number'?v.toFixed(1):v)+'</span></div>'; }).join('');
-        document.getElementById('buildingContent').innerHTML = '<div style="padding:1.5rem;"><div style="font-size:1.4rem;font-weight:800;color:var(--gold);margin-bottom:4px;">'+building.name+'</div><div style="font-size:0.875rem;color:var(--slate-400);margin-bottom:4px;">'+building.region+' · <span style="background:rgba(251,191,36,0.15);color:#f5c842;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;">Not Competing until Jan 1, 2027</span></div><div style="font-size:0.875rem;color:var(--slate-400);margin-bottom:1rem;">Score: <strong style="color:var(--slate-100);">'+(bd._score?bd._score.toFixed(2):'—')+'</strong> · Based on '+currentData.month+' data only</div><div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:1rem;">'+rows+'</div></div>';
+        document.getElementById('buildingContent').innerHTML = '<div style="padding:1.5rem;"><div style="font-size:1.4rem;font-weight:800;color:var(--gold);margin-bottom:4px;">'+building.name+'</div><div style="font-size:0.875rem;color:var(--slate-400);margin-bottom:4px;">'+building.region+' · <span style="background:rgba(251,191,36,0.15);color:#f5c842;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;">Not Competing until Jan 1, 2027</span></div><div style="font-size:0.875rem;color:var(--slate-400);margin-bottom:1rem;">Score: <strong style="color:var(--slate-100);">'+(bd._score?bd._score.toFixed(2):'—')+'</strong> · YTD average through '+currentData.month+'</div><div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:1rem;">'+rows+'</div></div>';
         return;
       }
       const catRanks = getCategoryRanksByCategory();
