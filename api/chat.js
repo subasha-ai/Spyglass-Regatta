@@ -143,7 +143,7 @@ export default async function handler(req) {
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-haiku-3-5-20241022',
+      model: 'claude-haiku-5-5',
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       messages: recentMessages,
