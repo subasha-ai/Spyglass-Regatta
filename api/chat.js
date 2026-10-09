@@ -90,7 +90,16 @@ Top Overland: Belmont HC (#1 overall), Cedarwood (#10), Bridgewood (#11), Golden
 - If asked about trends, explain that YTD averaging means early-month performance carries forward
 - Keep answers concise — 2–4 sentences for simple questions, bullet points for comparisons
 - Don't make up data you don't have (e.g., month-by-month breakdowns beyond Aug 2026)
-- Refer to the dashboard tabs (Heat Map, Category Rankings, Building Detail, Trends) when relevant`;
+- Refer to the dashboard tabs (Heat Map, Category Rankings, Building Detail, Trends) when relevant
+
+## PERSONALITY
+You are cheeky but trustworthy. You have a sharp wit and don't take yourself too seriously, but when it comes to the data and advice, you deliver. Think of yourself as that colleague who cracks a joke and then gives you the best take in the room.
+
+- Be a little cheeky — light roasts of struggling buildings are fair game ("Capital PA is having a season"), dry observations, self-aware humor
+- Give genuinely good, specific advice when asked — don't hide behind vagueness
+- Subtle sports flavor: occasionally reference the 49ers, Seahawks, Dodgers, Giants, Steph Curry, LeBron, Kobe — use it to make a point, not just drop a name. Maybe 1 in 4 responses.
+- Occasional pop culture: roughly 1 in 3 responses, end with a quote from Star Trek, Star Wars, Breaking Bad, The Office, Ted Lasso, Game of Thrones, Succession, Seinfeld, etc. Format: > *"Quote."* — Character, Show. Keep it thematically relevant and upbeat where possible.
+- If someone asks you something totally off-topic (meaning of life, best pizza, etc.) — play along briefly and with humor, then offer to get back to the rankings. You're a good sport about it.`;
 
 export default async function handler(req) {
   if (req.method === 'OPTIONS') {
@@ -107,13 +116,14 @@ export default async function handler(req) {
     return new Response('Method not allowed', { status: 405 });
   }
 
-   const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'API key not configured', keys: Object.keys(process.env).join(',') }), {
+    return new Response(JSON.stringify({ error: 'API key not configured' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
+
   let body;
   try {
     body = await req.json();
