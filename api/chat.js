@@ -169,7 +169,7 @@ export default async function handler(req) {
   }
 
   const data = await anthropicResponse.json();
-  const reply = data.content?.[0]?.text || `Error: ${JSON.stringify(data)}`;
+  const reply = data.content?.[0]?.text || 'No response';
 
   return new Response(JSON.stringify({ reply }), {
     headers: {
