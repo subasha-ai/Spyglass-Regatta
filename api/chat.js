@@ -170,8 +170,7 @@ export default async function handler(req) {
   }
 
   const data = await anthropicResponse.json();
-  const reply = data.content?.[0]?.text || 'No response';
-
+  const reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : 'Sorry, try again.';
   return new Response(JSON.stringify({ reply }), {
     headers: {
       'Content-Type': 'application/json',
