@@ -4039,7 +4039,7 @@ function toggleQ1Review() {
     #chatToggleBtn.open .close-icon { display:block; }
     #chatPanel {
       display:none; flex-direction:column;
-      width:620px; height:700px;
+      width:min(620px, calc(100vw - 56px)); height:700px;
       background:#0f172a; border:1px solid rgba(255,255,255,0.1);
       border-radius:20px; box-shadow:0 16px 64px rgba(0,0,0,0.85);
       overflow:hidden; margin-bottom:16px;
@@ -4231,13 +4231,6 @@ function toggleQ1Review() {
         input.focus();
       }
     }
-
-    // Auto-open chat for presentation mode
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        if (!chatIsOpen) toggleChat();
-      }, 500);
-    });
 
     // Show unread badge after 3s if chat hasn't been opened
     setTimeout(() => {
