@@ -1088,6 +1088,15 @@
         rankIdx += tiedItems.length;
       }
 
+      // Override with stored official ranks/scores if present in data.json
+      BUILDINGS.forEach(b => {
+        const bData = monthData.buildingData[b.dataKey];
+        if (bData && bData._rank != null) {
+          scores[b.dataKey].rank = bData._rank;
+          scores[b.dataKey].total = bData._score;
+        }
+      });
+
       // Display-only pass for new buildings — does NOT affect official rankings
       const newBldgs = BUILDINGS.filter(b => b.isNew && monthData.buildingData[b.dataKey]);
       if (newBldgs.length > 0) {
@@ -1118,13 +1127,18 @@
     function getRanked(monthData = currentData) {
       if (!monthData) return [];
       const scores = calculateRankBasedScores(monthData);
-      const ranked = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew).map(b => ({
-        name: b.name, dataKey: b.dataKey, region: b.region,
-        score: scores[b.dataKey].total, rank: scores[b.dataKey].rank,
-        categoryScores: scores[b.dataKey].categoryScores,
-        metricRanks: scores[b.dataKey].metricRanks,
-        metrics: monthData.buildingData[b.dataKey]
-      })).sort((a, b) => a.rank - b.rank);
+      const ranked = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew).map(b => {
+        const bData = monthData.buildingData[b.dataKey];
+        const hasStored = bData._rank != null;
+        return {
+          name: b.name, dataKey: b.dataKey, region: b.region,
+          score: hasStored ? bData._score : scores[b.dataKey].total,
+          rank: hasStored ? bData._rank : scores[b.dataKey].rank,
+          categoryScores: scores[b.dataKey].categoryScores,
+          metricRanks: scores[b.dataKey].metricRanks,
+          metrics: bData
+        };
+      }).sort((a, b) => a.rank - b.rank);
       BUILDINGS.filter(b => b.isNew && monthData.buildingData[b.dataKey]).forEach(b => {
         const storedScore = monthData.buildingData[b.dataKey]._score;
         if (storedScore == null) return;
