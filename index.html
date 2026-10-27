@@ -3843,7 +3843,7 @@ function toggleQ1Review() {
       const values = ranked.map(b => ({
         name: b.name,
         region: b.region,
-        value: getYTDAverage(b.dataKey, metricKey),
+        value: b.metrics[metricKey],
         rank: b.metricRanks[metricKey]
       })).filter(v => v.value !== null && v.value !== undefined)
         .sort((a, b) => a.rank - b.rank);
