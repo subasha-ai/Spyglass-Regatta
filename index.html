@@ -3034,7 +3034,16 @@ function toggleQ1Review() {
       '</div>';
     }
 
-    function renderBuildingDetail(dataKey) { 
+    function getYTDAverage(dataKey, metricKey) {
+      const currentIdx = allData.findIndex(d => d.month === currentData.month);
+      const vals = allData.slice(0, currentIdx + 1)
+        .map(d => { const bd = d.buildingData[dataKey]; return bd && bd._raw ? bd._raw[metricKey] : null; })
+        .filter(v => v !== null && v !== undefined);
+      if (vals.length === 0) return null;
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    }
+
+    function renderBuildingDetail(dataKey) {
       if (!dataKey || !currentData) { document.getElementById('buildingContent').innerHTML = '<div class="no-data" style="padding:2rem"><p>Select a building</p></div>'; return; } 
       const building = BUILDINGS.find(b => b.dataKey === dataKey); 
       const ranked = getRanked();
@@ -3075,7 +3084,7 @@ function toggleQ1Review() {
               </span>
             </div>
             <div class="metrics-grid">
-              ${cat.metrics.map(m => `<div class="metric-item" style="cursor:pointer" onclick="openMetricModal('${m.key}', '${m.label}', ${m.higher})"><div class="metric-label">${m.label} <span style="color:var(--gold)">(Rank #${buildingData.metricRanks[m.key] || 'N/A'})</span></div><div class="metric-value">${buildingData.metrics[m.key] !== null && buildingData.metrics[m.key] !== undefined ? buildingData.metrics[m.key] : 'N/A'}</div>${getMonthlyTrail(dataKey, m.key)}</div>`).join('')}
+              ${cat.metrics.map(m => `<div class="metric-item" style="cursor:pointer" onclick="openMetricModal('${m.key}', '${m.label}', ${m.higher})"><div class="metric-label">${m.label} <span style="color:var(--gold)">(Rank #${buildingData.metricRanks[m.key] || 'N/A'})</span></div><div class="metric-value">${(() => { const avg = getYTDAverage(dataKey, m.key); return avg !== null ? parseFloat(avg.toFixed(2)) : 'N/A'; })()}</div>${getMonthlyTrail(dataKey, m.key)}</div>`).join('')}
             </div>
           </div>`; 
         }).join('')}
