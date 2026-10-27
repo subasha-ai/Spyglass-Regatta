@@ -1088,6 +1088,15 @@
         rankIdx += tiedItems.length;
       }
 
+      // Override with stored official ranks/scores if present in data.json
+      BUILDINGS.forEach(b => {
+        const bData = monthData.buildingData[b.dataKey];
+        if (bData && bData._rank != null) {
+          scores[b.dataKey].rank = bData._rank;
+          scores[b.dataKey].total = bData._score;
+        }
+      });
+
       // Display-only pass for new buildings — does NOT affect official rankings
       const newBldgs = BUILDINGS.filter(b => b.isNew && monthData.buildingData[b.dataKey]);
       if (newBldgs.length > 0) {
@@ -1118,13 +1127,18 @@
     function getRanked(monthData = currentData) {
       if (!monthData) return [];
       const scores = calculateRankBasedScores(monthData);
-      const ranked = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew).map(b => ({
-        name: b.name, dataKey: b.dataKey, region: b.region,
-        score: scores[b.dataKey].total, rank: scores[b.dataKey].rank,
-        categoryScores: scores[b.dataKey].categoryScores,
-        metricRanks: scores[b.dataKey].metricRanks,
-        metrics: monthData.buildingData[b.dataKey]
-      })).sort((a, b) => a.rank - b.rank);
+      const ranked = BUILDINGS.filter(b => monthData.buildingData[b.dataKey] && !b.isNew).map(b => {
+        const bData = monthData.buildingData[b.dataKey];
+        const hasStored = bData._rank != null;
+        return {
+          name: b.name, dataKey: b.dataKey, region: b.region,
+          score: hasStored ? bData._score : scores[b.dataKey].total,
+          rank: hasStored ? bData._rank : scores[b.dataKey].rank,
+          categoryScores: scores[b.dataKey].categoryScores,
+          metricRanks: scores[b.dataKey].metricRanks,
+          metrics: bData
+        };
+      }).sort((a, b) => a.rank - b.rank);
       BUILDINGS.filter(b => b.isNew && monthData.buildingData[b.dataKey]).forEach(b => {
         const storedScore = monthData.buildingData[b.dataKey]._score;
         if (storedScore == null) return;
@@ -3020,7 +3034,16 @@ function toggleQ1Review() {
       '</div>';
     }
 
-    function renderBuildingDetail(dataKey) { 
+    function getYTDAverage(dataKey, metricKey) {
+      const currentIdx = allData.findIndex(d => d.month === currentData.month);
+      const vals = allData.slice(0, currentIdx + 1)
+        .map(d => { const bd = d.buildingData[dataKey]; return bd && bd._raw ? bd._raw[metricKey] : null; })
+        .filter(v => v !== null && v !== undefined);
+      if (vals.length === 0) return null;
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    }
+
+    function renderBuildingDetail(dataKey) {
       if (!dataKey || !currentData) { document.getElementById('buildingContent').innerHTML = '<div class="no-data" style="padding:2rem"><p>Select a building</p></div>'; return; } 
       const building = BUILDINGS.find(b => b.dataKey === dataKey); 
       const ranked = getRanked();
@@ -3061,7 +3084,7 @@ function toggleQ1Review() {
               </span>
             </div>
             <div class="metrics-grid">
-              ${cat.metrics.map(m => `<div class="metric-item" style="cursor:pointer" onclick="openMetricModal('${m.key}', '${m.label}', ${m.higher})"><div class="metric-label">${m.label} <span style="color:var(--gold)">(Rank #${buildingData.metricRanks[m.key] || 'N/A'})</span></div><div class="metric-value">${buildingData.metrics[m.key] !== null && buildingData.metrics[m.key] !== undefined ? buildingData.metrics[m.key] : 'N/A'}</div>${getMonthlyTrail(dataKey, m.key)}</div>`).join('')}
+              ${cat.metrics.map(m => `<div class="metric-item" style="cursor:pointer" onclick="openMetricModal('${m.key}', '${m.label}', ${m.higher})"><div class="metric-label">${m.label} <span style="color:var(--gold)">(Rank #${buildingData.metricRanks[m.key] || 'N/A'})</span></div><div class="metric-value">${(() => { const avg = getYTDAverage(dataKey, m.key); return avg !== null ? parseFloat(avg.toFixed(2)) : 'N/A'; })()}</div>${getMonthlyTrail(dataKey, m.key)}</div>`).join('')}
             </div>
           </div>`; 
         }).join('')}
@@ -3820,7 +3843,7 @@ function toggleQ1Review() {
       const values = ranked.map(b => ({
         name: b.name,
         region: b.region,
-        value: b.metrics[metricKey],
+        value: getYTDAverage(b.dataKey, metricKey),
         rank: b.metricRanks[metricKey]
       })).filter(v => v.value !== null && v.value !== undefined)
         .sort((a, b) => a.rank - b.rank);
@@ -4022,7 +4045,6 @@ function toggleQ1Review() {
     <div id="catTooltipTitle" style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#94a3b8;margin-bottom:8px;"></div>
     <div id="catTooltipRows"></div>
   </div>
-
   <!-- REGATTA ASSISTANT CHAT WIDGET -->
   <style>
     #chatWidget { position:fixed; bottom:28px; right:28px; z-index:10000; font-family:inherit; }
@@ -4106,7 +4128,7 @@ function toggleQ1Review() {
       </div>
       <div id="chatMessages">
         <div class="msg assistant">
-          Hey! I'm the Regatta Assistant. I know all 20 buildings, every metric, and rankings through August 2026. What do you want to know?
+          Hey! I'm the Regatta Assistant. I know all 20 buildings, every metric, and rankings through September 2026. What do you want to know?
         </div>
         <div class="chat-suggestions">
           <button class="chat-suggestion" onclick="sendSuggestion(this)">Who's leading the season right now?</button>
@@ -4168,7 +4190,6 @@ function toggleQ1Review() {
 
     function sendSuggestion(btn) {
       const text = btn.textContent.trim();
-      // Remove suggestion chips
       const suggestionContainer = btn.closest('.chat-suggestions');
       if (suggestionContainer) suggestionContainer.remove();
       document.getElementById('chatInput').value = text;
@@ -4232,7 +4253,6 @@ function toggleQ1Review() {
       }
     }
 
-    // Show unread badge after 3s if chat hasn't been opened
     setTimeout(() => {
       if (!chatIsOpen) {
         const unread = document.getElementById('chatUnread');
