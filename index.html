@@ -1027,6 +1027,24 @@
         const response = await fetch('data.json'); 
         const jsonData = await response.json(); 
         Object.entries(jsonData).forEach(([month, buildingData]) => { allData.push({ month, buildingData }); }); 
+        // Make every metric an AVERAGE: each month's value = average of the monthly (_raw) values from January through that month,
+        // rounded to 2 decimals. Substandard QoC and Legal Claims stay current-month only (scoring rules).
+        // The official, locked _rank and _score are never touched.
+        const CURRENT_MONTH_ONLY = ['substandardQoc', 'legalClaims'];
+        allData.forEach((entry, idx) => {
+          Object.entries(entry.buildingData).forEach(([dk, bd]) => {
+            if (!bd || !bd._raw) return;
+            Object.values(CATEGORIES).forEach(cat => cat.metrics.forEach(m => {
+              if (CURRENT_MONTH_ONLY.includes(m.key)) { if (bd._raw[m.key] !== undefined) bd[m.key] = bd._raw[m.key]; return; }
+              // A turnover of exactly 0 is a blank placeholder, not data: treat it as missing (ranked 9 by default)
+              const vals = allData.slice(0, idx + 1)
+                .map(d => { const x = d.buildingData[dk]; return x && x._raw ? x._raw[m.key] : null; })
+                .filter(v => v !== null && v !== undefined && !(m.key === 'turnover' && v === 0));
+              if (vals.length) bd[m.key] = Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 100) / 100;
+              else if (m.key === 'turnover') bd[m.key] = null;
+            }));
+          });
+        });
         currentData = allData[allData.length - 1]; 
         regionalMonthData = allData[allData.length - 1]; 
       } catch (err) { console.error('Error:', err); }
@@ -2626,6 +2644,35 @@ function toggleQ1Review() {
       
       updateSimulation();
     }
+
+    // Compass helpers: score the 18 competing buildings, then apply the CHANGE caused by an edit
+    // to the locked official scores. With no edits the change is zero, so nothing is simulated.
+    function compassRawScores(buildingData, weightsOverride) {
+      const pool = BUILDINGS.filter(b => !b.isNew && buildingData[b.dataKey]);
+      const total = {}; pool.forEach(b => { total[b.dataKey] = 0; });
+      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+        const cw = weightsOverride ? (weightsOverride[catKey] !== undefined ? weightsOverride[catKey] : cat.weight) : cat.weight;
+        cat.metrics.forEach(metric => {
+          const vals = pool.map(b => ({ k: b.dataKey, v: buildingData[b.dataKey][metric.key] })).filter(x => x.v !== null && x.v !== undefined);
+          pool.forEach(b => {
+            const mine = buildingData[b.dataKey][metric.key];
+            let rank = 9;
+            if (mine !== null && mine !== undefined) rank = 1 + vals.filter(x => metric.higher ? x.v > mine : x.v < mine).length;
+            total[b.dataKey] += rank * metric.weight * cw;
+          });
+        });
+      });
+      return total;
+    }
+    function compassApplyDelta(official, baseScores, newScores) {
+      // official: [{dataKey, score, rank, isNew}] from getRanked(); returns {dataKey: {score, rank}} for the 18 competing buildings
+      const comp = official.filter(o => !o.isNew);
+      const out = {};
+      comp.forEach(o => { out[o.dataKey] = { score: o.score + ((newScores[o.dataKey] || 0) - (baseScores[o.dataKey] || 0)) }; });
+      const r2 = x => Math.round(x * 100) / 100;
+      comp.forEach(o => { out[o.dataKey].rank = 1 + comp.filter(p => r2(out[p.dataKey].score) < r2(out[o.dataKey].score)).length; });
+      return out;
+    }
     
     function updateSimulation() {
       const dataKey = document.getElementById('simBuildingSelect').value;
@@ -2642,70 +2689,41 @@ function toggleQ1Review() {
         });
       });
       
-      // Calculate original ranking
+      // Calculate original (official, locked) ranking
       const originalRanked = getRanked();
       const originalBuilding = originalRanked.find(r => r.dataKey === dataKey);
       
-      // Create simulated data with modified values
-      const simData = JSON.parse(JSON.stringify(currentData));
-      simData.buildingData[dataKey] = { ...simData.buildingData[dataKey], ...simCurrentValues };
+      // Has anything actually been changed?
+      const anyChanged = Object.values(CATEGORIES).some(cat => cat.metrics.some(m => simOriginalValues[m.key] !== simCurrentValues[m.key]));
       
-      // Recalculate with simulated values
-      const simScores = {};
-      const availableBuildings = BUILDINGS.filter(b => simData.buildingData[b.dataKey]);
-      availableBuildings.forEach(b => { simScores[b.dataKey] = { total: 0, categoryScores: {} }; });
-      
-      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
-        availableBuildings.forEach(b => { simScores[b.dataKey].categoryScores[catKey] = 0; });
-        
-        cat.metrics.forEach(metric => {
-          const values = availableBuildings.map(b => ({
-            dataKey: b.dataKey,
-            value: simData.buildingData[b.dataKey][metric.key]
-          })).filter(v => v.value !== null && v.value !== undefined);
-          
-          if (values.length === 0) return;
-          
-          values.sort((a, b) => metric.higher ? b.value - a.value : a.value - b.value);
-          
-          const ranks = {};
-          let currentRank = 1;
-          let i = 0;
-          while (i < values.length) {
-            const currentValue = values[i].value;
-            const tiedItems = values.filter(v => v.value === currentValue);
-            tiedItems.forEach(item => { ranks[item.dataKey] = currentRank; });
-            i += tiedItems.length;
-            currentRank = i + 1;
-          }
-          
-          availableBuildings.forEach(b => {
-            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = 9; // middle rank for missing
-            const rank = ranks[b.dataKey];
-            const contribution = rank * metric.weight * cat.weight;
-            simScores[b.dataKey].total += contribution;
-            simScores[b.dataKey].categoryScores[catKey] += contribution;
-          });
-        });
-      });
-      
-      // Calculate simulated ranks
-      const simSorted = availableBuildings.map(b => ({ dataKey: b.dataKey, score: simScores[b.dataKey].total }))
-        .sort((a, b) => a.score - b.score);
-      simSorted.forEach((b, idx) => { simScores[b.dataKey].rank = idx + 1; });
-      
-      const simBuilding = { 
-        score: simScores[dataKey].total, 
-        rank: simScores[dataKey].rank,
-        categoryScores: simScores[dataKey].categoryScores
-      };
+      let simBuilding = null;
+      if (anyChanged) {
+        // Score unchanged data and edited data the same way, then apply only the difference to the official scores
+        const baseData = JSON.parse(JSON.stringify(currentData.buildingData));
+        const simData = JSON.parse(JSON.stringify(currentData.buildingData));
+        simData[dataKey] = { ...simData[dataKey], ...simCurrentValues };
+        const simRes = compassApplyDelta(originalRanked, compassRawScores(baseData), compassRawScores(simData));
+        simBuilding = simRes[dataKey];
+      }
       
       // Render comparison
-      const rankChange = originalBuilding.rank - simBuilding.rank;
-      const scoreChange = originalBuilding.score - simBuilding.score;
-      const rankClass = rankChange > 0 ? 'trend-up' : rankChange < 0 ? 'trend-down' : 'trend-same';
-      const rankIcon = rankChange > 0 ? '↑' : rankChange < 0 ? '↓' : '→';
-      
+      const simBox = simBuilding
+        ? `<div style="font-size:2.5rem;font-weight:800;color:var(--gold)">#${simBuilding.rank}</div>
+           <div style="color:var(--gold-light);font-size:0.9rem">${simBuilding.score.toFixed(2)} pts</div>`
+        : `<div style="font-size:2.5rem;font-weight:800;color:var(--slate-500)">&mdash;</div>
+           <div style="color:var(--slate-500);font-size:0.9rem">Change a metric to simulate</div>`;
+      let changeStrip = '';
+      if (simBuilding) {
+        const rankChange = originalBuilding.rank - simBuilding.rank;
+        const scoreChange = originalBuilding.score - simBuilding.score;
+        const rankClass = rankChange > 0 ? 'trend-up' : rankChange < 0 ? 'trend-down' : 'trend-same';
+        const rankIcon = rankChange > 0 ? '↑' : rankChange < 0 ? '↓' : '→';
+        changeStrip = `
+        <div style="text-align:center;margin-top:1rem;padding:1rem;background:var(--white-05);border-radius:8px">
+          <span class="${rankClass}" style="font-size:1.5rem;font-weight:700">${rankIcon} ${Math.abs(rankChange)} rank${Math.abs(rankChange) !== 1 ? 's' : ''}</span>
+          <span style="color:var(--slate-400);margin-left:1rem">(${scoreChange > 0 ? '-' : '+'}${Math.abs(scoreChange).toFixed(2)} pts)</span>
+        </div>`;
+      }
       document.getElementById('simComparison').innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;text-align:center">
           <div style="background:var(--white-05);padding:1.5rem;border-radius:12px">
@@ -2715,14 +2733,9 @@ function toggleQ1Review() {
           </div>
           <div style="background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:1.5rem;border-radius:12px">
             <div style="color:var(--gold-light);font-size:0.85rem;margin-bottom:0.5rem">Simulated Rank</div>
-            <div style="font-size:2.5rem;font-weight:800;color:var(--gold)">#${simBuilding.rank}</div>
-            <div style="color:var(--gold-light);font-size:0.9rem">${simBuilding.score.toFixed(2)} pts</div>
+            ${simBox}
           </div>
-        </div>
-        <div style="text-align:center;margin-top:1rem;padding:1rem;background:var(--white-05);border-radius:8px">
-          <span class="${rankClass}" style="font-size:1.5rem;font-weight:700">${rankIcon} ${Math.abs(rankChange)} rank${Math.abs(rankChange) !== 1 ? 's' : ''}</span>
-          <span style="color:var(--slate-400);margin-left:1rem">(${scoreChange > 0 ? '-' : '+'}${Math.abs(scoreChange).toFixed(2)} pts)</span>
-        </div>`;
+        </div>${changeStrip}`;
       
       // Find which metrics changed the most
       const changes = [];
@@ -2955,7 +2968,8 @@ function toggleQ1Review() {
       }
       const parts = allData.map(d => {
         const bData = d.buildingData[dataKey];
-        const v = bData && bData._raw ? bData._raw[metricKey] : null;
+        let v = bData && bData._raw ? bData._raw[metricKey] : null;
+        if (metricKey === 'turnover' && v === 0) v = null; // 0 turnover = blank placeholder
         const f = fmt(v);
         if (f === null) return null;
         return { label: d.month.split(' ')[0], val: f };
@@ -3023,7 +3037,8 @@ function toggleQ1Review() {
       }
       const parts = allData.map(d => {
         const bData = d.buildingData[dataKey];
-        const v = bData && bData._raw ? bData._raw[metricKey] : null;
+        let v = bData && bData._raw ? bData._raw[metricKey] : null;
+        if (metricKey === 'turnover' && v === 0) v = null; // 0 turnover = blank placeholder
         const f = fmt(v);
         if (f === null) return null;
         return { label: d.month.split(' ')[0], val: f };
@@ -3035,10 +3050,14 @@ function toggleQ1Review() {
     }
 
     function getYTDAverage(dataKey, metricKey) {
+      if (metricKey === 'substandardQoc' || metricKey === 'legalClaims') {
+        const cb = currentData.buildingData[dataKey];
+        return cb && cb._raw && cb._raw[metricKey] !== undefined ? cb._raw[metricKey] : null;
+      }
       const currentIdx = allData.findIndex(d => d.month === currentData.month);
       const vals = allData.slice(0, currentIdx + 1)
         .map(d => { const bd = d.buildingData[dataKey]; return bd && bd._raw ? bd._raw[metricKey] : null; })
-        .filter(v => v !== null && v !== undefined);
+        .filter(v => v !== null && v !== undefined && !(metricKey === 'turnover' && v === 0)); // 0 turnover = blank placeholder
       if (vals.length === 0) return null;
       return vals.reduce((a, b) => a + b, 0) / vals.length;
     }
@@ -3352,46 +3371,27 @@ function toggleQ1Review() {
       
       const originalRanked = getRanked();
       
-      // Calculate with custom weights
-      const scores = {};
-      const availableBuildings = BUILDINGS.filter(b => currentData.buildingData[b.dataKey]);
-      availableBuildings.forEach(b => { scores[b.dataKey] = { total: 0 }; });
+      // Blank until a slider is actually moved
+      const weightsChanged = Object.keys(DEFAULT_WEIGHTS).some(k => Math.abs((customWeights ? customWeights[k] : DEFAULT_WEIGHTS[k]) - DEFAULT_WEIGHTS[k]) > 1e-9);
+      if (!weightsChanged) {
+        document.getElementById('weightRankingsComparison').innerHTML = `
+          <div style="text-align:center;padding:2rem;color:var(--slate-400)">
+            <div style="font-size:2rem;margin-bottom:0.5rem">⚖️</div>
+            Move a weight slider to see how the rankings would change
+          </div>`;
+        return;
+      }
       
-      Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
-        cat.metrics.forEach(metric => {
-          const values = availableBuildings.map(b => ({
-            dataKey: b.dataKey,
-            value: currentData.buildingData[b.dataKey][metric.key]
-          })).filter(v => v.value !== null && v.value !== undefined);
-          
-          if (values.length === 0) return;
-          
-          values.sort((a, b) => metric.higher ? b.value - a.value : a.value - b.value);
-          
-          const ranks = {};
-          let currentRank = 1, i = 0;
-          while (i < values.length) {
-            const currentValue = values[i].value;
-            const tied = values.filter(v => v.value === currentValue);
-            tied.forEach(item => { ranks[item.dataKey] = currentRank; });
-            i += tied.length;
-            currentRank = i + 1;
-          }
-          
-          availableBuildings.forEach(b => {
-            if (ranks[b.dataKey] === undefined) ranks[b.dataKey] = 9; // middle rank for missing
-            const contribution = ranks[b.dataKey] * metric.weight * (customWeights[catKey] || cat.weight);
-            scores[b.dataKey].total += contribution;
-          });
-        });
-      });
-      
-      const newRanked = availableBuildings.map(b => ({
-        ...BUILDINGS.find(bl => bl.dataKey === b.dataKey),
-        score: scores[b.dataKey].total
-      })).sort((a, b) => a.score - b.score);
-      
-      newRanked.forEach((b, i) => { b.rank = i + 1; });
+      // Score with default and custom weights the same way, apply only the difference to official scores
+      const baseW = compassRawScores(currentData.buildingData);
+      const newW = compassRawScores(currentData.buildingData, customWeights);
+      const simRes = compassApplyDelta(originalRanked, baseW, newW);
+      const availableBuildings = originalRanked.filter(o => !o.isNew);
+      const newRanked = availableBuildings.map(o => ({
+        ...BUILDINGS.find(bl => bl.dataKey === o.dataKey),
+        score: simRes[o.dataKey].score,
+        rank: simRes[o.dataKey].rank
+      })).sort((a, b) => a.rank - b.rank || a.score - b.score);
       
       // Compare
       let html = '<table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--white-10);"><th style="text-align:left;padding:0.75rem;color:var(--slate-400);">Building</th><th style="text-align:center;padding:0.75rem;color:var(--slate-400);">Original</th><th style="text-align:center;padding:0.75rem;color:var(--slate-400);">New</th><th style="text-align:center;padding:0.75rem;color:var(--slate-400);">Change</th></tr></thead><tbody>';
@@ -3839,14 +3839,22 @@ function toggleQ1Review() {
     function openMetricModal(metricKey, metricLabel, higher) {
       const ranked = getRanked();
       
-      // Get all values for this metric
-      const values = ranked.map(b => ({
+      // Values and medals both follow the Jan-through-current-month AVERAGE
+      // (Substandard QoC and Legal Claims count the current month only, per the scoring rules).
+      const monthOnly = (metricKey === 'substandardQoc' || metricKey === 'legalClaims');
+      const popupVal = (dk) => {
+        if (monthOnly) { const bd = currentData.buildingData[dk]; return bd && bd._raw ? bd._raw[metricKey] : null; }
+        const a = getYTDAverage(dk, metricKey); return a === null ? null : Math.round(a * 100) / 100;
+      };
+      const values = ranked.filter(b => !b.isNew).map(b => ({
         name: b.name,
         region: b.region,
-        value: b.metrics[metricKey],
-        rank: b.metricRanks[metricKey]
-      })).filter(v => v.value !== null && v.value !== undefined)
-        .sort((a, b) => a.rank - b.rank);
+        value: popupVal(b.dataKey)
+      })).filter(v => v.value !== null && v.value !== undefined);
+      values.forEach(v => {
+        v.rank = 1 + values.filter(o => higher ? o.value > v.value + 1e-9 : o.value < v.value - 1e-9).length;
+      });
+      values.sort((a, b) => a.rank - b.rank || a.name.localeCompare(b.name));
       
       const direction = higher ? '(Higher is Better ↑)' : '(Lower is Better ↓)';
       document.getElementById('metricModalTitle').innerHTML = `📊 ${metricLabel} <span style="font-size:0.85rem;color:var(--slate-400);font-weight:normal">${direction}</span>`;
