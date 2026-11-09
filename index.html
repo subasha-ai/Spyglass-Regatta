@@ -8,6 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Regatta">
@@ -413,7 +416,14 @@
         <div id="categoryRankingsContent"></div>
       </div>
       <div style="margin-top:1.5rem;">
-        <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;color:#94a3b8;margin-bottom:0.75rem;">ALL BUILDINGS — CATEGORY BREAKDOWN <span style="font-weight:400;color:#475569;">(hover a cell to see metric breakdown)</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;color:#94a3b8;">ALL BUILDINGS — CATEGORY BREAKDOWN <span id="catViewHint" style="font-weight:400;color:#475569;">(hover a cell to see metric breakdown)</span></div>
+          <div id="catViewToggle" style="display:inline-flex;border:1px solid var(--white-10);border-radius:8px;overflow:hidden;">
+            <button id="catViewMonth" type="button" onclick="setCatView('month')" style="padding:6px 14px;font-size:12px;font-weight:600;border:0;cursor:pointer;">Month</button>
+            <button id="catViewYTD" type="button" onclick="setCatView('ytd')" style="padding:6px 14px;font-size:12px;font-weight:600;border:0;border-left:1px solid var(--white-10);cursor:pointer;">YTD</button>
+          </div>
+        </div>
+        <div id="catViewNote" style="display:none;font-size:12px;color:#94a3b8;margin-bottom:0.75rem;"></div>
         <div style="overflow-x:auto;">
           <table id="catHeatmapTable" style="width:100%;border-collapse:collapse;font-size:12px;"></table>
         </div>
@@ -1303,14 +1313,55 @@
       if (tip) tip.style.display = 'none';
     }
 
+    let catViewMode = 'month';
+    function setCatView(mode) { catViewMode = mode; buildCategoryHeatmap(); }
+    // YTD category rank = rank of each competing building's average monthly category rank, January through the selected month.
+    // Same measure the Season Leaders cards use. Returns { ranks, avg, monthly } or null.
+    function getYTDCategoryRanks(uptoIdx) {
+      if (uptoIdx < 0) return null;
+      const comp = BUILDINGS.filter(b => !b.isNew);
+      const monthly = [];
+      for (let j = 0; j <= uptoIdx; j++) monthly.push(getCategoryRanksByCategory(allData[j]));
+      const avg = {}, ranks = {};
+      Object.keys(CATEGORIES).forEach(function(catKey) {
+        comp.forEach(function(b) {
+          const rs = monthly.map(function(m) { return m[b.dataKey] ? m[b.dataKey][catKey] : null; }).filter(function(v) { return v != null; });
+          if (!avg[b.dataKey]) avg[b.dataKey] = {};
+          avg[b.dataKey][catKey] = rs.length ? rs.reduce(function(a, v) { return a + v; }, 0) / rs.length : null;
+        });
+        const vals = comp.map(function(b) { return avg[b.dataKey][catKey]; }).filter(function(v) { return v != null; });
+        comp.forEach(function(b) {
+          if (!ranks[b.dataKey]) ranks[b.dataKey] = {};
+          const v = avg[b.dataKey][catKey];
+          ranks[b.dataKey][catKey] = v == null ? null : 1 + vals.filter(function(x) { return x < v; }).length;
+        });
+      });
+      return { ranks: ranks, avg: avg, monthly: monthly };
+    }
+
     function buildCategoryHeatmap() {
       const table = document.getElementById('catHeatmapTable');
       if (!table || !currentData || !allData || allData.length < 2) return;
       const ranked = getRanked();
       if (!ranked || ranked.length === 0) return;
       const prevData = allData[allData.length - 2];
-      const prevCatRanks = getCategoryRanksByCategory(prevData);
-      const currCatRanks = getCategoryRanksByCategory(currentData);
+      const curIdx = allData.indexOf(currentData);
+      const monthName = currentData.month.split(' ')[0];
+      const isYTD = catViewMode === 'ytd';
+      const ytdNow = isYTD ? getYTDCategoryRanks(curIdx) : null;
+      const ytdPrev = isYTD ? getYTDCategoryRanks(curIdx - 1) : null;
+      const prevCatRanks = isYTD ? (ytdPrev ? ytdPrev.ranks : {}) : getCategoryRanksByCategory(prevData);
+      const currCatRanks = isYTD ? ytdNow.ranks : getCategoryRanksByCategory(currentData);
+      const monthBtn = document.getElementById('catViewMonth'), ytdBtn = document.getElementById('catViewYTD');
+      if (monthBtn && ytdBtn) {
+        monthBtn.textContent = monthName;
+        ytdBtn.textContent = 'YTD';
+        monthBtn.style.background = isYTD ? 'transparent' : 'var(--white-20)'; monthBtn.style.color = isYTD ? '#94a3b8' : '#e2e8f0';
+        ytdBtn.style.background = isYTD ? 'var(--white-20)' : 'transparent'; ytdBtn.style.color = isYTD ? '#e2e8f0' : '#94a3b8';
+        const note = document.getElementById('catViewNote'); const hint = document.getElementById('catViewHint');
+        if (note) { note.style.display = isYTD ? 'block' : 'none'; note.textContent = 'YTD category rank = each building\'s average monthly category rank, January through ' + monthName + '. Overall stays the official rank. Arrows compare to YTD through the prior month.'; }
+        if (hint) hint.textContent = isYTD ? '(hover a cell to see the monthly trail)' : '(hover a cell to see metric breakdown)';
+      }
       const prevRanked = getRanked(prevData);
       const prevOverallMap = {};
       prevRanked.forEach(r => { prevOverallMap[r.dataKey] = r.rank; });
@@ -1352,20 +1403,24 @@
         let cells = '<td style="padding:7px 10px;color:#e2e8f0;font-weight:500;white-space:nowrap;">' + b.name + '</td>';
         cells += '<td style="text-align:center;padding:7px 8px;">' + badge(b.rank, prevOverall) + '</td>';
         catKeys.forEach(function(catKey) {
-          const catRank = currCatRanks[b.dataKey] ? (currCatRanks[b.dataKey][catKey] || 9) : 9;
+          const catRank = currCatRanks[b.dataKey] ? (currCatRanks[b.dataKey][catKey] || (isYTD ? null : 9)) : (isYTD ? null : 9);
           const prevCR = prevCatRanks[b.dataKey] ? (prevCatRanks[b.dataKey][catKey] || null) : null;
           const metrics = CATEGORIES[catKey].metrics;
           const tipKey = 'ct_' + i + '_' + catKey;
           window._catTips = window._catTips || {};
-          const tipTitle = catLabels[catKey].toUpperCase() + ' — ' + b.name.split(' ')[0].toUpperCase();
-          const rowsHtml = metrics.map(function(m) {
+          const tipTitle = catLabels[catKey].toUpperCase() + ' — ' + b.name.split(' ')[0].toUpperCase() + (isYTD ? ' · MONTHLY RANK' : '');
+          const monthlyTrail = isYTD ? ytdNow.monthly.map(function(m, j) {
+            const r = m[b.dataKey] ? m[b.dataKey][catKey] : null;
+            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:0.5px solid rgba(255,255,255,0.06);font-size:11px;"><span style="color:#94a3b8;">' + allData[j].month.split(' ')[0] + '</span><span style="font-weight:600;color:#e2e8f0;">' + (r != null ? '#' + r : '—') + '</span></div>';
+          }).join('') + '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0 0;font-size:11px;"><span style="color:#94a3b8;">YTD average</span><span style="font-weight:700;color:#e2e8f0;">' + (ytdNow.avg[b.dataKey] && ytdNow.avg[b.dataKey][catKey] != null ? ytdNow.avg[b.dataKey][catKey].toFixed(1) : '—') + '</span></div>' : '';
+          const rowsHtml = isYTD ? monthlyTrail : metrics.map(function(m) {
             const cr = currScores[b.dataKey] && currScores[b.dataKey].metricRanks ? (currScores[b.dataKey].metricRanks[m.key] || '—') : '—';
             const pr = prevScores[b.dataKey] && prevScores[b.dataKey].metricRanks ? prevScores[b.dataKey].metricRanks[m.key] : null;
             const arr = (pr != null && cr !== '—') ? (pr > cr ? '<span style="color:#4ade80;">↑</span>' : pr < cr ? '<span style="color:#f87171;">↓</span>' : '<span style="color:#64748b;">—</span>') : '';
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:0.5px solid rgba(255,255,255,0.06);font-size:11px;"><span style="color:#94a3b8;">' + (metricLabels[m.key]||m.key) + '</span><span style="font-weight:600;color:#e2e8f0;">#' + cr + ' ' + arr + '</span></div>';
           }).join('');
           window._catTips[tipKey] = { title: tipTitle, rows: rowsHtml };
-          cells += '<td style="text-align:center;padding:7px 8px;cursor:default;" data-tipkey="' + tipKey + '" onmouseenter="showCatTooltipKey(this,event)" onmousemove="moveCatTooltip(event)" onmouseleave="hideCatTooltip()">' + badge(catRank, prevCR) + '</td>';
+          cells += '<td style="text-align:center;padding:7px 8px;cursor:default;" data-tipkey="' + tipKey + '" onmouseenter="showCatTooltipKey(this,event)" onmousemove="moveCatTooltip(event)" onmouseleave="hideCatTooltip()">' + (catRank == null ? '<span style="color:#475569;">—</span>' : badge(catRank, prevCR)) + '</td>';
         });
         rows += '<tr style="background:' + bg + ';border-bottom:0.5px solid rgba(255,255,255,0.05);">' + cells + '</tr>';
       });
@@ -1376,6 +1431,7 @@
     function updateAllDisplays() { 
       document.getElementById('currentMonth').textContent = currentData ? currentData.month : 'No Data'; 
       renderQ1Review(); renderMoversStrip(); renderPodium(); renderQuickRankings(); renderHeatMap(); renderRegionalStats();
+      { const ct = document.getElementById('categories'); if (ct && ct.classList.contains('active')) buildCategoryHeatmap(); }
       initCompareSelects();
       const bs = document.getElementById('buildingSelect'); 
       if (bs.value) renderBuildingDetail(bs.value); 
