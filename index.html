@@ -1329,12 +1329,14 @@
           if (!avg[b.dataKey]) avg[b.dataKey] = {};
           avg[b.dataKey][catKey] = rs.length ? rs.reduce(function(a, v) { return a + v; }, 0) / rs.length : null;
         });
-        const vals = comp.map(function(b) { return avg[b.dataKey][catKey]; }).filter(function(v) { return v != null; });
-        comp.forEach(function(b) {
-          if (!ranks[b.dataKey]) ranks[b.dataKey] = {};
-          const v = avg[b.dataKey][catKey];
-          ranks[b.dataKey][catKey] = v == null ? null : 1 + vals.filter(function(x) { return x < v; }).length;
+        // Unique ranks: sort by average, ties broken by the selected month's category rank
+        const last = monthly[monthly.length - 1];
+        const lastRank = function(b) { return last[b.dataKey] && last[b.dataKey][catKey] != null ? last[b.dataKey][catKey] : 99; };
+        const order = comp.filter(function(b) { return avg[b.dataKey][catKey] != null; }).sort(function(a, b) {
+          return (avg[a.dataKey][catKey] - avg[b.dataKey][catKey]) || (lastRank(a) - lastRank(b));
         });
+        comp.forEach(function(b) { if (!ranks[b.dataKey]) ranks[b.dataKey] = {}; ranks[b.dataKey][catKey] = null; });
+        order.forEach(function(b, i) { ranks[b.dataKey][catKey] = i + 1; });
       });
       return { ranks: ranks, avg: avg, monthly: monthly };
     }
@@ -1359,7 +1361,7 @@
         monthBtn.style.background = isYTD ? 'transparent' : 'var(--white-20)'; monthBtn.style.color = isYTD ? '#94a3b8' : '#e2e8f0';
         ytdBtn.style.background = isYTD ? 'var(--white-20)' : 'transparent'; ytdBtn.style.color = isYTD ? '#e2e8f0' : '#94a3b8';
         const note = document.getElementById('catViewNote'); const hint = document.getElementById('catViewHint');
-        if (note) { note.style.display = isYTD ? 'block' : 'none'; note.textContent = 'YTD category rank = each building\'s average monthly category rank, January through ' + monthName + '. Overall stays the official rank. Arrows compare to YTD through the prior month.'; }
+        if (note) { note.style.display = isYTD ? 'block' : 'none'; note.textContent = 'YTD category rank = each building\'s average monthly category rank, January through ' + monthName + '. Overall stays the official rank. Ties are broken by the latest month\'s category rank. Arrows compare to YTD through the prior month.'; }
         if (hint) hint.textContent = isYTD ? '(hover a cell to see the monthly trail)' : '(hover a cell to see metric breakdown)';
       }
       const prevRanked = getRanked(prevData);
@@ -1786,7 +1788,8 @@ function toggleQ1Review() {
           const ranks = allMonthCatRanks.map(mr => mr[b.dataKey] && mr[b.dataKey][catKey] ? mr[b.dataKey][catKey] : 18);
           avgCatRank[b.dataKey] = ranks.reduce((a, v) => a + v, 0) / ranks.length;
         });
-        const winner = BUILDINGS.reduce((best, b) => avgCatRank[b.dataKey] < avgCatRank[best.dataKey] ? b : best);
+        const latestCatRank = function(b) { const mr = allMonthCatRanks[allMonthCatRanks.length - 1][b.dataKey]; return mr && mr[catKey] ? mr[catKey] : 99; };
+        const winner = BUILDINGS.reduce((best, b) => (avgCatRank[b.dataKey] < avgCatRank[best.dataKey] || (avgCatRank[b.dataKey] === avgCatRank[best.dataKey] && latestCatRank(b) < latestCatRank(best))) ? b : best);
         catWinners[catKey] = { building: winner, avg: avgCatRank[winner.dataKey].toFixed(1), surprise: avgRank[winner.dataKey] > 10 };
       });
       const gcBuildings = BUILDINGS.filter(b => b.region === 'Golden Coast');
