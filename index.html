@@ -2723,6 +2723,23 @@ function toggleQ1Review() {
       });
       return total;
     }
+    // Millbrae / Vacaville: unofficial score, calculated the same way as their displayed score
+    // (ranked against every building with data, missing = 10). Only used to place them among the 18.
+    function compassNewScore(buildingData, dataKey) {
+      const pool = BUILDINGS.filter(b => buildingData[b.dataKey]);
+      let total = 0;
+      Object.values(CATEGORIES).forEach(cat => {
+        cat.metrics.forEach(metric => {
+          const vals = pool.map(b => ({ dk: b.dataKey, v: buildingData[b.dataKey][metric.key] })).filter(x => x.v != null);
+          if (!vals.length) return;
+          const mine = buildingData[dataKey][metric.key];
+          let rank = 10;
+          if (mine != null) rank = 1 + vals.filter(x => metric.higher ? x.v > mine : x.v < mine).length;
+          total += rank * metric.weight * cat.weight;
+        });
+      });
+      return total;
+    }
     function compassApplyDelta(official, baseScores, newScores) {
       // official: [{dataKey, score, rank, isNew}] from getRanked(); returns {dataKey: {score, rank}} for the 18 competing buildings
       const comp = official.filter(o => !o.isNew);
@@ -2750,7 +2767,19 @@ function toggleQ1Review() {
       
       // Calculate original (official, locked) ranking
       const originalRanked = getRanked();
-      const originalBuilding = originalRanked.find(r => r.dataKey === dataKey);
+      const _meta = BUILDINGS.find(b => b.dataKey === dataKey);
+      const isUnofficial = !!(_meta && _meta.isNew);
+      const _r2 = x => Math.round(x * 100) / 100;
+      const _comp = originalRanked.filter(o => !o.isNew);
+      const _place = sc => 1 + _comp.filter(p => _r2(p.score) < _r2(sc)).length;
+      let originalBuilding = originalRanked.find(r => r.dataKey === dataKey);
+      let unofficialBase = 0;
+      if (isUnofficial) {
+        unofficialBase = compassNewScore(currentData.buildingData, dataKey);
+        const stored = currentData.buildingData[dataKey]._score;
+        const sc = stored != null ? stored : unofficialBase;
+        originalBuilding = { dataKey, score: sc, rank: _place(sc) };
+      }
       
       // Has anything actually been changed?
       const anyChanged = Object.values(CATEGORIES).some(cat => cat.metrics.some(m => simOriginalValues[m.key] !== simCurrentValues[m.key]));
@@ -2761,8 +2790,13 @@ function toggleQ1Review() {
         const baseData = JSON.parse(JSON.stringify(currentData.buildingData));
         const simData = JSON.parse(JSON.stringify(currentData.buildingData));
         simData[dataKey] = { ...simData[dataKey], ...simCurrentValues };
-        const simRes = compassApplyDelta(originalRanked, compassRawScores(baseData), compassRawScores(simData));
-        simBuilding = simRes[dataKey];
+        if (isUnofficial) {
+          const sc = originalBuilding.score + (compassNewScore(simData, dataKey) - unofficialBase);
+          simBuilding = { score: sc, rank: _place(sc) };
+        } else {
+          const simRes = compassApplyDelta(originalRanked, compassRawScores(baseData), compassRawScores(simData));
+          simBuilding = simRes[dataKey];
+        }
       }
       
       // Render comparison
@@ -2786,15 +2820,15 @@ function toggleQ1Review() {
       document.getElementById('simComparison').innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;text-align:center">
           <div style="background:var(--white-05);padding:1.5rem;border-radius:12px">
-            <div style="color:var(--slate-400);font-size:0.85rem;margin-bottom:0.5rem">Current Rank</div>
+            <div style="color:var(--slate-400);font-size:0.85rem;margin-bottom:0.5rem">${isUnofficial ? 'Would Place Now' : 'Current Rank'}</div>
             <div style="font-size:2.5rem;font-weight:800;color:var(--slate-300)">#${originalBuilding.rank}</div>
             <div style="color:var(--slate-500);font-size:0.9rem">${originalBuilding.score.toFixed(2)} pts</div>
           </div>
           <div style="background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:1.5rem;border-radius:12px">
-            <div style="color:var(--gold-light);font-size:0.85rem;margin-bottom:0.5rem">Simulated Rank</div>
+            <div style="color:var(--gold-light);font-size:0.85rem;margin-bottom:0.5rem">${isUnofficial ? 'Would Place (Simulated)' : 'Simulated Rank'}</div>
             ${simBox}
           </div>
-        </div>${changeStrip}`;
+        </div>${changeStrip}${isUnofficial ? '<div style="text-align:center;margin-top:0.75rem;color:var(--slate-500);font-size:0.8rem">Not ranked in the regatta yet. Shows where this building would land among the 18 ranked buildings.</div>' : ''}`;
       
       // Find which metrics changed the most
       const changes = [];
