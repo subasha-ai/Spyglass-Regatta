@@ -191,23 +191,13 @@ export default async function handler(req) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, x-chat-code',
+        'Access-Control-Allow-Headers': 'Content-Type',
       },
     });
   }
 
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
-  }
-
-  // Private-preview access code. Set CHAT_ACCESS_CODE in Vercel to override the default.
-  const accessCode = process.env.CHAT_ACCESS_CODE || 'deckhand01';
-  const supplied = (req.headers.get('x-chat-code') || '').trim();
-  if (supplied !== accessCode) {
-    return new Response(JSON.stringify({ error: 'Access code required' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-    });
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -225,12 +215,6 @@ export default async function handler(req) {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  if (body && body.verify === true) {
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   }
 
